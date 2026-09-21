@@ -43,7 +43,7 @@ function jg_defaults( $language = null ) {
 		'hero_cta' => 'Pieteikt konsultāciju',
 		'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'KĀPĒC JANOGAGO',
-		'intro_title' => 'Ēdiens darbā. Par pārējo rūpējamies mēs.',
+		'intro_title' => 'Svaigs ēdiens darbā. Bez liekām rūpēm.',
 		'intro_text' => 'JāņogaGO komanda gatavo ēdienu, regulāri papildina automātus un rūpējas par tehniku. Jūsu komandai atliek izvēlēties to, kas garšo.',
 		'stat_one' => 'SVAIGI GATAVOTS KATRU DIENU', 'stat_two' => 'KARTE, TELEFONS VAI VIEDPULKSTENIS', 'stat_three' => 'HIGIĒNA UN TEMPERATŪRA KONTROLĒTA',
 		'menu_eyebrow' => 'NE TIKAI UZKODAS',
@@ -73,7 +73,7 @@ function jg_defaults( $language = null ) {
 		'hero_text' => 'Fully managed food vending with fresh meals, snacks and drinks for offices, production sites and logistics centres. We install, deliver, refill and maintain the service.',
 		'hero_cta' => 'Book a consultation', 'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'WHY JANOGAGO',
-		'intro_title' => 'Food at work. We take care of the rest.',
+		'intro_title' => 'Fresh food at work. Without the extra work.',
 		'intro_text' => 'The JāņogaGO team prepares the food, refills the machines and looks after the equipment. Your team simply chooses what they feel like.',
 		'stat_one' => 'FRESHLY PREPARED EVERY DAY', 'stat_two' => 'CARD, PHONE OR SMARTWATCH', 'stat_three' => 'HYGIENE AND TEMPERATURE CONTROLLED',
 		'menu_eyebrow' => 'MORE THAN SNACKS',
@@ -559,7 +559,7 @@ function jg_update_brand_name() {
 add_action( 'admin_init', 'jg_update_brand_name', 50 );
 
 function jg_update_intro_copy() {
-	if ( get_option( 'jg_intro_copy_v2' ) ) {
+	if ( get_option( 'jg_intro_copy_v3' ) ) {
 		return;
 	}
 	$pages = get_option( 'jg_seeded_pages', array() );
@@ -571,11 +571,13 @@ function jg_update_intro_copy() {
 	}
 	$replacements = array(
 		'lv' => array(
-			'Mēs neieliekam automātu un nepazūdam.' => 'Ēdiens darbā. Par pārējo rūpējamies mēs.',
+			'Mēs neieliekam automātu un nepazūdam.' => 'Svaigs ēdiens darbā. Bez liekām rūpēm.',
+			'Ēdiens darbā. Par pārējo rūpējamies mēs.' => 'Svaigs ēdiens darbā. Bez liekām rūpēm.',
 			'JāņogaGO pārvalda visu ciklu. Ēdienu gatavo mūsu komanda, sortimentu papildinām regulāri, un tehnikai sekojam paši. Jūsu komandai atliek paņemt to, kas garšo.' => 'JāņogaGO komanda gatavo ēdienu, regulāri papildina automātus un rūpējas par tehniku. Jūsu komandai atliek izvēlēties to, kas garšo.',
 		),
 		'en' => array(
-			'We do not place a machine and disappear.' => 'Food at work. We take care of the rest.',
+			'We do not place a machine and disappear.' => 'Fresh food at work. Without the extra work.',
+			'Food at work. We take care of the rest.' => 'Fresh food at work. Without the extra work.',
 			'JāņogaGO runs the whole service. Our team prepares the food, keeps the selection fresh and looks after the equipment. Your team can simply choose what they want.' => 'The JāņogaGO team prepares the food, refills the machines and looks after the equipment. Your team simply chooses what they feel like.',
 		),
 	);
@@ -590,7 +592,7 @@ function jg_update_intro_copy() {
 			wp_update_post( array( 'ID' => $page_id, 'post_content' => $content ) );
 		}
 	}
-	update_option( 'jg_intro_copy_v2', 1, false );
+	update_option( 'jg_intro_copy_v3', 1, false );
 }
 add_action( 'init', 'jg_update_intro_copy', 20 );
 
