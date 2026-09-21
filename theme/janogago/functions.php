@@ -128,7 +128,8 @@ function jg_editor_fields() {
 function jg_add_page_metabox() {
 	add_meta_box( 'jg-page-content', __( 'JanogaGo page content', 'janogago' ), 'jg_render_page_metabox', 'page', 'normal', 'high' );
 }
-add_action( 'add_meta_boxes', 'jg_add_page_metabox' );
+// Homepage copy is kept in native Gutenberg blocks. These legacy helpers stay
+// available for old installations, but do not add a second, confusing editor.
 
 function jg_render_page_metabox( $post ) {
 	wp_nonce_field( 'jg_save_page', 'jg_page_nonce' );
@@ -168,7 +169,6 @@ function jg_admin_assets( $hook ) {
 	wp_add_inline_style( 'wp-admin', '.jg-field{margin:15px 0}.jg-field label{display:block;margin-bottom:5px}.jg-image-preview img{width:70px;height:70px;object-fit:cover;vertical-align:middle;margin-right:8px}.jg-remove-image{margin-left:8px}' );
 	wp_add_inline_script( 'jquery', "jQuery(function($){var frame;$(document).on('click','.jg-select-image',function(e){e.preventDefault();var wrap=$(this).closest('.jg-field'),input=wrap.find('.jg-image-id');frame=wp.media({title:'Choose image',button:{text:'Use image'},multiple:false});frame.on('select',function(){var a=frame.state().get('selection').first().toJSON();input.val(a.id);wrap.find('.jg-image-preview').html('<img src=\"'+a.sizes.thumbnail.url+'\" alt=\"\">');});frame.open();});$(document).on('click','.jg-remove-image',function(){var wrap=$(this).closest('.jg-field');wrap.find('.jg-image-id').val('');wrap.find('.jg-image-preview').empty();});});" );
 }
-add_action( 'admin_enqueue_scripts', 'jg_admin_assets' );
 
 function jg_register_leads() {
 	register_post_type( 'janogago_lead', array( 'labels' => array( 'name' => __( 'JanogaGo enquiries', 'janogago' ), 'singular_name' => __( 'Enquiry', 'janogago' ) ), 'public' => false, 'show_ui' => true, 'menu_icon' => 'dashicons-email-alt', 'supports' => array( 'title', 'editor' ) ) );
@@ -268,6 +268,138 @@ function jg_seed_home_content() {
 	update_option( 'jg_home_content_v2', 1, false );
 }
 add_action( 'admin_init', 'jg_seed_home_content' );
+
+/**
+ * Small helpers for the initial, fully native Gutenberg homepage layout.
+ * The resulting blocks can be edited, moved, duplicated and deleted in the
+ * standard block editor without touching theme code.
+ */
+function jg_block( $name, $attributes, $html ) {
+	$attributes = $attributes ? ' ' . wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) : '';
+	return "<!-- wp:{$name}{$attributes} -->\n{$html}\n<!-- /wp:{$name} -->\n";
+}
+
+function jg_block_heading( $text, $level = 2, $class = '' ) {
+	$class_attribute = $class ? ' class="wp-block-heading ' . esc_attr( $class ) . '"' : ' class="wp-block-heading"';
+	return jg_block( 'heading', array_filter( array( 'level' => $level, 'className' => $class ) ), '<h' . absint( $level ) . $class_attribute . '>' . esc_html( $text ) . '</h' . absint( $level ) . '>' );
+}
+
+function jg_block_paragraph( $text, $class = '' ) {
+	$class_attribute = $class ? ' class="' . esc_attr( $class ) . '"' : '';
+	return jg_block( 'paragraph', array_filter( array( 'className' => $class ) ), '<p' . $class_attribute . '>' . esc_html( $text ) . '</p>' );
+}
+
+function jg_block_button( $label, $url, $class = '' ) {
+	$button = jg_block( 'button', array_filter( array( 'url' => $url, 'className' => $class ) ), '<div class="wp-block-button ' . esc_attr( $class ) . '"><a class="wp-block-button__link wp-element-button" href="' . esc_url( $url ) . '">' . esc_html( $label ) . ' <span>↗</span></a></div>' );
+	return jg_block( 'buttons', array( 'className' => 'jg-buttons' ), '<div class="wp-block-buttons jg-buttons">' . $button . '</div>' );
+}
+
+function jg_block_image( $attachment_id, $alt, $class = '' ) {
+	$url = $attachment_id ? wp_get_attachment_image_url( $attachment_id, 'large' ) : '';
+	if ( ! $url ) {
+		return '';
+	}
+	$attributes = array_filter( array( 'id' => absint( $attachment_id ), 'sizeSlug' => 'large', 'linkDestination' => 'none', 'className' => $class ) );
+	$html = '<figure class="wp-block-image size-large ' . esc_attr( $class ) . '"><img src="' . esc_url( $url ) . '" alt="' . esc_attr( $alt ) . '" class="wp-image-' . absint( $attachment_id ) . '"/></figure>';
+	return jg_block( 'image', $attributes, $html );
+}
+
+function jg_block_column( $content, $class = '', $vertical_align = '' ) {
+	$attributes = array_filter( array( 'verticalAlignment' => $vertical_align, 'className' => $class ) );
+	$classes = 'wp-block-column' . ( $vertical_align ? ' is-vertically-aligned-' . esc_attr( $vertical_align ) : '' ) . ( $class ? ' ' . esc_attr( $class ) : '' );
+	return jg_block( 'column', $attributes, '<div class="' . $classes . '">' . $content . '</div>' );
+}
+
+function jg_block_columns( $columns, $class = '', $vertical_align = '' ) {
+	$attributes = array_filter( array( 'verticalAlignment' => $vertical_align, 'className' => $class ) );
+	$classes = 'wp-block-columns' . ( $vertical_align ? ' are-vertically-aligned-' . esc_attr( $vertical_align ) : '' ) . ( $class ? ' ' . esc_attr( $class ) : '' );
+	return jg_block( 'columns', $attributes, '<div class="' . $classes . '">' . $columns . '</div>' );
+}
+
+function jg_block_group( $content, $class, $tag = 'section', $anchor = '' ) {
+	$attributes = array_filter( array( 'tagName' => $tag, 'anchor' => $anchor, 'className' => $class, 'layout' => array( 'type' => 'constrained' ) ) );
+	$anchor_attribute = $anchor ? ' id="' . esc_attr( $anchor ) . '"' : '';
+	return jg_block( 'group', $attributes, '<' . tag_escape( $tag ) . $anchor_attribute . ' class="wp-block-group ' . esc_attr( $class ) . '">' . $content . '</' . tag_escape( $tag ) . '>' );
+}
+
+function jg_home_blocks( $language, $page_id ) {
+	$copy = jg_defaults( $language );
+	$hero_image = absint( get_post_meta( $page_id, '_jg_hero_image', true ) ) ?: jg_seed_attachment( 'se-tsuchiya-JDoyICyNcfg-unsplash.jpg' );
+	$menu_image = absint( get_post_meta( $page_id, '_jg_menu_image', true ) ) ?: jg_seed_attachment( 'hennie-stander-8VtJPezUmiE-unsplash.jpg' );
+	$is_en = $language === 'en';
+	$more = $is_en ? 'Tell me more' : 'Vēlos uzzināt vairāk';
+
+	$hero_copy = jg_block_heading( $copy['hero_title'], 1 ) . jg_block_paragraph( $copy['hero_text'], 'lede' ) . jg_block_button( $copy['hero_cta'], $copy['hero_cta_url'], 'button button-light' );
+	$hero_visual = jg_block_image( $hero_image, $is_en ? 'JanogaGo food vending machine' : 'JanogaGo ēdienu automāts' ) . '<div class="hero-badge"><b>24/7</b><span>' . esc_html( $is_en ? 'ready when your team is' : 'gatavs, kad jūsu komanda ir' ) . '</span></div>';
+	$hero = jg_block_group( jg_block_columns( jg_block_column( $hero_copy, 'hero-copy', 'center' ) . jg_block_column( $hero_visual, 'hero-visual', 'center' ), 'jg-block-hero-layout', 'center' ), 'hero jg-block-section jg-block-hero' );
+
+	$points = '';
+	foreach ( array( 'stat_one', 'stat_two', 'stat_three' ) as $index => $key ) {
+		$points .= '<span>' . sprintf( '%02d', $index + 1 ) . ' <b>' . esc_html( $copy[ $key ] ) . '</b></span>';
+	}
+	$proof_copy = jg_block_paragraph( $copy['intro_text'] ) . '<div class="proof-points">' . $points . '</div>';
+	$proof = jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['intro_title'], 2 ), 'section-intro' ) . jg_block_column( $proof_copy, 'proof-copy' ), 'jg-block-proof-layout' ), 'proof section jg-block-section jg-block-proof', 'section', 'par-mums' );
+
+	$menu_items = '';
+	foreach ( array( 'menu_one', 'menu_two', 'menu_three', 'menu_four' ) as $key ) {
+		$menu_items .= '<li>' . esc_html( $copy[ $key ] ) . '<span>↗</span></li>';
+	}
+	$menu_copy = jg_block_paragraph( $copy['menu_eyebrow'], 'eyebrow' ) . jg_block_heading( $copy['menu_title'], 2 ) . jg_block_paragraph( $copy['menu_text'] ) . '<ul class="menu-list">' . $menu_items . '</ul>';
+	$menu = jg_block_group( jg_block_columns( jg_block_column( jg_block_image( $menu_image, $is_en ? 'Fresh workplace food' : 'Svaigs ēdiens darba vietā' ), 'menu-image' ) . jg_block_column( $menu_copy, 'menu-copy' ), 'jg-block-menu-layout' ), 'menu-section section jg-block-section jg-block-menu', 'section', 'edieni' );
+
+	$cards = '';
+	foreach ( array( array( 'model_one_title', 'model_one_text', '01' ), array( 'model_two_title', 'model_two_text', '02' ) ) as $model ) {
+		$card = jg_block_paragraph( $model[2], 'jg-card-number' ) . jg_block_heading( $copy[ $model[0] ], 3 ) . jg_block_paragraph( $copy[ $model[1] ] ) . jg_block_button( $more, '#pieteikties', 'jg-card-link' );
+		$cards .= jg_block_column( jg_block_group( $card, 'jg-model-card', 'article' ) );
+	}
+	$models = jg_block_group( jg_block_heading( $copy['models_title'], 2 ) . jg_block_columns( $cards, 'model-grid' ), 'models section jg-block-section jg-block-models', 'section', 'risinajumi' );
+
+	$steps = '';
+	foreach ( array( array( 'step_one', 'step_one_text', '01' ), array( 'step_two', 'step_two_text', '02' ), array( 'step_three', 'step_three_text', '03' ) ) as $step ) {
+		$steps .= jg_block_group( jg_block_paragraph( $step[2], 'jg-step-number' ) . jg_block_heading( $copy[ $step[0] ], 3 ) . jg_block_paragraph( $copy[ $step[1] ] ), 'jg-process-step', 'div' );
+	}
+	$process = jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['process_title'], 2 ) ) . jg_block_column( '<div class="jg-process-steps">' . $steps . '</div>' ), 'jg-block-process-layout' ), 'process section jg-block-section jg-block-process', 'section', 'ka-tas-notiek' );
+
+	$contact_links = '<div class="jg-contact-links"><a href="mailto:' . esc_attr( antispambot( $copy['contact_email'] ) ) . '">' . esc_html( antispambot( $copy['contact_email'] ) ) . '</a><a href="tel:' . esc_attr( preg_replace( '/[^+0-9]/', '', $copy['contact_phone'] ) ) . '">' . esc_html( $copy['contact_phone'] ) . '</a></div>';
+	$form = jg_block( 'shortcode', array(), '<div class="wp-block-shortcode">[janogago_enquiry_form]</div>' );
+	$contact = jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['contact_title'], 2 ) . jg_block_paragraph( $copy['contact_text'] ) . $contact_links ) . jg_block_column( $form ), 'jg-block-contact-layout', 'center' ), 'contact jg-block-section jg-block-contact', 'section', 'pieteikties' );
+
+	return $hero . $proof . $menu . $models . $process . $contact;
+}
+
+function jg_seed_gutenberg_homepages() {
+	$pages = get_option( 'jg_seeded_pages', array() );
+	if ( empty( $pages['lv'] ) || empty( $pages['en'] ) ) {
+		$front_page = absint( get_option( 'page_on_front' ) );
+		if ( $front_page && function_exists( 'pll_get_post' ) ) {
+			$pages = array( 'lv' => pll_get_post( $front_page, 'lv' ), 'en' => pll_get_post( $front_page, 'en' ) );
+		}
+	}
+	foreach ( array( 'lv', 'en' ) as $language ) {
+		$page_id = absint( $pages[ $language ] ?? 0 );
+		$page = $page_id ? get_post( $page_id ) : null;
+		if ( ! $page || trim( $page->post_content ) !== '' ) {
+			continue;
+		}
+		wp_update_post( array( 'ID' => $page_id, 'post_content' => jg_home_blocks( $language, $page_id ) ) );
+	}
+}
+add_action( 'admin_init', 'jg_seed_gutenberg_homepages', 20 );
+
+function jg_enquiry_form_shortcode() {
+	$page_id = get_queried_object_id() ?: get_the_ID();
+	$copy = jg_defaults( jg_lang() );
+	ob_start();
+	?>
+	<form class="jg-enquiry-form" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+		<input type="hidden" name="action" value="jg_submit_enquiry"><input type="hidden" name="page_id" value="<?php echo esc_attr( $page_id ); ?>"><?php wp_nonce_field( 'jg_submit_enquiry', 'jg_enquiry_nonce' ); ?>
+		<label><?php echo esc_html( $copy['form_company_label'] ); ?><input required name="company" type="text"></label><label><?php echo esc_html( $copy['form_name_label'] ); ?><input required name="name" type="text"></label><label><?php echo esc_html( $copy['form_email_label'] ); ?><input required name="email" type="email"></label><label><?php echo esc_html( $copy['form_phone_label'] ); ?><input name="phone" type="tel"></label><label><?php echo esc_html( $copy['form_people_label'] ); ?><input name="people" type="text"></label><label class="full"><?php echo esc_html( $copy['form_message_label'] ); ?><textarea name="message" rows="3"></textarea></label><button class="button button-dark" type="submit"><?php echo esc_html( $copy['form_submit_label'] ); ?> <span>↗</span></button>
+		<?php if ( isset( $_GET['enquiry'] ) && $_GET['enquiry'] === 'sent' ) : ?><p class="form-message"><?php echo esc_html( jg_lang() === 'en' ? 'Thank you. We will be in touch.' : 'Paldies. Mēs ar jums sazināsimies.' ); ?></p><?php endif; ?>
+	</form>
+	<?php
+	return ob_get_clean();
+}
+add_shortcode( 'janogago_enquiry_form', 'jg_enquiry_form_shortcode' );
 
 function jg_fallback_menu() {
 	$items = jg_lang() === 'en' ? array( '#edieni' => 'Food', '#risinajumi' => 'Solutions', '#ka-tas-notiek' => 'How it works' ) : array( '#edieni' => 'Ēdiens', '#risinajumi' => 'Risinājumi', '#ka-tas-notiek' => 'Kā tas notiek' );

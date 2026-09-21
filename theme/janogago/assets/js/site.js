@@ -7,5 +7,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener('click', () => header.classList.remove('nav-open')));
   const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('in-view'); }), { threshold: .12 });
-  document.querySelectorAll('.section, .contact').forEach(section => observer.observe(section));
+  document.querySelectorAll('.section, .contact, .jg-block-section').forEach(section => observer.observe(section));
 });
