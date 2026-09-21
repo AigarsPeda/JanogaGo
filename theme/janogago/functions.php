@@ -21,6 +21,13 @@ function jg_enqueue_assets() {
 }
 add_action( 'wp_enqueue_scripts', 'jg_enqueue_assets' );
 
+function jg_send_valid_page_status() {
+	if ( ! is_admin() && is_page() ) {
+		status_header( 200 );
+	}
+}
+add_action( 'template_redirect', 'jg_send_valid_page_status', 99 );
+
 function jg_lang() {
 	if ( function_exists( 'pll_current_language' ) ) {
 		return pll_current_language( 'slug' ) ?: 'lv';
