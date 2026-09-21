@@ -36,8 +36,8 @@ function jg_defaults( $language = null ) {
 		'hero_cta' => 'Pieteikt degustāciju',
 		'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'KĀPĒC JANOGAGO',
-		'intro_title' => 'Mēs neieliekam automātu un nepazūdam.',
-		'intro_text' => 'JāņogaGO pārvalda visu ciklu. Ēdienu gatavo mūsu komanda, sortimentu papildinām regulāri, un tehnikai sekojam paši. Jūsu komandai atliek paņemt to, kas garšo.',
+		'intro_title' => 'Ēdiens darbā. Par pārējo rūpējamies mēs.',
+		'intro_text' => 'JāņogaGO komanda gatavo ēdienu, regulāri papildina automātus un rūpējas par tehniku. Jūsu komandai atliek izvēlēties to, kas garšo.',
 		'stat_one' => 'SVAIGI GATAVOTS KATRU DIENU', 'stat_two' => 'KARTE, TELEFONS VAI VIEDPULKSTENIS', 'stat_three' => 'HIGIĒNA UN TEMPERATŪRA KONTROLĒTA',
 		'menu_eyebrow' => 'NE TIKAI UZKODAS',
 		'menu_title' => 'Pusdienas, ko gaida, nevis izlaiž.',
@@ -66,8 +66,8 @@ function jg_defaults( $language = null ) {
 		'hero_text' => 'Smart food vending with fresh meals, snacks and drinks. We deliver, refill and maintain the whole service.',
 		'hero_cta' => 'Book a tasting', 'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'WHY JANOGAGO',
-		'intro_title' => 'We do not place a machine and disappear.',
-		'intro_text' => 'JāņogaGO runs the whole service. Our team prepares the food, keeps the selection fresh and looks after the equipment. Your team can simply choose what they want.',
+		'intro_title' => 'Food at work. We take care of the rest.',
+		'intro_text' => 'The JāņogaGO team prepares the food, refills the machines and looks after the equipment. Your team simply chooses what they feel like.',
 		'stat_one' => 'FRESHLY PREPARED EVERY DAY', 'stat_two' => 'CARD, PHONE OR SMARTWATCH', 'stat_three' => 'HYGIENE AND TEMPERATURE CONTROLLED',
 		'menu_eyebrow' => 'MORE THAN SNACKS',
 		'menu_title' => 'Lunch worth taking a break for.',
@@ -452,6 +452,42 @@ function jg_update_brand_name() {
 	update_option( 'jg_brand_name_v1', 1, false );
 }
 add_action( 'admin_init', 'jg_update_brand_name', 50 );
+
+function jg_update_intro_copy() {
+	if ( get_option( 'jg_intro_copy_v2' ) ) {
+		return;
+	}
+	$pages = get_option( 'jg_seeded_pages', array() );
+	if ( empty( $pages['lv'] ) || empty( $pages['en'] ) ) {
+		$front_page = absint( get_option( 'page_on_front' ) );
+		if ( $front_page && function_exists( 'pll_get_post' ) ) {
+			$pages = array( 'lv' => pll_get_post( $front_page, 'lv' ), 'en' => pll_get_post( $front_page, 'en' ) );
+		}
+	}
+	$replacements = array(
+		'lv' => array(
+			'Mēs neieliekam automātu un nepazūdam.' => 'Ēdiens darbā. Par pārējo rūpējamies mēs.',
+			'JāņogaGO pārvalda visu ciklu. Ēdienu gatavo mūsu komanda, sortimentu papildinām regulāri, un tehnikai sekojam paši. Jūsu komandai atliek paņemt to, kas garšo.' => 'JāņogaGO komanda gatavo ēdienu, regulāri papildina automātus un rūpējas par tehniku. Jūsu komandai atliek izvēlēties to, kas garšo.',
+		),
+		'en' => array(
+			'We do not place a machine and disappear.' => 'Food at work. We take care of the rest.',
+			'JāņogaGO runs the whole service. Our team prepares the food, keeps the selection fresh and looks after the equipment. Your team can simply choose what they want.' => 'The JāņogaGO team prepares the food, refills the machines and looks after the equipment. Your team simply chooses what they feel like.',
+		),
+	);
+	foreach ( $replacements as $language => $copy ) {
+		$page_id = absint( $pages[ $language ] ?? 0 );
+		$page = $page_id ? get_post( $page_id ) : null;
+		if ( ! $page ) {
+			continue;
+		}
+		$content = str_replace( array_keys( $copy ), array_values( $copy ), $page->post_content );
+		if ( $content !== $page->post_content ) {
+			wp_update_post( array( 'ID' => $page_id, 'post_content' => $content ) );
+		}
+	}
+	update_option( 'jg_intro_copy_v2', 1, false );
+}
+add_action( 'init', 'jg_update_intro_copy', 20 );
 
 function jg_enquiry_form_shortcode() {
 	$page_id = get_queried_object_id() ?: get_the_ID();
