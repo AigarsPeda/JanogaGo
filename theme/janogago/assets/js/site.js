@@ -14,4 +14,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('in-view'); }), { threshold: .12 });
   document.querySelectorAll('.section, .contact, .jg-block-section').forEach(section => observer.observe(section));
+  const hero = document.querySelector('.hero');
+  const desktopQuery = window.matchMedia('(min-width: 851px)');
+  const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (hero && 'IntersectionObserver' in window) {
+    let heroVisible = false;
+    const updateScrollCue = () => hero.classList.toggle('scroll-cue-active', heroVisible && desktopQuery.matches && !reducedMotionQuery.matches);
+    new IntersectionObserver(entries => {
+      heroVisible = entries[0].isIntersecting;
+      updateScrollCue();
+    }, { threshold: .1 }).observe(hero);
+    desktopQuery.addEventListener('change', updateScrollCue);
+    reducedMotionQuery.addEventListener('change', updateScrollCue);
+  }
 });
