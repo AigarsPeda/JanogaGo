@@ -3,14 +3,14 @@ Theme Name: JāņogaGO
 Theme URI: https://janoga.lv/
 Author: JāņogaGO
 Description: B2B food vending and managed refreshment service.
-Version: 1.0.15
+Version: 1.0.16
 Text Domain: janogago
 */
 
 /* FAQ: a core Gutenberg Details block styled as a quiet editorial section. */
 .janogago-blocks .faq{background:var(--paper)}
 .janogago-blocks .jg-faq-list{border-top:1px solid var(--line);margin-top:52px;max-width:980px}
-.janogago-blocks .jg-faq-item{border-bottom:1px solid var(--line);margin:0;padding:0}
+.janogago-blocks .jg-faq-item{border-bottom:1px solid var(--line);margin:0;padding:0}.janogago-blocks .jg-faq-item:last-child{border-bottom:0}
 .janogago-blocks .jg-faq-item summary{align-items:center;cursor:pointer;display:flex;font-size:20px;font-weight:700;gap:24px;justify-content:space-between;list-style:none;padding:23px 0}
 .janogago-blocks .jg-faq-item summary::-webkit-details-marker{display:none}
 .janogago-blocks .jg-faq-item summary:after{color:var(--red);content:'+';font-family:var(--mono);font-size:26px;font-weight:400;line-height:1}
