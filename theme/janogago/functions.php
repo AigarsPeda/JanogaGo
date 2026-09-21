@@ -368,11 +368,16 @@ function jg_home_blocks( $language, $page_id ) {
 	}
 	$process = jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['process_title'], 2 ) ) . jg_block_column( '<div class="jg-process-steps">' . $steps . '</div>' ), 'jg-block-process-layout' ), 'process section jg-block-section jg-block-process', 'section', 'ka-tas-notiek' );
 
-	$contact_details = jg_contact_detail_blocks( $copy );
-	$form = jg_block( 'shortcode', array(), '<div class="wp-block-shortcode">[janogago_enquiry_form]</div>' );
-	$contact = jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['contact_title'], 2 ) . jg_block_paragraph( $copy['contact_text'] ) . $contact_details ) . jg_block_column( $form ), 'jg-block-contact-layout', 'center' ), 'contact jg-block-section jg-block-contact', 'section', 'pieteikties' );
+	$contact = jg_contact_section_blocks( $language );
 
 	return $hero . $proof . $menu . $models . $process . $contact;
+}
+
+function jg_contact_section_blocks( $language ) {
+	$copy = jg_defaults( $language );
+	$contact_details = jg_contact_detail_blocks( $copy );
+	$form = jg_block( 'shortcode', array(), '<div class="wp-block-shortcode">[janogago_enquiry_form]</div>' );
+	return jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['contact_title'], 2 ) . jg_block_paragraph( $copy['contact_text'] ) . $contact_details ) . jg_block_column( $form ), 'jg-block-contact-layout', 'center' ), 'contact jg-block-section jg-block-contact', 'section', 'pieteikties' );
 }
 
 function jg_seed_gutenberg_homepages() {
@@ -566,6 +571,27 @@ function jg_update_consultation_copy() {
 	update_option( 'jg_consultation_copy_v1', 1, false );
 }
 add_action( 'init', 'jg_update_consultation_copy', 22 );
+
+function jg_restore_english_contact_section() {
+	if ( get_option( 'jg_english_contact_section_v1' ) ) {
+		return;
+	}
+	$pages = get_option( 'jg_seeded_pages', array() );
+	$page_id = absint( is_array( $pages ) ? ( $pages['en'] ?? 0 ) : 0 );
+	$page = $page_id ? get_post( $page_id ) : null;
+	if ( ! $page || str_contains( $page->post_content, 'jg-contact-detail' ) ) {
+		return;
+	}
+	$pattern = '#<!-- wp:group \{"tagName":"section","className":"contact jg-block-section jg-block-contact"[^>]*-->.*?<!-- /wp:group -->\s*$#s';
+	$replacement = trim( jg_contact_section_blocks( 'en' ) );
+	$content = preg_replace( $pattern, $replacement, $page->post_content, 1, $count );
+	if ( 1 !== $count || $content === $page->post_content ) {
+		return;
+	}
+	wp_update_post( array( 'ID' => $page_id, 'post_content' => $content ) );
+	update_option( 'jg_english_contact_section_v1', 1, false );
+}
+add_action( 'init', 'jg_restore_english_contact_section', 23 );
 
 function jg_enquiry_form_shortcode() {
 	$page_id = get_queried_object_id() ?: get_the_ID();
