@@ -32,7 +32,7 @@ function jg_defaults( $language = null ) {
 	$lv = array(
 		'hero_eyebrow' => 'ĒDIENS DARBĀ, BEZ RŪPĒM',
 		'hero_title' => 'Labs ēdiens darbā. Jebkurā laikā.',
-		'hero_text' => 'Viedie ēdienu automāti ar svaigām maltītēm, uzkodām un dzērieniem. Mēs piegādājam, papildinām un uzturam visu kārtībā.',
+		'hero_text' => 'Pilna servisa ēdienu automāti ar svaigām maltītēm, uzkodām un dzērieniem birojiem, ražotnēm un loģistikas centriem. Mēs uzstādām, piegādājam, papildinām un uzturam.',
 		'hero_cta' => 'Pieteikt konsultāciju',
 		'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'KĀPĒC JANOGAGO',
@@ -58,12 +58,12 @@ function jg_defaults( $language = null ) {
 		'contact_title' => 'Ienesiet restorāna līmeņa ēdienu savā darba vietā.',
 		'contact_text' => 'Pastāstiet par savu uzņēmumu. Atbildēsim ar piemērotu risinājumu un sarunāsim konsultāciju.',
 		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 28 317 179', 'contact_address' => 'Rīga, Latvija',
-		'form_company_label' => 'Uzņēmums', 'form_name_label' => 'Jūsu vārds', 'form_email_label' => 'E-pasts', 'form_phone_label' => 'Tālrunis', 'form_people_label' => 'Darbinieku skaits', 'form_message_label' => 'Ko vēlaties nodrošināt?', 'form_submit_label' => 'Nosūtīt pieteikumu',
+		'form_company_label' => 'Uzņēmums', 'form_name_label' => 'Jūsu vārds', 'form_email_label' => 'E-pasts', 'form_phone_label' => 'Tālrunis', 'form_people_label' => 'Darbinieku skaits', 'form_message_label' => 'Ko vēlaties nodrošināt?', 'form_privacy_label' => 'Piekrītu, ka JāņogaGO izmantos manu sniegto informāciju, lai sazinātos par manu pieprasījumu.', 'form_submit_label' => 'Nosūtīt pieteikumu',
 	);
 	$en = array(
 		'hero_eyebrow' => 'WORKPLACE FOOD, FULLY MANAGED',
 		'hero_title' => 'Good food at work. Any time of day.',
-		'hero_text' => 'Smart food vending with fresh meals, snacks and drinks. We deliver, refill and maintain the whole service.',
+		'hero_text' => 'Fully managed food vending with fresh meals, snacks and drinks for offices, production sites and logistics centres. We install, deliver, refill and maintain the service.',
 		'hero_cta' => 'Book a consultation', 'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'WHY JANOGAGO',
 		'intro_title' => 'Food at work. We take care of the rest.',
@@ -88,7 +88,7 @@ function jg_defaults( $language = null ) {
 		'contact_title' => 'Bring restaurant-level food to your workplace.',
 		'contact_text' => 'Tell us about your company. We will come back with a practical proposal and arrange a consultation.',
 		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 28 317 179', 'contact_address' => 'Riga, Latvia',
-		'form_company_label' => 'Company', 'form_name_label' => 'Your name', 'form_email_label' => 'Email', 'form_phone_label' => 'Phone', 'form_people_label' => 'Number of people', 'form_message_label' => 'What do you need?', 'form_submit_label' => 'Send enquiry',
+		'form_company_label' => 'Company', 'form_name_label' => 'Your name', 'form_email_label' => 'Email', 'form_phone_label' => 'Phone', 'form_people_label' => 'Number of people', 'form_message_label' => 'What do you need?', 'form_privacy_label' => 'I agree that JāņogaGO may use the information I provide to contact me about my request.', 'form_submit_label' => 'Send enquiry',
 	);
 	return ( $language ?: jg_lang() ) === 'en' ? $en : $lv;
 }
@@ -121,7 +121,7 @@ function jg_editor_fields() {
 		'models_eyebrow' => array( 'label' => 'Service models eyebrow', 'type' => 'text' ), 'models_title' => array( 'label' => 'Service models heading', 'type' => 'textarea' ), 'model_one_title' => array( 'label' => 'Model 1 title', 'type' => 'text' ), 'model_one_text' => array( 'label' => 'Model 1 text', 'type' => 'textarea' ), 'model_two_title' => array( 'label' => 'Model 2 title', 'type' => 'text' ), 'model_two_text' => array( 'label' => 'Model 2 text', 'type' => 'textarea' ),
 		'process_eyebrow' => array( 'label' => 'Process eyebrow', 'type' => 'text' ), 'process_title' => array( 'label' => 'Process heading', 'type' => 'textarea' ), 'step_one' => array( 'label' => 'Step 1 title', 'type' => 'text' ), 'step_one_text' => array( 'label' => 'Step 1 text', 'type' => 'textarea' ), 'step_two' => array( 'label' => 'Step 2 title', 'type' => 'text' ), 'step_two_text' => array( 'label' => 'Step 2 text', 'type' => 'textarea' ), 'step_three' => array( 'label' => 'Step 3 title', 'type' => 'text' ), 'step_three_text' => array( 'label' => 'Step 3 text', 'type' => 'textarea' ),
 		'contact_eyebrow' => array( 'label' => 'Contact eyebrow', 'type' => 'text' ), 'contact_title' => array( 'label' => 'Contact heading', 'type' => 'textarea' ), 'contact_text' => array( 'label' => 'Contact text', 'type' => 'textarea' ), 'contact_email' => array( 'label' => 'Contact email', 'type' => 'email' ), 'contact_phone' => array( 'label' => 'Contact phone', 'type' => 'text' ), 'contact_address' => array( 'label' => 'Contact address', 'type' => 'text' ),
-		'form_company_label' => array( 'label' => 'Form: company label', 'type' => 'text' ), 'form_name_label' => array( 'label' => 'Form: name label', 'type' => 'text' ), 'form_email_label' => array( 'label' => 'Form: email label', 'type' => 'text' ), 'form_phone_label' => array( 'label' => 'Form: phone label', 'type' => 'text' ), 'form_people_label' => array( 'label' => 'Form: people label', 'type' => 'text' ), 'form_message_label' => array( 'label' => 'Form: message label', 'type' => 'text' ), 'form_submit_label' => array( 'label' => 'Form: button label', 'type' => 'text' ),
+		'form_company_label' => array( 'label' => 'Form: company label', 'type' => 'text' ), 'form_name_label' => array( 'label' => 'Form: name label', 'type' => 'text' ), 'form_email_label' => array( 'label' => 'Form: email label', 'type' => 'text' ), 'form_phone_label' => array( 'label' => 'Form: phone label', 'type' => 'text' ), 'form_people_label' => array( 'label' => 'Form: people label', 'type' => 'text' ), 'form_message_label' => array( 'label' => 'Form: message label', 'type' => 'text' ), 'form_privacy_label' => array( 'label' => 'Form: privacy consent', 'type' => 'textarea' ), 'form_submit_label' => array( 'label' => 'Form: button label', 'type' => 'text' ),
 	);
 }
 
@@ -185,7 +185,7 @@ function jg_submit_enquiry() {
 	$phone = sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) );
 	$people = sanitize_text_field( wp_unslash( $_POST['people'] ?? '' ) );
 	$message = sanitize_textarea_field( wp_unslash( $_POST['message'] ?? '' ) );
-	if ( ! $company || ! $name || ! is_email( $email ) ) {
+	if ( ! $company || ! $name || ! is_email( $email ) || empty( $_POST['privacy_consent'] ) ) {
 		wp_safe_redirect( add_query_arg( 'enquiry', 'invalid', wp_get_referer() ?: home_url( '/' ) ) ); exit;
 	}
 	$body = "Company: {$company}\nContact: {$name}\nEmail: {$email}\nPhone: {$phone}\nPeople: {$people}\n\n{$message}";
@@ -330,6 +330,61 @@ function jg_block_group( $content, $class, $tag = 'section', $anchor = '' ) {
 	return jg_block( 'group', $attributes, '<' . tag_escape( $tag ) . $anchor_attribute . ' class="wp-block-group ' . esc_attr( $class ) . '">' . $content . '</' . tag_escape( $tag ) . '>' );
 }
 
+function jg_comparison_item( $label, $value ) {
+	return jg_block( 'paragraph', array( 'className' => 'jg-comparison-item' ), '<p class="jg-comparison-item"><strong>' . esc_html( $label ) . '</strong><span>' . esc_html( $value ) . '</span></p>' );
+}
+
+function jg_model_comparison_blocks( $language ) {
+	$is_en = $language === 'en';
+	$title = $is_en ? 'Which model fits your team?' : 'Kurš modelis jums ir piemērots?';
+	$intro = $is_en ? 'Choose how much of the day-to-day service your team wants to manage.' : 'Izvēlieties, cik daudz ikdienas servisa vēlaties uzticēt mums.';
+	$managed = array(
+		'title' => $is_en ? 'Fully managed service' : 'Pilna servisa risinājums',
+		'items' => $is_en ? array( 'Selection' => 'JāņogaGO', 'Installation and maintenance' => 'JāņogaGO', 'Fresh food delivery and refills' => 'JāņogaGO' ) : array( 'Sortimentu pārvalda' => 'JāņogaGO', 'Uzstādīšana un apkope' => 'JāņogaGO', 'Svaigas pārtikas piegāde un papildināšana' => 'JāņogaGO' ),
+	);
+	$lease = array(
+		'title' => $is_en ? 'Equipment lease' : 'Aprīkojuma noma',
+		'items' => $is_en ? array( 'Selection' => 'Your team', 'Equipment and technical support' => 'JāņogaGO', 'Payment system' => 'JāņogaGO' ) : array( 'Sortimentu pārvalda' => 'Jūsu komanda', 'Iekārta un tehniskais atbalsts' => 'JāņogaGO', 'Norēķinu risinājums' => 'JāņogaGO' ),
+	);
+	$columns = '';
+	foreach ( array( $managed, $lease ) as $model ) {
+		$content = jg_block_heading( $model['title'], 3 );
+		foreach ( $model['items'] as $label => $value ) {
+			$content .= jg_comparison_item( $label, $value );
+		}
+		$columns .= jg_block_column( $content, 'jg-comparison-model' );
+	}
+	return jg_block_group( jg_block_heading( $title, 2 ) . jg_block_paragraph( $intro, 'jg-comparison-intro' ) . jg_block_columns( $columns, 'comparison-grid' ), 'service-comparison section jg-block-section jg-block-comparison', 'section' );
+}
+
+function jg_block_faq_item( $question, $answer ) {
+	$html = '<details class="wp-block-details jg-faq-item"><summary>' . esc_html( $question ) . '</summary>' . jg_block_paragraph( $answer ) . '</details>';
+	return jg_block( 'details', array( 'className' => 'jg-faq-item' ), $html );
+}
+
+function jg_faq_section_blocks( $language ) {
+	$is_en = $language === 'en';
+	$title = $is_en ? 'Questions, answered.' : 'Biežāk uzdotie jautājumi.';
+	$questions = $is_en ? array(
+		'How large does our team need to be?' => 'The fully managed service is designed for offices, production sites and logistics centres with 30+ employees.',
+		'What is included in the fully managed service?' => 'We install the machine, bring fresh food, refill the selection regularly and look after maintenance.',
+		'Who looks after the equipment?' => 'JāņogaGO provides technical support and ongoing maintenance.',
+		'What can the selection include?' => 'Hot lunches, salads and bowls, sandwiches, desserts, coffee and drinks. We shape the selection around your people.',
+		'How do we get started?' => 'Book a consultation. We will learn about your workplace and prepare a suitable solution.',
+	) : array(
+		'Cik lielai jābūt komandai?' => 'Pilna servisa risinājums ir piemērots birojiem, ražotnēm un loģistikas centriem ar 30+ darbiniekiem.',
+		'Kas ietilpst pilna servisa risinājumā?' => 'Uzstādām automātu, vedam svaigu pārtiku, regulāri papildinām sortimentu un rūpējamies par apkopi.',
+		'Kas rūpējas par tehniku?' => 'JāņogaGO nodrošina tehnisko atbalstu un pastāvīgu aprūpi.',
+		'Kādu sortimentu var nodrošināt?' => 'Siltas pusdienas, salātus un bļodas, sviestmaizes, desertus, kafiju un dzērienus. Sortimentam jāatbilst jūsu cilvēkiem.',
+		'Kā sākt?' => 'Piesakiet konsultāciju. Iepazīsim jūsu vidi un sagatavosim piemērotu risinājumu.',
+	);
+	$items = '';
+	foreach ( $questions as $question => $answer ) {
+		$items .= jg_block_faq_item( $question, $answer );
+	}
+	return jg_block_group( jg_block_heading( $title, 2 ) . '<div class="jg-faq-list">' . $items . '</div>', 'faq section jg-block-section jg-block-faq', 'section', 'biezi-uzdotie-jautajumi' );
+}
+
 function jg_home_blocks( $language, $page_id ) {
 	$copy = jg_defaults( $language );
 	$hero_image = absint( get_post_meta( $page_id, '_jg_hero_image', true ) ) ?: jg_seed_attachment( 'se-tsuchiya-JDoyICyNcfg-unsplash.jpg' );
@@ -350,7 +405,7 @@ function jg_home_blocks( $language, $page_id ) {
 
 	$menu_items = '';
 	foreach ( array( 'menu_one', 'menu_two', 'menu_three', 'menu_four' ) as $key ) {
-		$menu_items .= '<li>' . esc_html( $copy[ $key ] ) . '<span>↗</span></li>';
+		$menu_items .= '<li>' . esc_html( $copy[ $key ] ) . '</li>';
 	}
 	$menu_copy = jg_block_heading( $copy['menu_title'], 2 ) . jg_block_paragraph( $copy['menu_text'] ) . '<ul class="menu-list">' . $menu_items . '</ul>';
 	$menu = jg_block_group( jg_block_columns( jg_block_column( jg_block_image( $menu_image, $is_en ? 'Fresh workplace food' : 'Svaigs ēdiens darba vietā' ), 'menu-image' ) . jg_block_column( $menu_copy, 'menu-copy' ), 'jg-block-menu-layout' ), 'menu-section section jg-block-section jg-block-menu', 'section', 'edieni' );
@@ -361,6 +416,7 @@ function jg_home_blocks( $language, $page_id ) {
 		$cards .= jg_block_column( jg_block_group( $card, 'jg-model-card', 'article' ) );
 	}
 	$models = jg_block_group( jg_block_heading( $copy['models_title'], 2 ) . jg_block_columns( $cards, 'model-grid' ), 'models section jg-block-section jg-block-models', 'section', 'risinajumi' );
+	$comparison = jg_model_comparison_blocks( $language );
 
 	$steps = '';
 	foreach ( array( array( 'step_one', 'step_one_text', '01' ), array( 'step_two', 'step_two_text', '02' ), array( 'step_three', 'step_three_text', '03' ) ) as $step ) {
@@ -368,9 +424,10 @@ function jg_home_blocks( $language, $page_id ) {
 	}
 	$process = jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['process_title'], 2 ) ) . jg_block_column( '<div class="jg-process-steps">' . $steps . '</div>' ), 'jg-block-process-layout' ), 'process section jg-block-section jg-block-process', 'section', 'ka-tas-notiek' );
 
+	$faq = jg_faq_section_blocks( $language );
 	$contact = jg_contact_section_blocks( $language );
 
-	return $hero . $proof . $menu . $models . $process . $contact;
+	return $hero . $proof . $menu . $models . $comparison . $process . $faq . $contact;
 }
 
 function jg_contact_section_blocks( $language ) {
@@ -593,6 +650,68 @@ function jg_restore_english_contact_section() {
 }
 add_action( 'init', 'jg_restore_english_contact_section', 23 );
 
+/**
+ * Add the second-generation content without replacing any editor changes.
+ * These blocks remain ordinary Gutenberg blocks after this one-time migration.
+ */
+function jg_expand_homepage_content() {
+	if ( get_option( 'jg_home_content_expansion_v1' ) ) {
+		return;
+	}
+	$pages = get_option( 'jg_seeded_pages', array() );
+	if ( ! is_array( $pages ) ) {
+		return;
+	}
+	$hero_replacements = array(
+		'lv' => array(
+			'Viedie ēdienu automāti ar svaigām maltītēm, uzkodām un dzērieniem. Mēs piegādājam, papildinām un uzturam visu kārtībā.' => jg_defaults( 'lv' )['hero_text'],
+		),
+		'en' => array(
+			'Smart food vending with fresh meals, snacks and drinks. We deliver, refill and maintain the whole service.' => jg_defaults( 'en' )['hero_text'],
+		),
+	);
+	$complete = true;
+	foreach ( array( 'lv', 'en' ) as $language ) {
+		$page_id = absint( $pages[ $language ] ?? 0 );
+		$page = $page_id ? get_post( $page_id ) : null;
+		if ( ! $page ) {
+			$complete = false;
+			continue;
+		}
+		$content = strtr( $page->post_content, $hero_replacements[ $language ] );
+		$content = preg_replace_callback(
+			'#<ul class="menu-list">.*?</ul>#s',
+			static function( $match ) {
+				return str_replace( '<span>↗</span>', '', $match[0] );
+			},
+			$content
+		);
+		if ( ! str_contains( $content, 'jg-block-comparison' ) ) {
+			$content = preg_replace( '#(?=<!-- wp:group [^>]*"className":"process section jg-block-section jg-block-process")#', jg_model_comparison_blocks( $language ), $content, 1, $comparison_count );
+			if ( 1 !== $comparison_count ) {
+				$complete = false;
+			}
+		}
+		if ( ! str_contains( $content, 'jg-block-faq' ) ) {
+			$content = preg_replace( '#(?=<!-- wp:group [^>]*"className":"contact jg-block-section jg-block-contact")#', jg_faq_section_blocks( $language ), $content, 1, $faq_count );
+			if ( 1 !== $faq_count ) {
+				$complete = false;
+			}
+		}
+		if ( $content !== $page->post_content ) {
+			wp_update_post( array( 'ID' => $page_id, 'post_content' => $content ) );
+		}
+		$hero_meta = get_post_meta( $page_id, '_jg_hero_text', true );
+		if ( isset( $hero_replacements[ $language ][ $hero_meta ] ) ) {
+			update_post_meta( $page_id, '_jg_hero_text', $hero_replacements[ $language ][ $hero_meta ] );
+		}
+	}
+	if ( $complete ) {
+		update_option( 'jg_home_content_expansion_v1', 1, false );
+	}
+}
+add_action( 'init', 'jg_expand_homepage_content', 24 );
+
 function jg_enquiry_form_shortcode() {
 	$page_id = get_queried_object_id() ?: get_the_ID();
 	$copy = jg_defaults( jg_lang() );
@@ -600,8 +719,10 @@ function jg_enquiry_form_shortcode() {
 	?>
 	<form class="jg-enquiry-form" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 		<input type="hidden" name="action" value="jg_submit_enquiry"><input type="hidden" name="page_id" value="<?php echo esc_attr( $page_id ); ?>"><?php wp_nonce_field( 'jg_submit_enquiry', 'jg_enquiry_nonce' ); ?>
-		<label><?php echo esc_html( $copy['form_company_label'] ); ?><input required name="company" type="text"></label><label><?php echo esc_html( $copy['form_name_label'] ); ?><input required name="name" type="text"></label><label><?php echo esc_html( $copy['form_email_label'] ); ?><input required name="email" type="email"></label><label><?php echo esc_html( $copy['form_phone_label'] ); ?><input name="phone" type="tel"></label><label><?php echo esc_html( $copy['form_people_label'] ); ?><input name="people" type="text"></label><label class="full"><?php echo esc_html( $copy['form_message_label'] ); ?><textarea name="message" rows="3"></textarea></label><button class="button button-dark" type="submit"><?php echo esc_html( $copy['form_submit_label'] ); ?> <span>↗</span></button>
-		<?php if ( isset( $_GET['enquiry'] ) && $_GET['enquiry'] === 'sent' ) : ?><p class="form-message"><?php echo esc_html( jg_lang() === 'en' ? 'Thank you. We will be in touch.' : 'Paldies. Mēs ar jums sazināsimies.' ); ?></p><?php endif; ?>
+		<label><?php echo esc_html( $copy['form_company_label'] ); ?><input required name="company" type="text"></label><label><?php echo esc_html( $copy['form_name_label'] ); ?><input required name="name" type="text"></label><label><?php echo esc_html( $copy['form_email_label'] ); ?><input required name="email" type="email"></label><label><?php echo esc_html( $copy['form_phone_label'] ); ?><input name="phone" type="tel"></label><label><?php echo esc_html( $copy['form_people_label'] ); ?><input name="people" type="text"></label><label class="full"><?php echo esc_html( $copy['form_message_label'] ); ?><textarea name="message" rows="3"></textarea></label>
+		<label class="full jg-privacy-consent"><input required name="privacy_consent" type="checkbox" value="1"><span><?php echo esc_html( $copy['form_privacy_label'] ); ?></span></label>
+		<button class="button button-dark" type="submit"><?php echo esc_html( $copy['form_submit_label'] ); ?> <span>↗</span></button>
+		<?php if ( isset( $_GET['enquiry'] ) && $_GET['enquiry'] === 'sent' ) : ?><p class="form-message"><?php echo esc_html( jg_lang() === 'en' ? 'Thank you. We will be in touch.' : 'Paldies. Mēs ar jums sazināsimies.' ); ?></p><?php elseif ( isset( $_GET['enquiry'] ) && $_GET['enquiry'] === 'invalid' ) : ?><p class="form-message"><?php echo esc_html( jg_lang() === 'en' ? 'Please complete the required fields and consent checkbox.' : 'Lūdzu, aizpildiet obligātos laukus un atzīmējiet piekrišanu.' ); ?></p><?php endif; ?>
 	</form>
 	<?php
 	return ob_get_clean();

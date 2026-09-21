@@ -3,9 +3,36 @@ Theme Name: JāņogaGO
 Theme URI: https://janoga.lv/
 Author: JāņogaGO
 Description: B2B food vending and managed refreshment service.
-Version: 1.0.11
+Version: 1.0.12
 Text Domain: janogago
 */
+
+/* Service comparison and FAQ: core Gutenberg blocks styled as quiet editorial sections. */
+.janogago-blocks .service-comparison{background:var(--cream)}
+.janogago-blocks .service-comparison>h2,.janogago-blocks .faq>h2{max-width:760px}
+.janogago-blocks .jg-comparison-intro{font-size:18px;line-height:1.65;max-width:620px}
+.janogago-blocks .comparison-grid{display:grid;gap:0;grid-template-columns:1fr 1fr;margin-top:56px}
+.janogago-blocks .comparison-grid>.wp-block-column{margin:0!important}
+.janogago-blocks .jg-comparison-model{border-top:1px solid var(--line);padding:25px 30px 0}
+.janogago-blocks .jg-comparison-model:first-child{padding-left:0}
+.janogago-blocks .jg-comparison-model+.jg-comparison-model{border-left:1px solid var(--line)}
+.janogago-blocks .jg-comparison-model h3{font-family:var(--serif);font-size:38px;letter-spacing:-.05em;line-height:1;margin-bottom:34px}
+.janogago-blocks .jg-comparison-item{border-top:1px solid var(--line);display:flex;flex-direction:column;font-size:14px;gap:5px;margin:0;padding:15px 0}
+.janogago-blocks .jg-comparison-item strong{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase}
+.janogago-blocks .jg-comparison-item span{font-size:16px;font-weight:700}
+.janogago-blocks .faq{background:var(--paper)}
+.janogago-blocks .jg-faq-list{border-top:1px solid var(--line);margin-top:52px;max-width:980px}
+.janogago-blocks .jg-faq-item{border-bottom:1px solid var(--line);margin:0;padding:0}
+.janogago-blocks .jg-faq-item summary{align-items:center;cursor:pointer;display:flex;font-size:20px;font-weight:700;gap:24px;justify-content:space-between;list-style:none;padding:23px 0}
+.janogago-blocks .jg-faq-item summary::-webkit-details-marker{display:none}
+.janogago-blocks .jg-faq-item summary:after{color:var(--red);content:'+';font-family:var(--mono);font-size:26px;font-weight:400;line-height:1}
+.janogago-blocks .jg-faq-item[open] summary:after{content:'−'}
+.janogago-blocks .jg-faq-item p{font-size:17px;line-height:1.65;margin:0;max-width:760px;padding:0 0 24px}
+.janogago-blocks .jg-enquiry-form .jg-privacy-consent{align-items:flex-start;color:var(--cream);cursor:pointer;display:flex;font-family:var(--sans);font-size:12px;font-weight:500;gap:10px;letter-spacing:0;line-height:1.5;margin-top:5px}
+.janogago-blocks .jg-enquiry-form .jg-privacy-consent input[type="checkbox"]{appearance:none;background:transparent;border:1px solid rgba(255,255,255,.75);border-radius:0;flex:0 0 17px;height:17px;margin:1px 0 0;padding:0;width:17px}
+.janogago-blocks .jg-enquiry-form .jg-privacy-consent input[type="checkbox"]:checked{background:var(--green);border-color:var(--green);box-shadow:inset 0 0 0 4px var(--red)}
+.janogago-blocks .jg-enquiry-form .jg-privacy-consent input[type="checkbox"]:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+@media(max-width:850px){.janogago-blocks .comparison-grid{grid-template-columns:1fr;margin-top:38px}.janogago-blocks .jg-comparison-model,.janogago-blocks .jg-comparison-model:first-child{padding:24px 0 0}.janogago-blocks .jg-comparison-model+.jg-comparison-model{border-left:0;margin-top:38px}.janogago-blocks .jg-comparison-model h3{font-size:34px}.janogago-blocks .jg-faq-list{margin-top:36px}.janogago-blocks .jg-faq-item summary{font-size:18px;padding:20px 0}.janogago-blocks .jg-faq-item p{font-size:16px}}
 /* Gutenberg homepage: ordinary core blocks stay editable in the visual editor. */
 @media(min-width:851px){.janogago-blocks .hero{grid-template-columns:minmax(0,.82fr) minmax(380px,1fr)}.janogago-blocks .hero-copy{padding-right:clamp(24px,2.5vw,48px)}.janogago-blocks .hero-visual{align-self:stretch;aspect-ratio:auto;height:auto;justify-self:stretch;min-height:600px;width:auto}.janogago-blocks .hero-visual:after{background:linear-gradient(87deg,var(--ink) 0%,rgba(36,35,32,.96) 15%,rgba(36,35,32,.62) 32%,rgba(36,35,32,.2) 48%,transparent 60%)}}
 @media(min-width:851px){.janogago-blocks .proof-copy{align-self:center}}
