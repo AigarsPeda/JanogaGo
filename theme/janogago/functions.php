@@ -33,7 +33,7 @@ function jg_defaults( $language = null ) {
 		'hero_eyebrow' => 'ĒDIENS DARBĀ, BEZ RŪPĒM',
 		'hero_title' => 'Labs ēdiens darbā. Jebkurā laikā.',
 		'hero_text' => 'Viedie ēdienu automāti ar svaigām maltītēm, uzkodām un dzērieniem. Mēs piegādājam, papildinām un uzturam visu kārtībā.',
-		'hero_cta' => 'Pieteikt degustāciju',
+		'hero_cta' => 'Pieteikt konsultāciju',
 		'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'KĀPĒC JANOGAGO',
 		'intro_title' => 'Ēdiens darbā. Par pārējo rūpējamies mēs.',
@@ -54,9 +54,9 @@ function jg_defaults( $language = null ) {
 		'step_one' => 'Iepazīstam jūsu vidi', 'step_one_text' => 'Saprotam cilvēku skaitu, maiņas un to, kas viņiem tiešām noderēs.',
 		'step_two' => 'Sagatavojam risinājumu', 'step_two_text' => 'Piedāvājam iekārtu, sortimentu un sadarbības modeli.',
 		'step_three' => 'Uzstādām un aprūpējam', 'step_three_text' => 'Piegādājam, papildinām un reaģējam, ja vajadzīga palīdzība.',
-		'contact_eyebrow' => 'SĀKSIM AR DEGUSTĀCIJU',
+		'contact_eyebrow' => 'SĀKSIM AR KONSULTĀCIJU',
 		'contact_title' => 'Ienesiet restorāna līmeņa ēdienu savā darba vietā.',
-		'contact_text' => 'Pastāstiet par savu uzņēmumu. Atbildēsim ar piemērotu risinājumu un sarunāsim degustāciju.',
+		'contact_text' => 'Pastāstiet par savu uzņēmumu. Atbildēsim ar piemērotu risinājumu un sarunāsim konsultāciju.',
 		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 28 317 179', 'contact_address' => 'Rīga, Latvija',
 		'form_company_label' => 'Uzņēmums', 'form_name_label' => 'Jūsu vārds', 'form_email_label' => 'E-pasts', 'form_phone_label' => 'Tālrunis', 'form_people_label' => 'Darbinieku skaits', 'form_message_label' => 'Ko vēlaties nodrošināt?', 'form_submit_label' => 'Nosūtīt pieteikumu',
 	);
@@ -64,7 +64,7 @@ function jg_defaults( $language = null ) {
 		'hero_eyebrow' => 'WORKPLACE FOOD, FULLY MANAGED',
 		'hero_title' => 'Good food at work. Any time of day.',
 		'hero_text' => 'Smart food vending with fresh meals, snacks and drinks. We deliver, refill and maintain the whole service.',
-		'hero_cta' => 'Book a tasting', 'hero_cta_url' => '#pieteikties',
+		'hero_cta' => 'Book a consultation', 'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'WHY JANOGAGO',
 		'intro_title' => 'Food at work. We take care of the rest.',
 		'intro_text' => 'The JāņogaGO team prepares the food, refills the machines and looks after the equipment. Your team simply chooses what they feel like.',
@@ -84,9 +84,9 @@ function jg_defaults( $language = null ) {
 		'step_one' => 'We learn about your workplace', 'step_one_text' => 'We look at headcount, shifts and what will actually work for your people.',
 		'step_two' => 'We plan the service', 'step_two_text' => 'You get a clear proposal for equipment, food and the right service model.',
 		'step_three' => 'We install and run it', 'step_three_text' => 'We deliver, refill and respond whenever you need us.',
-		'contact_eyebrow' => 'START WITH A TASTING',
+		'contact_eyebrow' => 'START WITH A CONSULTATION',
 		'contact_title' => 'Bring restaurant-level food to your workplace.',
-		'contact_text' => 'Tell us about your company. We will come back with a practical proposal and a tasting.',
+		'contact_text' => 'Tell us about your company. We will come back with a practical proposal and arrange a consultation.',
 		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 28 317 179', 'contact_address' => 'Riga, Latvia',
 		'form_company_label' => 'Company', 'form_name_label' => 'Your name', 'form_email_label' => 'Email', 'form_phone_label' => 'Phone', 'form_people_label' => 'Number of people', 'form_message_label' => 'What do you need?', 'form_submit_label' => 'Send enquiry',
 	);
@@ -524,6 +524,48 @@ function jg_add_contact_details_to_homepages() {
 	update_option( 'jg_contact_details_v1', 1, false );
 }
 add_action( 'init', 'jg_add_contact_details_to_homepages', 21 );
+
+function jg_update_consultation_copy() {
+	if ( get_option( 'jg_consultation_copy_v1' ) ) {
+		return;
+	}
+	$pages = get_option( 'jg_seeded_pages', array() );
+	if ( ! is_array( $pages ) ) {
+		return;
+	}
+	$replacements = array(
+		'lv' => array(
+			'Pieteikt degustāciju' => 'Pieteikt konsultāciju',
+			'SĀKSIM AR DEGUSTĀCIJU' => 'SĀKSIM AR KONSULTĀCIJU',
+			'sarunāsim degustāciju' => 'sarunāsim konsultāciju',
+		),
+		'en' => array(
+			'Book a tasting' => 'Book a consultation',
+			'START WITH A TASTING' => 'START WITH A CONSULTATION',
+			'come back with a practical proposal and a tasting' => 'come back with a practical proposal and arrange a consultation',
+		),
+	);
+	foreach ( $replacements as $language => $map ) {
+		$page_id = absint( $pages[ $language ] ?? 0 );
+		$page = $page_id ? get_post( $page_id ) : null;
+		if ( ! $page ) {
+			continue;
+		}
+		$content = strtr( $page->post_content, $map );
+		if ( $content !== $page->post_content ) {
+			wp_update_post( array( 'ID' => $page_id, 'post_content' => $content ) );
+		}
+		foreach ( array( 'hero_cta', 'contact_eyebrow', 'contact_text' ) as $key ) {
+			$meta_key = '_jg_' . $key;
+			$value = get_post_meta( $page_id, $meta_key, true );
+			if ( $value !== '' ) {
+				update_post_meta( $page_id, $meta_key, strtr( $value, $map ) );
+			}
+		}
+	}
+	update_option( 'jg_consultation_copy_v1', 1, false );
+}
+add_action( 'init', 'jg_update_consultation_copy', 22 );
 
 function jg_enquiry_form_shortcode() {
 	$page_id = get_queried_object_id() ?: get_the_ID();
