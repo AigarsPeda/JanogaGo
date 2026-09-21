@@ -37,7 +37,7 @@ function jg_defaults( $language = null ) {
 		'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'KĀPĒC JANOGAGO',
 		'intro_title' => 'Mēs neieliekam automātu un nepazūdam.',
-		'intro_text' => 'JanogaGo pārvalda visu ciklu. Ēdienu gatavo mūsu komanda, sortimentu papildinām regulāri, un tehnikai sekojam paši. Jūsu komandai atliek paņemt to, kas garšo.',
+		'intro_text' => 'JāņogaGO pārvalda visu ciklu. Ēdienu gatavo mūsu komanda, sortimentu papildinām regulāri, un tehnikai sekojam paši. Jūsu komandai atliek paņemt to, kas garšo.',
 		'stat_one' => 'SVAIGI GATAVOTS KATRU DIENU', 'stat_two' => 'KARTE, TELEFONS VAI VIEDPULKSTENIS', 'stat_three' => 'HIGIĒNA UN TEMPERATŪRA KONTROLĒTA',
 		'menu_eyebrow' => 'NE TIKAI UZKODAS',
 		'menu_title' => 'Pusdienas, ko gaida, nevis izlaiž.',
@@ -67,7 +67,7 @@ function jg_defaults( $language = null ) {
 		'hero_cta' => 'Book a tasting', 'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'WHY JANOGAGO',
 		'intro_title' => 'We do not place a machine and disappear.',
-		'intro_text' => 'JanogaGo runs the whole service. Our team prepares the food, keeps the selection fresh and looks after the equipment. Your team can simply choose what they want.',
+		'intro_text' => 'JāņogaGO runs the whole service. Our team prepares the food, keeps the selection fresh and looks after the equipment. Your team can simply choose what they want.',
 		'stat_one' => 'FRESHLY PREPARED EVERY DAY', 'stat_two' => 'CARD, PHONE OR SMARTWATCH', 'stat_three' => 'HYGIENE AND TEMPERATURE CONTROLLED',
 		'menu_eyebrow' => 'MORE THAN SNACKS',
 		'menu_title' => 'Lunch worth taking a break for.',
@@ -126,7 +126,7 @@ function jg_editor_fields() {
 }
 
 function jg_add_page_metabox() {
-	add_meta_box( 'jg-page-content', __( 'JanogaGo page content', 'janogago' ), 'jg_render_page_metabox', 'page', 'normal', 'high' );
+	add_meta_box( 'jg-page-content', __( 'JāņogaGO page content', 'janogago' ), 'jg_render_page_metabox', 'page', 'normal', 'high' );
 }
 // Homepage copy is kept in native Gutenberg blocks. These legacy helpers stay
 // available for old installations, but do not add a second, confusing editor.
@@ -171,7 +171,7 @@ function jg_admin_assets( $hook ) {
 }
 
 function jg_register_leads() {
-	register_post_type( 'janogago_lead', array( 'labels' => array( 'name' => __( 'JanogaGo enquiries', 'janogago' ), 'singular_name' => __( 'Enquiry', 'janogago' ) ), 'public' => false, 'show_ui' => true, 'menu_icon' => 'dashicons-email-alt', 'supports' => array( 'title', 'editor' ) ) );
+	register_post_type( 'janogago_lead', array( 'labels' => array( 'name' => __( 'JāņogaGO enquiries', 'janogago' ), 'singular_name' => __( 'Enquiry', 'janogago' ) ), 'public' => false, 'show_ui' => true, 'menu_icon' => 'dashicons-email-alt', 'supports' => array( 'title', 'editor' ) ) );
 }
 add_action( 'init', 'jg_register_leads' );
 
@@ -191,7 +191,7 @@ function jg_submit_enquiry() {
 	$body = "Company: {$company}\nContact: {$name}\nEmail: {$email}\nPhone: {$phone}\nPeople: {$people}\n\n{$message}";
 	$post_id = wp_insert_post( array( 'post_type' => 'janogago_lead', 'post_status' => 'private', 'post_title' => $company . ' — ' . $name, 'post_content' => $body ) );
 	$recipient = sanitize_email( jg_field( absint( $_POST['page_id'] ?? 0 ), 'contact_email' ) );
-	if ( $recipient ) { wp_mail( $recipient, 'JanogaGo website enquiry: ' . $company, $body, array( 'Reply-To: ' . $name . ' <' . $email . '>' ) ); }
+	if ( $recipient ) { wp_mail( $recipient, 'JāņogaGO website enquiry: ' . $company, $body, array( 'Reply-To: ' . $name . ' <' . $email . '>' ) ); }
 	wp_safe_redirect( add_query_arg( 'enquiry', $post_id ? 'sent' : 'failed', wp_get_referer() ?: home_url( '/' ) ) ); exit;
 }
 add_action( 'admin_post_nopriv_jg_submit_enquiry', 'jg_submit_enquiry' );
@@ -330,7 +330,7 @@ function jg_home_blocks( $language, $page_id ) {
 	$more = $is_en ? 'Tell me more' : 'Vēlos uzzināt vairāk';
 
 	$hero_copy = jg_block_heading( $copy['hero_title'], 1 ) . jg_block_paragraph( $copy['hero_text'], 'lede' ) . jg_block_button( $copy['hero_cta'], $copy['hero_cta_url'], 'button button-light' );
-	$hero_visual = jg_block_image( $hero_image, $is_en ? 'JanogaGo food vending machine' : 'JanogaGo ēdienu automāts' ) . '<div class="hero-badge"><b>24/7</b><span>' . esc_html( $is_en ? 'ready when your team is' : 'gatavs, kad jūsu komanda ir' ) . '</span></div>';
+	$hero_visual = jg_block_image( $hero_image, $is_en ? 'JāņogaGO food vending machine' : 'JāņogaGO ēdienu automāts' ) . '<div class="hero-badge"><b>24/7</b><span>' . esc_html( $is_en ? 'ready when your team is' : 'gatavs, kad jūsu komanda ir' ) . '</span></div>';
 	$hero = jg_block_group( jg_block_columns( jg_block_column( $hero_copy, 'hero-copy', 'center' ) . jg_block_column( $hero_visual, 'hero-visual', 'center' ), 'jg-block-hero-layout', 'center' ), 'hero jg-block-section jg-block-hero' );
 
 	$points = '';
@@ -429,6 +429,29 @@ function jg_remove_model_numbers() {
 	}
 }
 add_action( 'admin_init', 'jg_remove_model_numbers', 40 );
+
+function jg_update_brand_name() {
+	if ( get_option( 'jg_brand_name_v1' ) ) {
+		return;
+	}
+	update_option( 'blogname', 'JāņogaGO' );
+	$pages = get_option( 'jg_seeded_pages', array() );
+	if ( empty( $pages['lv'] ) || empty( $pages['en'] ) ) {
+		$front_page = absint( get_option( 'page_on_front' ) );
+		if ( $front_page && function_exists( 'pll_get_post' ) ) {
+			$pages = array( 'lv' => pll_get_post( $front_page, 'lv' ), 'en' => pll_get_post( $front_page, 'en' ) );
+		}
+	}
+	foreach ( array( 'lv', 'en' ) as $language ) {
+		$page_id = absint( $pages[ $language ] ?? 0 );
+		$page = $page_id ? get_post( $page_id ) : null;
+		if ( $page && str_contains( $page->post_content, 'JanogaGo' ) ) {
+			wp_update_post( array( 'ID' => $page_id, 'post_content' => str_replace( 'JanogaGo', 'JāņogaGO', $page->post_content ) ) );
+		}
+	}
+	update_option( 'jg_brand_name_v1', 1, false );
+}
+add_action( 'admin_init', 'jg_update_brand_name', 50 );
 
 function jg_enquiry_form_shortcode() {
 	$page_id = get_queried_object_id() ?: get_the_ID();
