@@ -344,7 +344,7 @@ function jg_home_blocks( $language, $page_id ) {
 	foreach ( array( 'menu_one', 'menu_two', 'menu_three', 'menu_four' ) as $key ) {
 		$menu_items .= '<li>' . esc_html( $copy[ $key ] ) . '<span>↗</span></li>';
 	}
-	$menu_copy = jg_block_paragraph( $copy['menu_eyebrow'], 'eyebrow' ) . jg_block_heading( $copy['menu_title'], 2 ) . jg_block_paragraph( $copy['menu_text'] ) . '<ul class="menu-list">' . $menu_items . '</ul>';
+	$menu_copy = jg_block_heading( $copy['menu_title'], 2 ) . jg_block_paragraph( $copy['menu_text'] ) . '<ul class="menu-list">' . $menu_items . '</ul>';
 	$menu = jg_block_group( jg_block_columns( jg_block_column( jg_block_image( $menu_image, $is_en ? 'Fresh workplace food' : 'Svaigs ēdiens darba vietā' ), 'menu-image' ) . jg_block_column( $menu_copy, 'menu-copy' ), 'jg-block-menu-layout' ), 'menu-section section jg-block-section jg-block-menu', 'section', 'edieni' );
 
 	$cards = '';
@@ -385,6 +385,28 @@ function jg_seed_gutenberg_homepages() {
 	}
 }
 add_action( 'admin_init', 'jg_seed_gutenberg_homepages', 20 );
+
+function jg_remove_menu_eyebrows() {
+	$pages = get_option( 'jg_seeded_pages', array() );
+	if ( empty( $pages['lv'] ) || empty( $pages['en'] ) ) {
+		$front_page = absint( get_option( 'page_on_front' ) );
+		if ( $front_page && function_exists( 'pll_get_post' ) ) {
+			$pages = array( 'lv' => pll_get_post( $front_page, 'lv' ), 'en' => pll_get_post( $front_page, 'en' ) );
+		}
+	}
+	foreach ( array( 'lv', 'en' ) as $language ) {
+		$page_id = absint( $pages[ $language ] ?? 0 );
+		$page = $page_id ? get_post( $page_id ) : null;
+		if ( ! $page ) {
+			continue;
+		}
+		$content = preg_replace( '#<!-- wp:paragraph \\{"className":"eyebrow"\\} -->\\s*<p class="[^\"]*eyebrow[^\"]*">(?:NE TIKAI UZKODAS|MORE THAN SNACKS)</p>\\s*<!-- /wp:paragraph -->\\s*#u', '', $page->post_content );
+		if ( $content !== $page->post_content ) {
+			wp_update_post( array( 'ID' => $page_id, 'post_content' => $content ) );
+		}
+	}
+}
+add_action( 'admin_init', 'jg_remove_menu_eyebrows', 30 );
 
 function jg_enquiry_form_shortcode() {
 	$page_id = get_queried_object_id() ?: get_the_ID();
