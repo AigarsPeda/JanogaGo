@@ -1,11 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
   const header = document.querySelector('.site-header');
   const toggle = document.querySelector('.menu-toggle');
-  if (toggle) toggle.addEventListener('click', () => {
-    const open = header.classList.toggle('nav-open');
+  const setMenuOpen = (open) => {
+    header.classList.toggle('nav-open', open);
+    if (!toggle) return;
     toggle.setAttribute('aria-expanded', open);
+    toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  };
+  if (toggle) toggle.addEventListener('click', () => setMenuOpen(!header.classList.contains('nav-open')));
+  document.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener('click', () => setMenuOpen(false)));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && header.classList.contains('nav-open')) setMenuOpen(false);
   });
-  document.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener('click', () => header.classList.remove('nav-open')));
   const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('in-view'); }), { threshold: .12 });
   document.querySelectorAll('.section, .contact, .jg-block-section').forEach(section => observer.observe(section));
 });
