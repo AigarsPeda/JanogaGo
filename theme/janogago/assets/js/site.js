@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
       item.style.willChange = 'height';
 
       if (!isOpen) {
+        item.classList.remove('is-closing');
         item.open = true;
         const endHeight = `${item.scrollHeight}px`;
         answer.animate(
@@ -57,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
           { duration: 340, easing: 'cubic-bezier(.16,1,.3,1)' }
         );
       } else {
+        item.classList.add('is-closing');
         const endHeight = `${summary.offsetHeight}px`;
         item.faqAnimation = item.animate(
           { height: [startHeight, endHeight] },
@@ -65,10 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       item.faqAnimation.onfinish = () => {
-        if (isOpen) item.open = false;
+        if (isOpen) {
+          item.open = false;
+        }
         item.style.height = '';
         item.style.overflow = '';
         item.style.willChange = '';
+        item.classList.remove('is-closing');
         item.faqAnimation = null;
       };
       item.faqAnimation.oncancel = () => {
