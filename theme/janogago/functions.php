@@ -57,7 +57,7 @@ function jg_defaults( $language = null ) {
 		'contact_eyebrow' => 'SĀKSIM AR DEGUSTĀCIJU',
 		'contact_title' => 'Ienesiet restorāna līmeņa ēdienu savā darba vietā.',
 		'contact_text' => 'Pastāstiet par savu uzņēmumu. Atbildēsim ar piemērotu risinājumu un sarunāsim degustāciju.',
-		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 0000 0000', 'contact_address' => 'Rīga, Latvija',
+		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 28 317 179', 'contact_address' => 'Rīga, Latvija',
 		'form_company_label' => 'Uzņēmums', 'form_name_label' => 'Jūsu vārds', 'form_email_label' => 'E-pasts', 'form_phone_label' => 'Tālrunis', 'form_people_label' => 'Darbinieku skaits', 'form_message_label' => 'Ko vēlaties nodrošināt?', 'form_submit_label' => 'Nosūtīt pieteikumu',
 	);
 	$en = array(
@@ -87,7 +87,7 @@ function jg_defaults( $language = null ) {
 		'contact_eyebrow' => 'START WITH A TASTING',
 		'contact_title' => 'Bring restaurant-level food to your workplace.',
 		'contact_text' => 'Tell us about your company. We will come back with a practical proposal and a tasting.',
-		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 0000 0000', 'contact_address' => 'Riga, Latvia',
+		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 28 317 179', 'contact_address' => 'Riga, Latvia',
 		'form_company_label' => 'Company', 'form_name_label' => 'Your name', 'form_email_label' => 'Email', 'form_phone_label' => 'Phone', 'form_people_label' => 'Number of people', 'form_message_label' => 'What do you need?', 'form_submit_label' => 'Send enquiry',
 	);
 	return ( $language ?: jg_lang() ) === 'en' ? $en : $lv;
@@ -289,6 +289,14 @@ function jg_block_paragraph( $text, $class = '' ) {
 	return jg_block( 'paragraph', array_filter( array( 'className' => $class ) ), '<p' . $class_attribute . '>' . esc_html( $text ) . '</p>' );
 }
 
+function jg_contact_detail_blocks( $copy ) {
+	$email = sanitize_email( $copy['contact_email'] );
+	$phone = preg_replace( '/[^+0-9]/', '', $copy['contact_phone'] );
+	$email_block = jg_block( 'paragraph', array( 'className' => 'jg-contact-detail' ), '<p class="jg-contact-detail"><a href="mailto:' . esc_attr( antispambot( $email ) ) . '">' . esc_html( antispambot( $email ) ) . '</a></p>' );
+	$phone_block = jg_block( 'paragraph', array( 'className' => 'jg-contact-detail' ), '<p class="jg-contact-detail"><a href="tel:' . esc_attr( $phone ) . '">' . esc_html( $copy['contact_phone'] ) . '</a></p>' );
+	return $email_block . $phone_block;
+}
+
 function jg_block_button( $label, $url, $class = '' ) {
 	$button = jg_block( 'button', array_filter( array( 'url' => $url, 'className' => $class ) ), '<div class="wp-block-button ' . esc_attr( $class ) . '"><a class="wp-block-button__link wp-element-button" href="' . esc_url( $url ) . '">' . esc_html( $label ) . ' <span>↗</span></a></div>' );
 	return jg_block( 'buttons', array( 'className' => 'jg-buttons' ), '<div class="wp-block-buttons jg-buttons">' . $button . '</div>' );
@@ -360,9 +368,9 @@ function jg_home_blocks( $language, $page_id ) {
 	}
 	$process = jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['process_title'], 2 ) ) . jg_block_column( '<div class="jg-process-steps">' . $steps . '</div>' ), 'jg-block-process-layout' ), 'process section jg-block-section jg-block-process', 'section', 'ka-tas-notiek' );
 
-	$contact_links = '<div class="jg-contact-links"><a href="mailto:' . esc_attr( antispambot( $copy['contact_email'] ) ) . '">' . esc_html( antispambot( $copy['contact_email'] ) ) . '</a><a href="tel:' . esc_attr( preg_replace( '/[^+0-9]/', '', $copy['contact_phone'] ) ) . '">' . esc_html( $copy['contact_phone'] ) . '</a></div>';
+	$contact_details = jg_contact_detail_blocks( $copy );
 	$form = jg_block( 'shortcode', array(), '<div class="wp-block-shortcode">[janogago_enquiry_form]</div>' );
-	$contact = jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['contact_title'], 2 ) . jg_block_paragraph( $copy['contact_text'] ) . $contact_links ) . jg_block_column( $form ), 'jg-block-contact-layout', 'center' ), 'contact jg-block-section jg-block-contact', 'section', 'pieteikties' );
+	$contact = jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['contact_title'], 2 ) . jg_block_paragraph( $copy['contact_text'] ) . $contact_details ) . jg_block_column( $form ), 'jg-block-contact-layout', 'center' ), 'contact jg-block-section jg-block-contact', 'section', 'pieteikties' );
 
 	return $hero . $proof . $menu . $models . $process . $contact;
 }
@@ -488,6 +496,34 @@ function jg_update_intro_copy() {
 	update_option( 'jg_intro_copy_v2', 1, false );
 }
 add_action( 'init', 'jg_update_intro_copy', 20 );
+
+function jg_add_contact_details_to_homepages() {
+	if ( get_option( 'jg_contact_details_v1' ) ) {
+		return;
+	}
+	$pages = get_option( 'jg_seeded_pages', array() );
+	if ( empty( $pages['lv'] ) || empty( $pages['en'] ) ) {
+		$front_page = absint( get_option( 'page_on_front' ) );
+		if ( $front_page && function_exists( 'pll_get_post' ) ) {
+			$pages = array( 'lv' => pll_get_post( $front_page, 'lv' ), 'en' => pll_get_post( $front_page, 'en' ) );
+		}
+	}
+	foreach ( array( 'lv', 'en' ) as $language ) {
+		$page_id = absint( $pages[ $language ] ?? 0 );
+		$page = $page_id ? get_post( $page_id ) : null;
+		if ( ! $page || str_contains( $page->post_content, 'jg-contact-detail' ) ) {
+			continue;
+		}
+		$copy = jg_defaults( $language );
+		$pattern = '#(<!-- wp:paragraph(?: [^>]*)? -->\s*<p(?: [^>]*)?>' . preg_quote( esc_html( $copy['contact_text'] ), '#' ) . '</p>\s*<!-- /wp:paragraph -->)#u';
+		$content = preg_replace( $pattern, '$1' . jg_contact_detail_blocks( $copy ), $page->post_content, 1, $count );
+		if ( $count ) {
+			wp_update_post( array( 'ID' => $page_id, 'post_content' => $content ) );
+		}
+	}
+	update_option( 'jg_contact_details_v1', 1, false );
+}
+add_action( 'init', 'jg_add_contact_details_to_homepages', 21 );
 
 function jg_enquiry_form_shortcode() {
 	$page_id = get_queried_object_id() ?: get_the_ID();
