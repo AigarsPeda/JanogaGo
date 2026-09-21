@@ -46,9 +46,9 @@ function jg_defaults( $language = null ) {
 		'models_eyebrow' => 'DIVI SADARBĪBAS VEIDI',
 		'models_title' => 'Izvēlieties modeli. Pārējo izdaram mēs.',
 		'model_one_title' => 'Pilna servisa risinājums',
-		'model_one_text' => 'Piemērots birojiem, ražotnēm un loģistikas centriem ar 30+ darbiniekiem. Uzstādām automātu, vedam svaigu pārtiku un rūpējamies par apkopi.',
+		'model_one_text' => 'Piemērots birojiem, ražotnēm un loģistikas centriem ar 30+ darbiniekiem. Mēs uzstādām automātu, piegādājam svaigu pārtiku, regulāri papildinām sortimentu un rūpējamies par tehniku. Jūsu komandai atliek izvēlēties, kas garšo.',
 		'model_two_title' => 'Aprīkojuma noma',
-		'model_two_text' => 'Jūsu komanda pārvalda sortimentu. Mēs nodrošinām iekārtu, tehnisko atbalstu un norēķinu risinājumu.',
+		'model_two_text' => 'Piemērota komandām, kas vēlas pašas veidot un pārvaldīt sortimentu. Mēs nodrošinām iekārtu, tehnisko atbalstu un norēķinu risinājumu.',
 		'process_eyebrow' => 'KĀ TAS NOTIEK',
 		'process_title' => 'No pirmās sarunas līdz pirmajām pusdienām.',
 		'step_one' => 'Iepazīstam jūsu vidi', 'step_one_text' => 'Saprotam cilvēku skaitu, maiņas un to, kas viņiem tiešām noderēs.',
@@ -76,9 +76,9 @@ function jg_defaults( $language = null ) {
 		'models_eyebrow' => 'TWO WAYS TO WORK TOGETHER',
 		'models_title' => 'Choose the model. We handle the rest.',
 		'model_one_title' => 'Fully managed service',
-		'model_one_text' => 'For offices, production sites and logistics centres with 30+ employees. We install the machine, bring fresh food and keep it running.',
+		'model_one_text' => 'For offices, production sites and logistics centres with 30+ employees. We install the machine, deliver fresh food, refill the selection regularly and look after the equipment. Your team simply chooses what they feel like.',
 		'model_two_title' => 'Equipment lease',
-		'model_two_text' => 'Your team manages the selection. We provide the equipment, technical support and payment system.',
+		'model_two_text' => 'For teams that want to build and manage the selection themselves. We provide the equipment, technical support and payment system.',
 		'process_eyebrow' => 'HOW IT WORKS',
 		'process_title' => 'From the first call to the first lunch.',
 		'step_one' => 'We learn about your workplace', 'step_one_text' => 'We look at headcount, shifts and what will actually work for your people.',
@@ -216,7 +216,10 @@ function jg_submit_enquiry() {
 	if ( ! $company || ! $name || ! is_email( $email ) || empty( $_POST['privacy_consent'] ) ) {
 		wp_safe_redirect( add_query_arg( 'enquiry', 'invalid', wp_get_referer() ?: home_url( '/' ) ) ); exit;
 	}
-	$body = "Company: {$company}\nContact: {$name}\nEmail: {$email}\nPhone: {$phone}\nPeople: {$people}\n\n{$message}";
+	$interest = sanitize_key( wp_unslash( $_POST['service_interest'] ?? '' ) );
+	$interest_labels = array( 'full-service' => 'Pilna servisa risinājums', 'equipment-lease' => 'Aprīkojuma noma' );
+	$interest_label = $interest_labels[ $interest ] ?? 'Nav norādīts';
+	$body = "Company: {$company}\nContact: {$name}\nEmail: {$email}\nPhone: {$phone}\nPeople: {$people}\nInterested service: {$interest_label}\n\n{$message}";
 	$post_id = wp_insert_post( array( 'post_type' => 'janogago_lead', 'post_status' => 'private', 'post_title' => $company . ' — ' . $name, 'post_content' => $body ) );
 	$recipient = sanitize_email( jg_field( absint( $_POST['page_id'] ?? 0 ), 'contact_email' ) );
 	if ( $recipient ) { wp_mail( $recipient, 'JāņogaGO website enquiry: ' . $company, $body, array( 'Reply-To: ' . $name . ' <' . $email . '>' ) ); }
@@ -358,33 +361,6 @@ function jg_block_group( $content, $class, $tag = 'section', $anchor = '' ) {
 	return jg_block( 'group', $attributes, '<' . tag_escape( $tag ) . $anchor_attribute . ' class="wp-block-group ' . esc_attr( $class ) . '">' . $content . '</' . tag_escape( $tag ) . '>' );
 }
 
-function jg_comparison_item( $label, $value ) {
-	return jg_block( 'paragraph', array( 'className' => 'jg-comparison-item' ), '<p class="jg-comparison-item"><strong>' . esc_html( $label ) . '</strong><span>' . esc_html( $value ) . '</span></p>' );
-}
-
-function jg_model_comparison_blocks( $language ) {
-	$is_en = $language === 'en';
-	$title = $is_en ? 'Which model fits your team?' : 'Kurš modelis jums ir piemērots?';
-	$intro = $is_en ? 'Choose how much of the day-to-day service your team wants to manage.' : 'Izvēlieties, cik daudz ikdienas servisa vēlaties uzticēt mums.';
-	$managed = array(
-		'title' => $is_en ? 'Fully managed service' : 'Pilna servisa risinājums',
-		'items' => $is_en ? array( 'Selection' => 'JāņogaGO', 'Installation and maintenance' => 'JāņogaGO', 'Fresh food delivery and refills' => 'JāņogaGO' ) : array( 'Sortimentu pārvalda' => 'JāņogaGO', 'Uzstādīšana un apkope' => 'JāņogaGO', 'Svaigas pārtikas piegāde un papildināšana' => 'JāņogaGO' ),
-	);
-	$lease = array(
-		'title' => $is_en ? 'Equipment lease' : 'Aprīkojuma noma',
-		'items' => $is_en ? array( 'Selection' => 'Your team', 'Equipment and technical support' => 'JāņogaGO', 'Payment system' => 'JāņogaGO' ) : array( 'Sortimentu pārvalda' => 'Jūsu komanda', 'Iekārta un tehniskais atbalsts' => 'JāņogaGO', 'Norēķinu risinājums' => 'JāņogaGO' ),
-	);
-	$columns = '';
-	foreach ( array( $managed, $lease ) as $model ) {
-		$content = jg_block_heading( $model['title'], 3 );
-		foreach ( $model['items'] as $label => $value ) {
-			$content .= jg_comparison_item( $label, $value );
-		}
-		$columns .= jg_block_column( $content, 'jg-comparison-model' );
-	}
-	return jg_block_group( jg_block_heading( $title, 2 ) . jg_block_paragraph( $intro, 'jg-comparison-intro' ) . jg_block_columns( $columns, 'comparison-grid' ), 'service-comparison section jg-block-section jg-block-comparison', 'section' );
-}
-
 function jg_block_faq_item( $question, $answer ) {
 	$html = '<details class="wp-block-details jg-faq-item"><summary>' . esc_html( $question ) . '</summary>' . jg_block_paragraph( $answer ) . '</details>';
 	return jg_block( 'details', array( 'className' => 'jg-faq-item' ), $html );
@@ -444,7 +420,6 @@ function jg_home_blocks( $language, $page_id ) {
 		$cards .= jg_block_column( jg_block_group( $card, 'jg-model-card', 'article' ) );
 	}
 	$models = jg_block_group( jg_block_heading( $copy['models_title'], 2 ) . jg_block_columns( $cards, 'model-grid' ), 'models section jg-block-section jg-block-models', 'section', 'risinajumi' );
-	$comparison = jg_model_comparison_blocks( $language );
 
 	$steps = '';
 	foreach ( array( array( 'step_one', 'step_one_text', '01' ), array( 'step_two', 'step_two_text', '02' ), array( 'step_three', 'step_three_text', '03' ) ) as $step ) {
@@ -455,7 +430,7 @@ function jg_home_blocks( $language, $page_id ) {
 	$faq = jg_faq_section_blocks( $language );
 	$contact = jg_contact_section_blocks( $language );
 
-	return $hero . $proof . $menu . $models . $comparison . $process . $faq . $contact;
+	return $hero . $proof . $menu . $models . $process . $faq . $contact;
 }
 
 function jg_contact_section_blocks( $language ) {
@@ -740,6 +715,48 @@ function jg_expand_homepage_content() {
 }
 add_action( 'init', 'jg_expand_homepage_content', 24 );
 
+/** Remove the redundant comparison and strengthen the two service cards in place. */
+function jg_refine_service_models() {
+	if ( get_option( 'jg_service_models_v2' ) ) {
+		return;
+	}
+	$pages = get_option( 'jg_seeded_pages', array() );
+	if ( ! is_array( $pages ) ) {
+		return;
+	}
+	$replacements = array(
+		'lv' => array(
+			'Piemērots birojiem, ražotnēm un loģistikas centriem ar 30+ darbiniekiem. Uzstādām automātu, vedam svaigu pārtiku un rūpējamies par apkopi.' => jg_defaults( 'lv' )['model_one_text'],
+			'Jūsu komanda pārvalda sortimentu. Mēs nodrošinām iekārtu, tehnisko atbalstu un norēķinu risinājumu.' => jg_defaults( 'lv' )['model_two_text'],
+		),
+		'en' => array(
+			'For offices, production sites and logistics centres with 30+ employees. We install the machine, bring fresh food and keep it running.' => jg_defaults( 'en' )['model_one_text'],
+			'Your team manages the selection. We provide the equipment, technical support and payment system.' => jg_defaults( 'en' )['model_two_text'],
+		),
+	);
+	$complete = true;
+	foreach ( array( 'lv', 'en' ) as $language ) {
+		$page_id = absint( $pages[ $language ] ?? 0 );
+		$page = $page_id ? get_post( $page_id ) : null;
+		if ( ! $page ) {
+			$complete = false;
+			continue;
+		}
+		$content = strtr( $page->post_content, $replacements[ $language ] );
+		$content = preg_replace( '#<!-- wp:group [^>]*"className":"service-comparison section jg-block-section jg-block-comparison"[^>]*-->.*?<!-- /wp:group -->\s*#s', '', $content, 1, $comparison_count );
+		if ( ! str_contains( $content, 'jg-block-comparison' ) && 1 !== $comparison_count && str_contains( $page->post_content, 'jg-block-comparison' ) ) {
+			$complete = false;
+		}
+		if ( $content !== $page->post_content ) {
+			wp_update_post( array( 'ID' => $page_id, 'post_content' => $content ) );
+		}
+	}
+	if ( $complete ) {
+		update_option( 'jg_service_models_v2', 1, false );
+	}
+}
+add_action( 'init', 'jg_refine_service_models', 25 );
+
 function jg_seed_form_copy_fields() {
 	if ( get_option( 'jg_form_copy_fields_v1' ) ) {
 		return;
@@ -767,7 +784,7 @@ function jg_seed_form_copy_fields() {
 		update_option( 'jg_form_copy_fields_v1', 1, false );
 	}
 }
-add_action( 'init', 'jg_seed_form_copy_fields', 25 );
+add_action( 'init', 'jg_seed_form_copy_fields', 26 );
 
 function jg_enquiry_form_shortcode() {
 	$page_id = get_queried_object_id() ?: get_the_ID();
@@ -778,7 +795,7 @@ function jg_enquiry_form_shortcode() {
 	ob_start();
 	?>
 	<form class="jg-enquiry-form" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
-		<input type="hidden" name="action" value="jg_submit_enquiry"><input type="hidden" name="page_id" value="<?php echo esc_attr( $page_id ); ?>"><?php wp_nonce_field( 'jg_submit_enquiry', 'jg_enquiry_nonce' ); ?>
+		<input type="hidden" name="action" value="jg_submit_enquiry"><input type="hidden" name="page_id" value="<?php echo esc_attr( $page_id ); ?>"><input type="hidden" name="service_interest" value=""><?php wp_nonce_field( 'jg_submit_enquiry', 'jg_enquiry_nonce' ); ?>
 		<label><?php echo esc_html( $form_copy['form_company_label'] ); ?><input required name="company" type="text"></label><label><?php echo esc_html( $form_copy['form_name_label'] ); ?><input required name="name" type="text"></label><label><?php echo esc_html( $form_copy['form_email_label'] ); ?><input required name="email" type="email"></label><label><?php echo esc_html( $form_copy['form_phone_label'] ); ?><input name="phone" type="tel"></label><label><?php echo esc_html( $form_copy['form_people_label'] ); ?><input name="people" type="text"></label><label class="full"><?php echo esc_html( $form_copy['form_message_label'] ); ?><textarea name="message" rows="3"></textarea></label>
 		<label class="full jg-privacy-consent"><input required name="privacy_consent" type="checkbox" value="1"><span><?php echo esc_html( $form_copy['form_privacy_label'] ); ?></span></label>
 		<button class="button button-dark" type="submit"><?php echo esc_html( $form_copy['form_submit_label'] ); ?> <span>↗</span></button>

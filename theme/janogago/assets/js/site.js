@@ -27,4 +27,66 @@ document.addEventListener('DOMContentLoaded', () => {
     desktopQuery.addEventListener('change', updateScrollCue);
     reducedMotionQuery.addEventListener('change', updateScrollCue);
   }
+
+  const faqItems = document.querySelectorAll('.jg-faq-item');
+  const reduceFaqMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  faqItems.forEach(item => {
+    const summary = item.querySelector('summary');
+    const answer = item.querySelector('p');
+    if (!summary || !answer) return;
+
+    summary.addEventListener('click', event => {
+      if (reduceFaqMotion.matches) return;
+      event.preventDefault();
+      if (item.faqAnimation) item.faqAnimation.cancel();
+
+      const isOpen = item.open;
+      const startHeight = `${item.offsetHeight}px`;
+      item.style.overflow = 'hidden';
+      item.style.willChange = 'height';
+
+      if (!isOpen) {
+        item.open = true;
+        const endHeight = `${item.scrollHeight}px`;
+        answer.animate(
+          [{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+          { duration: 260, delay: 70, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'both' }
+        );
+        item.faqAnimation = item.animate(
+          { height: [startHeight, endHeight] },
+          { duration: 340, easing: 'cubic-bezier(.16,1,.3,1)' }
+        );
+      } else {
+        const endHeight = `${summary.offsetHeight}px`;
+        item.faqAnimation = item.animate(
+          { height: [startHeight, endHeight] },
+          { duration: 220, easing: 'cubic-bezier(.4,0,1,1)' }
+        );
+      }
+
+      item.faqAnimation.onfinish = () => {
+        if (isOpen) item.open = false;
+        item.style.height = '';
+        item.style.overflow = '';
+        item.style.willChange = '';
+        item.faqAnimation = null;
+      };
+      item.faqAnimation.oncancel = () => {
+        item.style.height = '';
+        item.style.overflow = '';
+        item.style.willChange = '';
+        item.faqAnimation = null;
+      };
+    });
+  });
+
+  const enquiryInterest = document.querySelector('.jg-enquiry-form input[name="service_interest"]');
+  const serviceInterests = ['full-service', 'equipment-lease'];
+  document.querySelectorAll('.jg-model-card').forEach((card, index) => {
+    const link = card.querySelector('.jg-card-link a');
+    if (!link || !enquiryInterest || !serviceInterests[index]) return;
+    link.addEventListener('click', () => {
+      enquiryInterest.value = serviceInterests[index];
+    });
+  });
 });
