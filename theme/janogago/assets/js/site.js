@@ -89,4 +89,32 @@ document.addEventListener('DOMContentLoaded', () => {
       enquiryInterest.value = serviceInterests[index];
     });
   });
+
+  document.querySelectorAll('.jg-enquiry-form').forEach(form => {
+    const phone = form.elements.phone;
+    const validatePhone = () => {
+      if (!phone) return;
+      const digits = phone.value.replace(/\D/g, '');
+      const valid = /^\+?[0-9().\s-]+$/.test(phone.value) && digits.length >= 7 && digits.length <= 15;
+      phone.setCustomValidity(phone.value && !valid ? form.dataset.phoneInvalidMessage : '');
+    };
+
+    form.addEventListener('invalid', event => {
+      if (event.target.validity.valueMissing) event.target.setCustomValidity(form.dataset.requiredMessage);
+    }, true);
+    form.addEventListener('input', event => {
+      if (event.target === phone) validatePhone();
+      else event.target.setCustomValidity('');
+    });
+    form.addEventListener('submit', event => {
+      form.querySelectorAll('[required]').forEach(field => {
+        if (field.validity.valueMissing) field.setCustomValidity(form.dataset.requiredMessage);
+      });
+      validatePhone();
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        form.querySelector(':invalid').reportValidity();
+      }
+    });
+  });
 });

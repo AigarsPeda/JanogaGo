@@ -65,7 +65,7 @@ function jg_defaults( $language = null ) {
 		'contact_title' => 'Ienesiet restorāna līmeņa ēdienu savā darba vietā.',
 		'contact_text' => 'Pastāstiet par savu uzņēmumu. Atbildēsim ar piemērotu risinājumu un sarunāsim konsultāciju.',
 		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 28 317 179', 'contact_address' => 'Rīga, Latvija',
-		'form_company_label' => 'Uzņēmums', 'form_name_label' => 'Jūsu vārds', 'form_email_label' => 'E-pasts', 'form_phone_label' => 'Tālrunis', 'form_people_label' => 'Darbinieku skaits', 'form_message_label' => 'Ko vēlaties nodrošināt?', 'form_privacy_label' => 'Piekrītu, ka JāņogaGO izmantos manu sniegto informāciju, lai sazinātos par manu pieprasījumu.', 'form_submit_label' => 'Nosūtīt pieteikumu', 'form_success_message' => 'Paldies. Mēs ar jums sazināsimies.', 'form_invalid_message' => 'Lūdzu, aizpildiet obligātos laukus un atzīmējiet piekrišanu.',
+		'form_company_label' => 'Uzņēmums', 'form_name_label' => 'Jūsu vārds', 'form_email_label' => 'E-pasts', 'form_phone_label' => 'Tālrunis', 'form_people_label' => 'Darbinieku skaits', 'form_message_label' => 'Ko vēlaties nodrošināt?', 'form_privacy_label' => 'Piekrītu, ka JāņogaGO izmantos manu sniegto informāciju, lai sazinātos par manu pieprasījumu.', 'form_submit_label' => 'Nosūtīt pieteikumu', 'form_success_message' => 'Paldies. Mēs ar jums sazināsimies.', 'form_invalid_message' => 'Lūdzu, aizpildiet visus laukus un atzīmējiet piekrišanu.', 'form_phone_invalid_message' => 'Lūdzu, ievadiet derīgu tālruņa numuru.',
 	);
 	$en = array(
 		'hero_eyebrow' => 'WORKPLACE FOOD, FULLY MANAGED',
@@ -95,7 +95,7 @@ function jg_defaults( $language = null ) {
 		'contact_title' => 'Bring restaurant-level food to your workplace.',
 		'contact_text' => 'Tell us about your company. We will come back with a practical proposal and arrange a consultation.',
 		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 28 317 179', 'contact_address' => 'Riga, Latvia',
-		'form_company_label' => 'Company', 'form_name_label' => 'Your name', 'form_email_label' => 'Email', 'form_phone_label' => 'Phone', 'form_people_label' => 'Number of people', 'form_message_label' => 'What do you need?', 'form_privacy_label' => 'I agree that JāņogaGO may use the information I provide to contact me about my request.', 'form_submit_label' => 'Send enquiry', 'form_success_message' => 'Thank you. We will be in touch.', 'form_invalid_message' => 'Please complete the required fields and consent checkbox.',
+		'form_company_label' => 'Company', 'form_name_label' => 'Your name', 'form_email_label' => 'Email', 'form_phone_label' => 'Phone', 'form_people_label' => 'Number of people', 'form_message_label' => 'What do you need?', 'form_privacy_label' => 'I agree that JāņogaGO may use the information I provide to contact me about my request.', 'form_submit_label' => 'Send enquiry', 'form_success_message' => 'Thank you. We will be in touch.', 'form_invalid_message' => 'Please complete every field and consent checkbox.', 'form_phone_invalid_message' => 'Please enter a valid phone number.',
 	);
 	return ( $language ?: jg_lang() ) === 'en' ? $en : $lv;
 }
@@ -156,7 +156,7 @@ function jg_editor_fields() {
 		'models_eyebrow' => array( 'label' => 'Service models eyebrow', 'type' => 'text' ), 'models_title' => array( 'label' => 'Service models heading', 'type' => 'textarea' ), 'model_one_title' => array( 'label' => 'Model 1 title', 'type' => 'text' ), 'model_one_text' => array( 'label' => 'Model 1 text', 'type' => 'textarea' ), 'model_two_title' => array( 'label' => 'Model 2 title', 'type' => 'text' ), 'model_two_text' => array( 'label' => 'Model 2 text', 'type' => 'textarea' ),
 		'process_eyebrow' => array( 'label' => 'Process eyebrow', 'type' => 'text' ), 'process_title' => array( 'label' => 'Process heading', 'type' => 'textarea' ), 'step_one' => array( 'label' => 'Step 1 title', 'type' => 'text' ), 'step_one_text' => array( 'label' => 'Step 1 text', 'type' => 'textarea' ), 'step_two' => array( 'label' => 'Step 2 title', 'type' => 'text' ), 'step_two_text' => array( 'label' => 'Step 2 text', 'type' => 'textarea' ), 'step_three' => array( 'label' => 'Step 3 title', 'type' => 'text' ), 'step_three_text' => array( 'label' => 'Step 3 text', 'type' => 'textarea' ),
 		'contact_eyebrow' => array( 'label' => 'Contact eyebrow', 'type' => 'text' ), 'contact_title' => array( 'label' => 'Contact heading', 'type' => 'textarea' ), 'contact_text' => array( 'label' => 'Contact text', 'type' => 'textarea' ), 'contact_email' => array( 'label' => 'Contact email', 'type' => 'email' ), 'contact_phone' => array( 'label' => 'Contact phone', 'type' => 'text' ), 'contact_address' => array( 'label' => 'Contact address', 'type' => 'text' ),
-		'form_company_label' => array( 'label' => 'Form: company label', 'type' => 'text' ), 'form_name_label' => array( 'label' => 'Form: name label', 'type' => 'text' ), 'form_email_label' => array( 'label' => 'Form: email label', 'type' => 'text' ), 'form_phone_label' => array( 'label' => 'Form: phone label', 'type' => 'text' ), 'form_people_label' => array( 'label' => 'Form: people label', 'type' => 'text' ), 'form_message_label' => array( 'label' => 'Form: message label', 'type' => 'text' ), 'form_privacy_label' => array( 'label' => 'Form: privacy consent', 'type' => 'textarea' ), 'form_submit_label' => array( 'label' => 'Form: button label', 'type' => 'text' ), 'form_success_message' => array( 'label' => 'Form: success message', 'type' => 'text' ), 'form_invalid_message' => array( 'label' => 'Form: validation message', 'type' => 'text' ),
+		'form_company_label' => array( 'label' => 'Form: company label', 'type' => 'text' ), 'form_name_label' => array( 'label' => 'Form: name label', 'type' => 'text' ), 'form_email_label' => array( 'label' => 'Form: email label', 'type' => 'text' ), 'form_phone_label' => array( 'label' => 'Form: phone label', 'type' => 'text' ), 'form_people_label' => array( 'label' => 'Form: people label', 'type' => 'text' ), 'form_message_label' => array( 'label' => 'Form: message label', 'type' => 'text' ), 'form_privacy_label' => array( 'label' => 'Form: privacy consent', 'type' => 'textarea' ), 'form_submit_label' => array( 'label' => 'Form: button label', 'type' => 'text' ), 'form_success_message' => array( 'label' => 'Form: success message', 'type' => 'text' ), 'form_invalid_message' => array( 'label' => 'Form: required fields message', 'type' => 'text' ), 'form_phone_invalid_message' => array( 'label' => 'Form: invalid phone message', 'type' => 'text' ),
 	);
 }
 
@@ -210,6 +210,15 @@ function jg_register_leads() {
 }
 add_action( 'init', 'jg_register_leads' );
 
+function jg_is_valid_phone_number( $phone ) {
+	$phone = trim( (string) $phone );
+	if ( ! preg_match( '/^\+?[0-9().\s-]+$/', $phone ) ) {
+		return false;
+	}
+	$digits = preg_replace( '/\D+/', '', $phone );
+	return strlen( $digits ) >= 7 && strlen( $digits ) <= 15;
+}
+
 function jg_submit_enquiry() {
 	if ( ! isset( $_POST['jg_enquiry_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['jg_enquiry_nonce'] ) ), 'jg_submit_enquiry' ) ) {
 		wp_die( 'Invalid form submission.' );
@@ -220,7 +229,10 @@ function jg_submit_enquiry() {
 	$phone = sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) );
 	$people = sanitize_text_field( wp_unslash( $_POST['people'] ?? '' ) );
 	$message = sanitize_textarea_field( wp_unslash( $_POST['message'] ?? '' ) );
-	if ( ! $company || ! $name || ! is_email( $email ) || empty( $_POST['privacy_consent'] ) ) {
+	if ( ! $company || ! $name || ! is_email( $email ) || ! $phone || ! $people || ! $message || empty( $_POST['privacy_consent'] ) ) {
+		wp_safe_redirect( add_query_arg( 'enquiry', 'invalid', wp_get_referer() ?: home_url( '/' ) ) ); exit;
+	}
+	if ( ! jg_is_valid_phone_number( $phone ) || ! ctype_digit( $people ) || 0 >= (int) $people ) {
 		wp_safe_redirect( add_query_arg( 'enquiry', 'invalid', wp_get_referer() ?: home_url( '/' ) ) ); exit;
 	}
 	$interest = sanitize_key( wp_unslash( $_POST['service_interest'] ?? '' ) );
@@ -778,14 +790,14 @@ function jg_refine_service_models() {
 add_action( 'init', 'jg_refine_service_models', 25 );
 
 function jg_seed_form_copy_fields() {
-	if ( get_option( 'jg_form_copy_fields_v1' ) ) {
+	if ( get_option( 'jg_form_copy_fields_v2' ) ) {
 		return;
 	}
 	$pages = get_option( 'jg_seeded_pages', array() );
 	if ( ! is_array( $pages ) ) {
 		return;
 	}
-	$form_keys = array( 'form_company_label', 'form_name_label', 'form_email_label', 'form_phone_label', 'form_people_label', 'form_message_label', 'form_privacy_label', 'form_submit_label', 'form_success_message', 'form_invalid_message' );
+	$form_keys = array( 'form_company_label', 'form_name_label', 'form_email_label', 'form_phone_label', 'form_people_label', 'form_message_label', 'form_privacy_label', 'form_submit_label', 'form_success_message', 'form_invalid_message', 'form_phone_invalid_message' );
 	$complete = true;
 	foreach ( array( 'lv', 'en' ) as $language ) {
 		$page_id = absint( $pages[ $language ] ?? 0 );
@@ -801,7 +813,7 @@ function jg_seed_form_copy_fields() {
 		}
 	}
 	if ( $complete ) {
-		update_option( 'jg_form_copy_fields_v1', 1, false );
+		update_option( 'jg_form_copy_fields_v2', 1, false );
 	}
 }
 add_action( 'init', 'jg_seed_form_copy_fields', 26 );
@@ -809,14 +821,14 @@ add_action( 'init', 'jg_seed_form_copy_fields', 26 );
 function jg_enquiry_form_shortcode() {
 	$page_id = get_queried_object_id() ?: get_the_ID();
 	$form_copy = array();
-	foreach ( array( 'form_company_label', 'form_name_label', 'form_email_label', 'form_phone_label', 'form_people_label', 'form_message_label', 'form_privacy_label', 'form_submit_label', 'form_success_message', 'form_invalid_message' ) as $key ) {
+	foreach ( array( 'form_company_label', 'form_name_label', 'form_email_label', 'form_phone_label', 'form_people_label', 'form_message_label', 'form_privacy_label', 'form_submit_label', 'form_success_message', 'form_invalid_message', 'form_phone_invalid_message' ) as $key ) {
 		$form_copy[ $key ] = jg_field( $page_id, $key );
 	}
 	ob_start();
 	?>
-	<form class="jg-enquiry-form" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+	<form class="jg-enquiry-form" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" data-required-message="<?php echo esc_attr( $form_copy['form_invalid_message'] ); ?>" data-phone-invalid-message="<?php echo esc_attr( $form_copy['form_phone_invalid_message'] ); ?>">
 		<input type="hidden" name="action" value="jg_submit_enquiry"><input type="hidden" name="page_id" value="<?php echo esc_attr( $page_id ); ?>"><input type="hidden" name="service_interest" value=""><?php wp_nonce_field( 'jg_submit_enquiry', 'jg_enquiry_nonce' ); ?>
-		<label><?php echo esc_html( $form_copy['form_company_label'] ); ?><input required name="company" type="text"></label><label><?php echo esc_html( $form_copy['form_name_label'] ); ?><input required name="name" type="text"></label><label><?php echo esc_html( $form_copy['form_email_label'] ); ?><input required name="email" type="email"></label><label><?php echo esc_html( $form_copy['form_phone_label'] ); ?><input name="phone" type="tel"></label><label><?php echo esc_html( $form_copy['form_people_label'] ); ?><input name="people" type="text"></label><label class="full"><?php echo esc_html( $form_copy['form_message_label'] ); ?><textarea name="message" rows="3"></textarea></label>
+		<label><?php echo esc_html( $form_copy['form_company_label'] ); ?><input required name="company" type="text" autocomplete="organization" maxlength="120"></label><label><?php echo esc_html( $form_copy['form_name_label'] ); ?><input required name="name" type="text" autocomplete="name" maxlength="120"></label><label><?php echo esc_html( $form_copy['form_email_label'] ); ?><input required name="email" type="email" autocomplete="email" maxlength="254"></label><label><?php echo esc_html( $form_copy['form_phone_label'] ); ?><input required name="phone" type="tel" autocomplete="tel" inputmode="tel" pattern="[0-9+(). -]{7,25}" maxlength="25"></label><label><?php echo esc_html( $form_copy['form_people_label'] ); ?><input required name="people" type="number" inputmode="numeric" min="1" step="1"></label><label class="full"><?php echo esc_html( $form_copy['form_message_label'] ); ?><textarea required name="message" rows="3" maxlength="2000"></textarea></label>
 		<label class="full jg-privacy-consent"><input required name="privacy_consent" type="checkbox" value="1"><span><?php echo esc_html( $form_copy['form_privacy_label'] ); ?></span></label>
 		<button class="button button-dark" type="submit"><?php echo esc_html( $form_copy['form_submit_label'] ); ?> <?php echo jg_arrow_icon(); ?></button>
 		<?php if ( isset( $_GET['enquiry'] ) && $_GET['enquiry'] === 'sent' ) : ?><p class="form-message"><?php echo esc_html( $form_copy['form_success_message'] ); ?></p><?php elseif ( isset( $_GET['enquiry'] ) && $_GET['enquiry'] === 'invalid' ) : ?><p class="form-message"><?php echo esc_html( $form_copy['form_invalid_message'] ); ?></p><?php endif; ?>
