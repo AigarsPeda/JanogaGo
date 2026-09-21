@@ -11,6 +11,7 @@
 </head>
 <body <?php body_class(); ?>><?php wp_body_open(); ?>
 <header class="site-header">
+	<?php $primary_cta = jg_primary_cta( get_queried_object_id() ); ?>
 	<div class="site-brand">
 		<?php if ( has_custom_logo() ) {
 			the_custom_logo();
@@ -22,6 +23,6 @@
 		<?php } ?>
 	</div>
 	<button class="menu-toggle" aria-label="Open navigation" aria-expanded="false"><i></i><i></i></button>
-	<nav class="site-nav" aria-label="Primary navigation"><?php wp_nav_menu( array( 'theme_location' => 'primary', 'container' => false, 'menu_class' => 'jg-menu', 'fallback_cb' => 'jg_fallback_menu', 'depth' => 1 ) ); ?><?php if ( function_exists( 'pll_the_languages' ) ) { $languages = pll_the_languages( array( 'raw' => 1, 'hide_current' => 0 ) ); if ( is_array( $languages ) ) { echo '<ul class="language-switcher">'; foreach ( $languages as $language ) { echo '<li' . ( ! empty( $language['current_lang'] ) ? ' class="current-lang"' : '' ) . '><a lang="' . esc_attr( $language['slug'] ) . '" href="' . esc_url( $language['url'] ) . '">' . esc_html( strtoupper( $language['slug'] ) ) . '</a></li>'; } echo '</ul>'; } } ?><a class="nav-cta" href="<?php echo esc_url( jg_field( get_queried_object_id(), 'hero_cta_url' ) ); ?>"><?php echo esc_html( jg_field( get_queried_object_id(), 'hero_cta' ) ); ?></a>
+	<nav class="site-nav" aria-label="Primary navigation"><?php wp_nav_menu( array( 'theme_location' => 'primary', 'container' => false, 'menu_class' => 'jg-menu', 'fallback_cb' => 'jg_fallback_menu', 'depth' => 1 ) ); ?><?php if ( function_exists( 'pll_the_languages' ) ) { $languages = pll_the_languages( array( 'raw' => 1, 'hide_current' => 0 ) ); if ( is_array( $languages ) ) { echo '<ul class="language-switcher">'; foreach ( $languages as $language ) { echo '<li' . ( ! empty( $language['current_lang'] ) ? ' class="current-lang"' : '' ) . '><a lang="' . esc_attr( $language['slug'] ) . '" href="' . esc_url( $language['url'] ) . '">' . esc_html( strtoupper( $language['slug'] ) ) . '</a></li>'; } echo '</ul>'; } } ?><a class="nav-cta" href="<?php echo esc_url( $primary_cta['url'] ); ?>"><?php echo esc_html( $primary_cta['label'] ); ?></a>
 	</nav>
 </header>
