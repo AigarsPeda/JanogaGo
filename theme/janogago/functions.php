@@ -340,6 +340,19 @@ function jg_block_button( $label, $url, $class = '' ) {
 	return jg_block( 'buttons', array( 'className' => 'jg-buttons' ), '<div class="wp-block-buttons jg-buttons">' . $button . '</div>' );
 }
 
+function jg_arrow_icon() {
+	return '<span class="jg-arrow-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" focusable="false"><path d="M7 17 17 7M7 7h10v10"/></svg></span>';
+}
+
+function jg_render_button_arrow_icon( $content, $block ) {
+	if ( 'core/button' !== ( $block['blockName'] ?? '' ) ) {
+		return $content;
+	}
+
+	return str_replace( '<span>↗</span>', jg_arrow_icon(), $content );
+}
+add_filter( 'render_block', 'jg_render_button_arrow_icon', 10, 2 );
+
 function jg_block_image( $attachment_id, $alt, $class = '' ) {
 	$url = $attachment_id ? wp_get_attachment_image_url( $attachment_id, 'large' ) : '';
 	if ( ! $url ) {
@@ -805,7 +818,7 @@ function jg_enquiry_form_shortcode() {
 		<input type="hidden" name="action" value="jg_submit_enquiry"><input type="hidden" name="page_id" value="<?php echo esc_attr( $page_id ); ?>"><input type="hidden" name="service_interest" value=""><?php wp_nonce_field( 'jg_submit_enquiry', 'jg_enquiry_nonce' ); ?>
 		<label><?php echo esc_html( $form_copy['form_company_label'] ); ?><input required name="company" type="text"></label><label><?php echo esc_html( $form_copy['form_name_label'] ); ?><input required name="name" type="text"></label><label><?php echo esc_html( $form_copy['form_email_label'] ); ?><input required name="email" type="email"></label><label><?php echo esc_html( $form_copy['form_phone_label'] ); ?><input name="phone" type="tel"></label><label><?php echo esc_html( $form_copy['form_people_label'] ); ?><input name="people" type="text"></label><label class="full"><?php echo esc_html( $form_copy['form_message_label'] ); ?><textarea name="message" rows="3"></textarea></label>
 		<label class="full jg-privacy-consent"><input required name="privacy_consent" type="checkbox" value="1"><span><?php echo esc_html( $form_copy['form_privacy_label'] ); ?></span></label>
-		<button class="button button-dark" type="submit"><?php echo esc_html( $form_copy['form_submit_label'] ); ?> <span>↗</span></button>
+		<button class="button button-dark" type="submit"><?php echo esc_html( $form_copy['form_submit_label'] ); ?> <?php echo jg_arrow_icon(); ?></button>
 		<?php if ( isset( $_GET['enquiry'] ) && $_GET['enquiry'] === 'sent' ) : ?><p class="form-message"><?php echo esc_html( $form_copy['form_success_message'] ); ?></p><?php elseif ( isset( $_GET['enquiry'] ) && $_GET['enquiry'] === 'invalid' ) : ?><p class="form-message"><?php echo esc_html( $form_copy['form_invalid_message'] ); ?></p><?php endif; ?>
 	</form>
 	<?php
