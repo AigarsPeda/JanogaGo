@@ -28,6 +28,64 @@ document.addEventListener('DOMContentLoaded', () => {
     reducedMotionQuery.addEventListener('change', updateScrollCue);
   }
 
+  const clientCarousel = document.querySelector('.jg-client-grid');
+  const mobileCarouselQuery = window.matchMedia('(max-width: 700px)');
+  if (clientCarousel) {
+    const originalSlides = Array.from(clientCarousel.children);
+    let carouselTimer;
+    let lastFrameTime = 0;
+    let loopWidth = 0;
+
+    const clearCarousel = () => {
+      window.clearInterval(carouselTimer);
+      carouselTimer = undefined;
+      lastFrameTime = 0;
+    };
+    const cloneSlides = () => {
+      if (clientCarousel.querySelector('[data-jg-carousel-clone]')) return;
+      originalSlides.forEach(slide => {
+        const clone = slide.cloneNode(true);
+        clone.dataset.jgCarouselClone = 'true';
+        clone.setAttribute('aria-hidden', 'true');
+        clientCarousel.append(clone);
+      });
+      loopWidth = clientCarousel.children[originalSlides.length].offsetLeft;
+    };
+    const removeClones = () => {
+      clientCarousel.querySelectorAll('[data-jg-carousel-clone]').forEach(clone => clone.remove());
+      clientCarousel.scrollLeft = 0;
+      loopWidth = 0;
+    };
+    const canMove = () => mobileCarouselQuery.matches && !reducedMotionQuery.matches && !document.hidden && loopWidth > 0;
+    const moveCarousel = () => {
+      if (!canMove()) return;
+      const timestamp = performance.now();
+      if (!lastFrameTime) lastFrameTime = timestamp;
+      const elapsed = Math.min(timestamp - lastFrameTime, 64);
+      lastFrameTime = timestamp;
+      clientCarousel.scrollLeft += elapsed * 0.026;
+      if (clientCarousel.scrollLeft >= loopWidth) clientCarousel.scrollLeft -= loopWidth;
+    };
+    const startCarousel = () => {
+      clearCarousel();
+      if (!mobileCarouselQuery.matches || reducedMotionQuery.matches) {
+        removeClones();
+        return;
+      }
+      cloneSlides();
+      if (canMove()) carouselTimer = window.setInterval(moveCarousel, 16);
+    };
+    startCarousel();
+    mobileCarouselQuery.addEventListener('change', startCarousel);
+    reducedMotionQuery.addEventListener('change', startCarousel);
+    document.addEventListener('visibilitychange', startCarousel);
+    window.addEventListener('resize', () => {
+      if (mobileCarouselQuery.matches && !reducedMotionQuery.matches) {
+        loopWidth = clientCarousel.children[originalSlides.length]?.offsetLeft || 0;
+      }
+    });
+  }
+
   const faqItems = document.querySelectorAll('.jg-faq-item');
   const reduceFaqMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   faqItems.forEach(item => {

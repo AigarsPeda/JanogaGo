@@ -38,7 +38,7 @@ function jg_lang() {
 function jg_defaults( $language = null ) {
 	$lv = array(
 		'hero_eyebrow' => 'ĒDIENS DARBĀ, BEZ RŪPĒM',
-		'hero_title' => 'Labs ēdiens darbā. Jebkurā laikā.',
+		'hero_title' => 'Svaigs un veselīgs ēdiens jūsu darba vietā 24/7.',
 		'hero_text' => 'Pilna servisa ēdienu automāti ar svaigām maltītēm, uzkodām un dzērieniem birojiem, ražotnēm un loģistikas centriem. Mēs uzstādām, piegādājam, papildinām un uzturam.',
 		'hero_cta' => 'Pieteikt konsultāciju',
 		'hero_cta_url' => '#pieteikties',
@@ -69,7 +69,7 @@ function jg_defaults( $language = null ) {
 	);
 	$en = array(
 		'hero_eyebrow' => 'WORKPLACE FOOD, FULLY MANAGED',
-		'hero_title' => 'Good food at work. Any time of day.',
+		'hero_title' => 'Fresh, healthy food at your workplace, 24/7.',
 		'hero_text' => 'Fully managed food vending with fresh meals, snacks and drinks for offices, production sites and logistics centres. We install, deliver, refill and maintain the service.',
 		'hero_cta' => 'Book a consultation', 'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'WHY JANOGAGO',
@@ -421,6 +421,64 @@ function jg_faq_section_blocks( $language ) {
 	return jg_block_group( jg_block_heading( $title, 2 ) . '<div class="jg-faq-list">' . $items . '</div>', 'faq section jg-block-section jg-block-faq', 'section', 'biezi-uzdotie-jautajumi' );
 }
 
+function jg_machine_section_blocks( $language ) {
+	$is_en = $language === 'en';
+	$machines = $is_en ? array(
+		array( 'Boostic', 'Smart food vending for high-traffic workplaces. A clear screen, cashless payments and remote monitoring keep the service simple for everyone.', 'Demo specification: 6 shelves · up to 250 products · remote monitoring', 'se-tsuchiya-hKtHlW26-r8-unsplash.jpg', 'Boostic food vending machine' ),
+		array( 'Necta Festival', 'A carousel-style machine for drinks, snacks and everyday favourites. Compact, easy to use and suited to shared spaces.', 'Demo specification: 8 spirals · up to 180 products · cashless payments', 'qingyu-b-Ym7joNCLM-unsplash.jpg', 'Necta Festival food vending machine' ),
+	) : array(
+		array( 'Boostic', 'Gudrs ēdienu automāts vietām ar lielu cilvēku plūsmu. Ekrāns, bezskaidras naudas norēķini un attālināta uzraudzība padara servisu vienkāršu ikvienam.', 'Pagaidu specifikācija: 6 plaukti · līdz 250 produktiem · attālināta uzraudzība', 'se-tsuchiya-hKtHlW26-r8-unsplash.jpg', 'Boostic ēdienu automāts' ),
+		array( 'Necta Festival', 'Karuseļa tipa automāts dzērieniem, uzkodām un ikdienas iecienītākajām izvēlēm. Kompakts, ērts un piemērots koplietošanas telpām.', 'Pagaidu specifikācija: 8 spirāles · līdz 180 produktiem · bezskaidras naudas norēķini', 'qingyu-b-Ym7joNCLM-unsplash.jpg', 'Necta Festival ēdienu automāts' ),
+	);
+	$cards = '';
+	foreach ( $machines as $machine ) {
+		$card = jg_block_image( jg_seed_attachment( $machine[3] ), $machine[4] ) . jg_block_heading( $machine[0], 3 ) . jg_block_paragraph( $machine[1] ) . jg_block_paragraph( $machine[2], 'jg-machine-specs' );
+		$cards .= jg_block_column( jg_block_group( $card, 'jg-machine-card', 'article' ) );
+	}
+	$title = $is_en ? 'Explore our food vending machines.' : 'Apskatīt ēdienu automātus.';
+	$intro = $is_en ? 'Two machine formats for different workplaces.' : 'Divi automātu modeļi dažādām darba vietām.';
+	return jg_block_group( jg_block_heading( $title, 2 ) . jg_block_paragraph( $intro, 'jg-section-lede' ) . jg_block_columns( $cards, 'jg-machine-grid' ), 'machines section jg-block-section jg-block-machines', 'section', 'automati' );
+}
+
+function jg_food_range_section_blocks( $language ) {
+	$is_en = $language === 'en';
+	$items = $is_en ? array(
+		array( 'Hot meals', 'Hearty lunch options for a proper break.', 'leyli-sadeqian-wSmhn8taZpc-unsplash.jpg', 'Hot meal example' ),
+		array( 'Salads and bowls', 'Fresh, balanced choices for a lighter lunch.', 'anh-nguyen-kcA-c3f_3FE-unsplash.jpg', 'Salad bowl example' ),
+		array( 'Something sweet', 'Desserts and small treats for the afternoon.', 'anna-tukhfatullina-food-photographer-stylist-Mzy-OjtCI70-unsplash.jpg', 'Dessert example' ),
+	) : array(
+		array( 'Siltās pusdienas', 'Sātīgas maltītes pilnvērtīgai pusdienu pauzei.', 'leyli-sadeqian-wSmhn8taZpc-unsplash.jpg', 'Siltās maltītes paraugs' ),
+		array( 'Salāti un bļodas', 'Svaiga un sabalansēta izvēle vieglākām pusdienām.', 'anh-nguyen-kcA-c3f_3FE-unsplash.jpg', 'Salātu bļodas paraugs' ),
+		array( 'Kaut kas salds', 'Deserti un nelieli kārumi pēcpusdienai.', 'anna-tukhfatullina-food-photographer-stylist-Mzy-OjtCI70-unsplash.jpg', 'Deserta paraugs' ),
+	);
+	$cards = '';
+	foreach ( $items as $item ) {
+		$card = jg_block_image( jg_seed_attachment( $item[2] ), $item[3] ) . jg_block_heading( $item[0], 3 ) . jg_block_paragraph( $item[1] );
+		$cards .= jg_block_column( jg_block_group( $card, 'jg-food-card', 'article' ) );
+	}
+	$title = $is_en ? 'Food for every kind of workday.' : 'Ēdiens katrai darba dienai.';
+	$intro = $is_en ? 'Hot lunches, fresh bowls and something small for the afternoon.' : 'Siltas pusdienas, svaigas bļodas un nelieli kārumi darba dienai.';
+	return jg_block_group( jg_block_heading( $title, 2 ) . jg_block_paragraph( $intro, 'jg-section-lede' ) . jg_block_columns( $cards, 'jg-food-grid' ), 'food-range section jg-block-section jg-block-food-range', 'section', 'sortiments' );
+}
+
+function jg_clients_section_blocks( $language ) {
+	$is_en = $language === 'en';
+	$clients = array(
+		array( 'Livonia Print', 'livonia-print.png' ),
+		array( 'Omniva', 'omniva.png' ),
+		array( 'LIDL', 'lidl.png' ),
+		array( 'Sportland', 'sportland.png' ),
+		array( 'Redwire Corporation', 'redwire-corporation.png' ),
+	);
+	$wordmarks = '';
+	foreach ( $clients as $client ) {
+		$wordmarks .= jg_block_column( jg_block_group( jg_block_image( jg_seed_attachment( $client[1] ), $client[0] . ' logo' ), 'jg-client-wordmark', 'div' ) );
+	}
+	$title = $is_en ? 'Trusted by teams who keep moving.' : 'Mūs jau novērtē.';
+	$intro = $is_en ? 'From production and retail to logistics.' : 'No ražotnēm līdz mazumtirdzniecībai un loģistikai.';
+	return jg_block_group( jg_block_heading( $title, 2 ) . jg_block_paragraph( $intro, 'jg-section-lede' ) . jg_block_columns( $wordmarks, 'jg-client-grid' ), 'clients section jg-block-section jg-block-clients', 'section', 'klienti' );
+}
+
 function jg_home_blocks( $language, $page_id ) {
 	$copy = jg_defaults( $language );
 	$hero_image = absint( get_post_meta( $page_id, '_jg_hero_image', true ) ) ?: jg_seed_attachment( 'se-tsuchiya-JDoyICyNcfg-unsplash.jpg' );
@@ -438,6 +496,7 @@ function jg_home_blocks( $language, $page_id ) {
 	}
 	$proof_copy = jg_block_paragraph( $copy['intro_text'] ) . '<div class="proof-points">' . $points . '</div>';
 	$proof = jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['intro_title'], 2 ), 'section-intro' ) . jg_block_column( $proof_copy, 'proof-copy' ), 'jg-block-proof-layout' ), 'proof section jg-block-section jg-block-proof', 'section', 'par-mums' );
+	$machines = jg_machine_section_blocks( $language );
 
 	$menu_items = '';
 	foreach ( array( 'menu_one', 'menu_two', 'menu_three', 'menu_four' ) as $key ) {
@@ -445,6 +504,8 @@ function jg_home_blocks( $language, $page_id ) {
 	}
 	$menu_copy = jg_block_heading( $copy['menu_title'], 2 ) . jg_block_paragraph( $copy['menu_text'] ) . '<ul class="menu-list">' . $menu_items . '</ul>';
 	$menu = jg_block_group( jg_block_columns( jg_block_column( jg_block_image( $menu_image, $is_en ? 'Fresh workplace food' : 'Svaigs ēdiens darba vietā' ), 'menu-image' ) . jg_block_column( $menu_copy, 'menu-copy' ), 'jg-block-menu-layout' ), 'menu-section section jg-block-section jg-block-menu', 'section', 'edieni' );
+	$food_range = jg_food_range_section_blocks( $language );
+	$clients = jg_clients_section_blocks( $language );
 
 	$cards = '';
 	foreach ( array( array( 'model_one_title', 'model_one_text' ), array( 'model_two_title', 'model_two_text' ) ) as $model ) {
@@ -462,7 +523,7 @@ function jg_home_blocks( $language, $page_id ) {
 	$faq = jg_faq_section_blocks( $language );
 	$contact = jg_contact_section_blocks( $language );
 
-	return $hero . $proof . $menu . $models . $process . $faq . $contact;
+	return $hero . $machines . $proof . $menu . $food_range . $clients . $models . $process . $faq . $contact;
 }
 
 function jg_contact_section_blocks( $language ) {
@@ -788,6 +849,50 @@ function jg_refine_service_models() {
 	}
 }
 add_action( 'init', 'jg_refine_service_models', 25 );
+
+/** Seed the customer-requested showcase blocks once, then leave them to Gutenberg. */
+function jg_add_customer_showcase_sections() {
+	if ( get_option( 'jg_customer_showcase_v1' ) ) {
+		return;
+	}
+	$pages = get_option( 'jg_seeded_pages', array() );
+	if ( ! is_array( $pages ) ) {
+		return;
+	}
+	$hero_replacements = array(
+		'lv' => array( 'Labs ēdiens darbā. Jebkurā laikā.' => jg_defaults( 'lv' )['hero_title'] ),
+		'en' => array( 'Good food at work. Any time of day.' => jg_defaults( 'en' )['hero_title'] ),
+	);
+	$complete = true;
+	foreach ( array( 'lv', 'en' ) as $language ) {
+		$page_id = absint( $pages[ $language ] ?? 0 );
+		$page = $page_id ? get_post( $page_id ) : null;
+		if ( ! $page ) {
+			$complete = false;
+			continue;
+		}
+		$content = strtr( $page->post_content, $hero_replacements[ $language ] );
+		if ( ! str_contains( $content, 'jg-block-machines' ) ) {
+			$content = preg_replace( '#(?=<!-- wp:group [^>]*"className":"proof section jg-block-section jg-block-proof")#', jg_machine_section_blocks( $language ), $content, 1, $machine_count );
+			if ( 1 !== $machine_count ) {
+				$complete = false;
+			}
+		}
+		if ( ! str_contains( $content, 'jg-block-food-range' ) ) {
+			$content = preg_replace( '#(?=<!-- wp:group [^>]*"className":"models section jg-block-section jg-block-models")#', jg_food_range_section_blocks( $language ) . jg_clients_section_blocks( $language ), $content, 1, $showcase_count );
+			if ( 1 !== $showcase_count ) {
+				$complete = false;
+			}
+		}
+		if ( $content !== $page->post_content ) {
+			wp_update_post( array( 'ID' => $page_id, 'post_content' => $content ) );
+		}
+	}
+	if ( $complete ) {
+		update_option( 'jg_customer_showcase_v1', 1, false );
+	}
+}
+add_action( 'init', 'jg_add_customer_showcase_sections', 27 );
 
 function jg_seed_form_copy_fields() {
 	if ( get_option( 'jg_form_copy_fields_v2' ) ) {
