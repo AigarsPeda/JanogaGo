@@ -3,7 +3,7 @@ Theme Name: JāņogaGO
 Theme URI: https://janoga.lv/
 Author: JāņogaGO
 Description: B2B food vending and managed refreshment service.
-Version: 1.0.25
+Version: 1.0.31
 Text Domain: janogago
 */
 
@@ -20,6 +20,8 @@ Text Domain: janogago
 /* Keep the next client logo visibly entering on narrow screens. */
 @media(max-width:700px){.janogago-blocks .jg-client-grid{gap:4px}.janogago-blocks .jg-client-grid>.wp-block-column{flex-basis:min(60vw,300px)!important;width:min(60vw,300px)!important}}
 @media(max-width:700px){.janogago-blocks .clients .jg-client-wordmark{padding:16px}.janogago-blocks .clients .jg-client-wordmark .wp-block-image img{max-height:82px;max-width:92%}.janogago-blocks .clients .jg-client-wordmark img[alt*="LIDL"]{max-height:92px}}
+@media(min-width:851px){.janogago-blocks .hero-copy{align-self:start;padding-top:clamp(96px,6vw,132px)}}
+@media(max-width:700px){.janogago-blocks .hero-copy{align-self:start;padding-top:20px}.janogago-blocks .jg-client-grid{display:block;overflow-x:auto;overflow-y:hidden;scroll-behavior:auto;touch-action:pan-x;-webkit-overflow-scrolling:touch}.janogago-blocks .jg-client-grid:not(.is-carousel)>.wp-block-column{width:100%!important}.janogago-blocks .jg-client-grid.is-carousel{cursor:grab}.janogago-blocks .jg-client-grid.is-carousel:active{cursor:grabbing}.janogago-blocks .jg-client-track{display:flex;gap:4px;width:max-content}.janogago-blocks .jg-client-track>.wp-block-column{flex:0 0 min(60vw,300px)!important;width:min(60vw,300px)!important}}
 
 /* FAQ: a core Gutenberg Details block styled as a quiet editorial section. */
 .janogago-blocks .faq{background:var(--paper)}

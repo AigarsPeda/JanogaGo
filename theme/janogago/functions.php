@@ -482,7 +482,6 @@ function jg_clients_section_blocks( $language ) {
 function jg_home_blocks( $language, $page_id ) {
 	$copy = jg_defaults( $language );
 	$hero_image = absint( get_post_meta( $page_id, '_jg_hero_image', true ) ) ?: jg_seed_attachment( 'se-tsuchiya-JDoyICyNcfg-unsplash.jpg' );
-	$menu_image = absint( get_post_meta( $page_id, '_jg_menu_image', true ) ) ?: jg_seed_attachment( 'hennie-stander-8VtJPezUmiE-unsplash.jpg' );
 	$is_en = $language === 'en';
 	$more = $is_en ? 'Tell me more' : 'Vēlos uzzināt vairāk';
 
@@ -490,20 +489,7 @@ function jg_home_blocks( $language, $page_id ) {
 	$hero_visual = jg_block_image( $hero_image, $is_en ? 'JāņogaGO food vending machine' : 'JāņogaGO ēdienu automāts' ) . '<div class="hero-badge"><b>24/7</b><span>' . esc_html( $is_en ? 'ready when your team is' : 'gatavs, kad jūsu komanda ir' ) . '</span></div>';
 	$hero = jg_block_group( jg_block_columns( jg_block_column( $hero_copy, 'hero-copy', 'center' ) . jg_block_column( $hero_visual, 'hero-visual', 'center' ), 'jg-block-hero-layout', 'center' ), 'hero jg-block-section jg-block-hero' );
 
-	$points = '';
-	foreach ( array( 'stat_one', 'stat_two', 'stat_three' ) as $index => $key ) {
-		$points .= '<span>' . sprintf( '%02d', $index + 1 ) . ' <b>' . esc_html( $copy[ $key ] ) . '</b></span>';
-	}
-	$proof_copy = jg_block_paragraph( $copy['intro_text'] ) . '<div class="proof-points">' . $points . '</div>';
-	$proof = jg_block_group( jg_block_columns( jg_block_column( jg_block_heading( $copy['intro_title'], 2 ), 'section-intro' ) . jg_block_column( $proof_copy, 'proof-copy' ), 'jg-block-proof-layout' ), 'proof section jg-block-section jg-block-proof', 'section', 'par-mums' );
 	$machines = jg_machine_section_blocks( $language );
-
-	$menu_items = '';
-	foreach ( array( 'menu_one', 'menu_two', 'menu_three', 'menu_four' ) as $key ) {
-		$menu_items .= '<li>' . esc_html( $copy[ $key ] ) . '</li>';
-	}
-	$menu_copy = jg_block_heading( $copy['menu_title'], 2 ) . jg_block_paragraph( $copy['menu_text'] ) . '<ul class="menu-list">' . $menu_items . '</ul>';
-	$menu = jg_block_group( jg_block_columns( jg_block_column( jg_block_image( $menu_image, $is_en ? 'Fresh workplace food' : 'Svaigs ēdiens darba vietā' ), 'menu-image' ) . jg_block_column( $menu_copy, 'menu-copy' ), 'jg-block-menu-layout' ), 'menu-section section jg-block-section jg-block-menu', 'section', 'edieni' );
 	$food_range = jg_food_range_section_blocks( $language );
 	$clients = jg_clients_section_blocks( $language );
 
@@ -523,8 +509,48 @@ function jg_home_blocks( $language, $page_id ) {
 	$faq = jg_faq_section_blocks( $language );
 	$contact = jg_contact_section_blocks( $language );
 
-	return $hero . $machines . $proof . $menu . $food_range . $clients . $models . $process . $faq . $contact;
+	return $hero . $machines . $menu . $food_range . $clients . $models . $process . $faq . $contact;
 }
+
+function jg_homepage_ids() {
+	$front_page = absint( get_option( 'page_on_front' ) );
+	$page_ids = array( $front_page );
+	if ( $front_page && function_exists( 'pll_get_post' ) ) {
+		$page_ids[] = pll_get_post( $front_page, 'lv' );
+		$page_ids[] = pll_get_post( $front_page, 'en' );
+	}
+	return array_filter( array_unique( array_map( 'absint', $page_ids ) ) );
+}
+
+function jg_remove_redundant_home_sections() {
+	foreach ( jg_homepage_ids() as $page_id ) {
+		$page = get_post( $page_id );
+		if ( ! $page || ( ! str_contains( $page->post_content, 'jg-block-proof' ) && ! str_contains( $page->post_content, 'jg-block-menu' ) ) ) {
+			continue;
+		}
+		$blocks = parse_blocks( $page->post_content );
+		$blocks = array_values( array_filter( $blocks, static function( $block ) {
+			$class_name = $block['attrs']['className'] ?? '';
+			return ! str_contains( $class_name, 'jg-block-proof' ) && ! str_contains( $class_name, 'jg-block-menu' );
+		} ) );
+		wp_update_post( array( 'ID' => $page_id, 'post_content' => serialize_blocks( $blocks ) ) );
+	}
+}
+add_action( 'init', 'jg_remove_redundant_home_sections', 28 );
+
+function jg_retarget_food_navigation() {
+	$locations = get_nav_menu_locations();
+	$menu_id = absint( $locations['primary'] ?? 0 );
+	if ( ! $menu_id ) {
+		return;
+	}
+	foreach ( wp_get_nav_menu_items( $menu_id ) ?: array() as $item ) {
+		if ( $item->url === '#edieni' ) {
+			update_post_meta( $item->ID, '_menu_item_url', '#sortiments' );
+		}
+	}
+}
+add_action( 'init', 'jg_retarget_food_navigation', 29 );
 
 function jg_contact_section_blocks( $language ) {
 	$copy = jg_defaults( $language );
@@ -944,7 +970,7 @@ function jg_enquiry_form_shortcode() {
 add_shortcode( 'janogago_enquiry_form', 'jg_enquiry_form_shortcode' );
 
 function jg_fallback_menu() {
-	$items = jg_lang() === 'en' ? array( '#edieni' => 'Food', '#risinajumi' => 'Solutions', '#ka-tas-notiek' => 'How it works' ) : array( '#edieni' => 'Ēdiens', '#risinajumi' => 'Risinājumi', '#ka-tas-notiek' => 'Kā tas notiek' );
+	$items = jg_lang() === 'en' ? array( '#sortiments' => 'Food', '#risinajumi' => 'Solutions', '#ka-tas-notiek' => 'How it works' ) : array( '#sortiments' => 'Ēdiens', '#risinajumi' => 'Risinājumi', '#ka-tas-notiek' => 'Kā tas notiek' );
 	echo '<ul class="jg-menu">';
 	foreach ( $items as $url => $label ) {
 		echo '<li><a href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></li>';

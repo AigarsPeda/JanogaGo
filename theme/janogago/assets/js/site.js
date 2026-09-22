@@ -32,57 +32,120 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileCarouselQuery = window.matchMedia('(max-width: 700px)');
   if (clientCarousel) {
     const originalSlides = Array.from(clientCarousel.children);
-    let carouselTimer;
-    let lastFrameTime = 0;
+    let track;
     let loopWidth = 0;
+    let carouselFrame;
+    let lastFrameTime = 0;
+    let scrollRemainder = 0;
+    let resizeTimer;
+    let resumeTimer;
+    let isBuffering = false;
 
-    const clearCarousel = () => {
-      window.clearInterval(carouselTimer);
-      carouselTimer = undefined;
+    const canAutoplay = () => track && mobileCarouselQuery.matches && !reducedMotionQuery.matches && !document.hidden;
+    const stopCarousel = () => {
+      if (carouselFrame !== undefined) window.cancelAnimationFrame(carouselFrame);
+      carouselFrame = undefined;
       lastFrameTime = 0;
+      scrollRemainder = 0;
     };
-    const cloneSlides = () => {
-      if (clientCarousel.querySelector('[data-jg-carousel-clone]')) return;
+    const createCloneBatch = () => {
+      const batch = document.createDocumentFragment();
       originalSlides.forEach(slide => {
         const clone = slide.cloneNode(true);
         clone.dataset.jgCarouselClone = 'true';
         clone.setAttribute('aria-hidden', 'true');
-        clientCarousel.append(clone);
+        batch.append(clone);
       });
-      loopWidth = clientCarousel.children[originalSlides.length].offsetLeft;
+      return batch;
     };
-    const removeClones = () => {
-      clientCarousel.querySelectorAll('[data-jg-carousel-clone]').forEach(clone => clone.remove());
-      clientCarousel.scrollLeft = 0;
-      loopWidth = 0;
+    const ensureBuffered = () => {
+      if (!track || !loopWidth || isBuffering) return;
+      const edgeBuffer = loopWidth * 2;
+      const remaining = clientCarousel.scrollWidth - clientCarousel.scrollLeft - clientCarousel.clientWidth;
+      isBuffering = true;
+      if (clientCarousel.scrollLeft < edgeBuffer) {
+        track.prepend(createCloneBatch(), createCloneBatch());
+        clientCarousel.scrollLeft += edgeBuffer;
+      }
+      if (remaining < edgeBuffer) track.append(createCloneBatch(), createCloneBatch());
+      isBuffering = false;
     };
-    const canMove = () => mobileCarouselQuery.matches && !reducedMotionQuery.matches && !document.hidden && loopWidth > 0;
-    const moveCarousel = () => {
-      if (!canMove()) return;
-      const timestamp = performance.now();
+    const moveCarousel = timestamp => {
+      carouselFrame = undefined;
+      if (!canAutoplay()) return;
       if (!lastFrameTime) lastFrameTime = timestamp;
-      const elapsed = Math.min(timestamp - lastFrameTime, 64);
+      const elapsed = Math.min(timestamp - lastFrameTime, 48);
       lastFrameTime = timestamp;
-      clientCarousel.scrollLeft += elapsed * 0.026;
-      if (clientCarousel.scrollLeft >= loopWidth) clientCarousel.scrollLeft -= loopWidth;
+      scrollRemainder += elapsed * 0.04;
+      const scrollBy = Math.floor(scrollRemainder);
+      scrollRemainder -= scrollBy;
+      if (scrollBy) clientCarousel.scrollLeft += scrollBy;
+      ensureBuffered();
+      carouselFrame = window.requestAnimationFrame(moveCarousel);
     };
     const startCarousel = () => {
-      clearCarousel();
-      if (!mobileCarouselQuery.matches || reducedMotionQuery.matches) {
-        removeClones();
+      if (!canAutoplay() || carouselFrame !== undefined) return;
+      lastFrameTime = 0;
+      carouselFrame = window.requestAnimationFrame(moveCarousel);
+    };
+    const resumeCarousel = () => {
+      window.clearTimeout(resumeTimer);
+      resumeTimer = window.setTimeout(startCarousel, 700);
+    };
+    const initialiseCarousel = (mountedTrack, attempt = 0) => {
+      if (track !== mountedTrack) return;
+      loopWidth = mountedTrack.children[originalSlides.length * 2].offsetLeft / 2;
+      if (!loopWidth && attempt < 12) {
+        window.requestAnimationFrame(() => initialiseCarousel(mountedTrack, attempt + 1));
         return;
       }
-      cloneSlides();
-      if (canMove()) carouselTimer = window.setInterval(moveCarousel, 16);
+      if (!loopWidth) return;
+      clientCarousel.scrollLeft = loopWidth * 2;
+      clientCarousel.classList.add('is-carousel');
+      ensureBuffered();
+      startCarousel();
     };
-    startCarousel();
-    mobileCarouselQuery.addEventListener('change', startCarousel);
-    reducedMotionQuery.addEventListener('change', startCarousel);
-    document.addEventListener('visibilitychange', startCarousel);
+
+    const mountCarousel = () => {
+      if (track) return;
+      track = document.createElement('div');
+      track.className = 'jg-client-track';
+      for (let batch = 0; batch < 2; batch += 1) track.append(createCloneBatch());
+      originalSlides.forEach(slide => track.append(slide));
+      for (let batch = 0; batch < 2; batch += 1) track.append(createCloneBatch());
+      clientCarousel.append(track);
+      const mountedTrack = track;
+      window.requestAnimationFrame(() => initialiseCarousel(mountedTrack));
+    };
+    const unmountCarousel = () => {
+      stopCarousel();
+      window.clearTimeout(resumeTimer);
+      clientCarousel.classList.remove('is-carousel');
+      if (!track) return;
+      originalSlides.forEach(slide => clientCarousel.append(slide));
+      track.remove();
+      track = undefined;
+      loopWidth = 0;
+      clientCarousel.scrollLeft = 0;
+    };
+    const syncCarousel = () => {
+      unmountCarousel();
+      if (mobileCarouselQuery.matches && !reducedMotionQuery.matches) mountCarousel();
+    };
+    clientCarousel.addEventListener('scroll', ensureBuffered, { passive: true });
+    clientCarousel.addEventListener('pointerdown', stopCarousel, { passive: true });
+    clientCarousel.addEventListener('pointerup', resumeCarousel, { passive: true });
+    clientCarousel.addEventListener('pointercancel', resumeCarousel, { passive: true });
+    clientCarousel.addEventListener('touchstart', stopCarousel, { passive: true });
+    clientCarousel.addEventListener('touchend', resumeCarousel, { passive: true });
+    clientCarousel.addEventListener('touchcancel', resumeCarousel, { passive: true });
+    document.addEventListener('visibilitychange', () => document.hidden ? stopCarousel() : startCarousel());
+    syncCarousel();
+    mobileCarouselQuery.addEventListener('change', syncCarousel);
+    reducedMotionQuery.addEventListener('change', syncCarousel);
     window.addEventListener('resize', () => {
-      if (mobileCarouselQuery.matches && !reducedMotionQuery.matches) {
-        loopWidth = clientCarousel.children[originalSlides.length]?.offsetLeft || 0;
-      }
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(syncCarousel, 120);
     });
   }
 
