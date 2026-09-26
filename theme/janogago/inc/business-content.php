@@ -23,10 +23,10 @@ function jg_business_defaults( $language ) {
 		'form_people_label' => 'Approximate daily users',
 		'form_message_label' => 'Opening hours and additional information',
 		'form_submit_label' => 'Request a proposal',
-		'form_success_message' => 'Thank you! We have received your enquiry and will contact you to discuss your location and the next steps.',
+		'form_success_message' => 'Thank you! We have received your enquiry and will be in touch.',
 		'form_invalid_message' => 'Please complete the required fields and consent checkbox.',
 		'form_failed_message' => 'Your enquiry could not be saved. Please try again or contact us by email or phone.',
-		'form_mail_failed_message' => 'Your enquiry has been saved, but the email notification could not be sent. Please contact us by email or phone. You do not need to submit the form again.',
+		'form_dismiss_label' => 'Close notification',
 	) : array(
 		'hero_title' => 'Maltītes uz vietas, bez savas ēdnīcas.',
 		'hero_text' => 'JāņogaGO piedāvā ēdienu automātus vietām, kur darbiniekiem vai apmeklētājiem nav ērtu iespēju paēst. Pilna servisa risinājumā mēs nodrošinām automāta uzstādīšanu, maltīšu piegādi, krājumu papildināšanu un tehnisko apkopi.',
@@ -45,10 +45,10 @@ function jg_business_defaults( $language ) {
 		'form_people_label' => 'Aptuvenais lietotāju skaits dienā',
 		'form_message_label' => 'Darba laiks un papildu informācija',
 		'form_submit_label' => 'Pieprasīt piedāvājumu',
-		'form_success_message' => 'Paldies! Esam saņēmuši jūsu pieprasījumu. Sazināsimies ar jums, lai pārrunātu atrašanās vietu un nākamos soļus.',
+		'form_success_message' => 'Paldies! Esam saņēmuši jūsu pieprasījumu. Sazināsimies ar jums.',
 		'form_invalid_message' => 'Lūdzu, aizpildiet obligātos laukus un atzīmējiet piekrišanu.',
 		'form_failed_message' => 'Neizdevās saglabāt pieprasījumu. Lūdzu, mēģiniet vēlreiz vai sazinieties ar mums pa e-pastu vai tālruni.',
-		'form_mail_failed_message' => 'Jūsu pieprasījums ir saglabāts, bet neizdevās nosūtīt e-pasta paziņojumu. Lūdzu, sazinieties ar mums pa e-pastu vai tālruni. Forma nav jāaizpilda atkārtoti.',
+		'form_dismiss_label' => 'Aizvērt paziņojumu',
 	);
 }
 
@@ -156,9 +156,10 @@ function jg_business_form_blocks( $language ) {
 		$content .= jg_block_paragraph( $copy[ $key ], 'jg-form-field jg-field-' . $field );
 	}
 	$content .= jg_block_button( $copy['form_submit_label'], '#pieteikties', 'button button-dark jg-form-submit' );
-	foreach ( array( 'success', 'invalid', 'phone_invalid', 'failed', 'mail_failed' ) as $message ) {
+	foreach ( array( 'success', 'invalid', 'phone_invalid', 'failed' ) as $message ) {
 		$content .= jg_block_paragraph( $copy[ 'form_' . $message . '_message' ], 'jg-form-status jg-status-' . $message );
 	}
+	$content .= jg_block_paragraph( $copy['form_dismiss_label'], 'jg-form-status jg-status-dismiss' );
 	return jg_block_group( $content, 'jg-enquiry-form', 'div' );
 }
 
@@ -187,7 +188,7 @@ function jg_business_home_blocks( $language, $page_id ) {
 	$hero_copy = jg_block_heading( $copy['hero_title'], 1 ) . jg_block_paragraph( $copy['hero_text'], 'lede' ) . jg_block_button( $copy['hero_cta'], '#pieteikties', 'button button-light' );
 	$hero_visual = jg_block_image( jg_seed_attachment( 'leyli-sadeqian-wSmhn8taZpc-unsplash.jpg' ), $is_en ? 'Hot dog and fries in takeaway trays' : 'Hotdogs un frī kartupeļi līdzņemšanas iepakojumos' );
 	$hero = jg_block_group( jg_block_columns( jg_block_column( $hero_copy, 'hero-copy', 'center' ) . jg_block_column( $hero_visual, 'hero-visual', 'center' ), 'jg-block-hero-layout', 'center' ), 'hero jg-block-section jg-block-hero' );
-	$clients = strtr( jg_clients_section_blocks( $language ), $is_en ? array( 'Trusted by teams who keep moving.' => 'Our catering clients.', 'From production and retail to logistics.' => 'Companies we have served through our catering services.' ) : array( 'Mūs jau novērtē.' => 'Mūsu ēdināšanas klienti.', 'No ražotnēm līdz mazumtirdzniecībai un loģistikai.' => 'Uzņēmumi, kuriem esam nodrošinājuši ēdināšanu.' ) );
+	$clients = strtr( jg_clients_section_blocks( $language ), $is_en ? array( 'Trusted by teams who keep moving.' => 'Clients who have trusted us.', 'From production and retail to logistics.' => 'Companies we have served through our catering services.' ) : array( 'Mūs jau novērtē.' => 'Klienti, kuri mums uzticējušies.', 'No ražotnēm līdz mazumtirdzniecībai un loģistikai.' => 'Uzņēmumi, kuriem esam nodrošinājuši ēdināšanu.' ) );
 	$footer = jg_block_group( jg_block_paragraph( $copy['contact_address'], 'jg-footer-address' ) . jg_block_paragraph( '© ' . gmdate( 'Y' ) . ' ' . get_bloginfo( 'name' ), 'jg-footer-copyright' ), 'jg-block-footer-content', 'div' );
 	return $hero . jg_business_food_blocks( $language ) . jg_business_experience_blocks( $language ) . $clients . jg_business_service_blocks( $language ) . jg_business_suitability_blocks( $language ) . jg_business_process_blocks( $language ) . jg_business_faq_blocks( $language ) . jg_business_contact_blocks( $language, $page_id ) . $footer;
 }
@@ -251,13 +252,14 @@ function jg_form_block_copy( $block ) {
 
 function jg_enquiry_result_markup( $copy ) {
 	$status = sanitize_key( wp_unslash( $_GET['enquiry'] ?? '' ) );
-	$key = array( 'sent' => 'success', 'invalid' => 'invalid', 'failed' => 'failed', 'mail_failed' => 'mail_failed' )[ $status ] ?? '';
+	$key = array( 'sent' => 'success', 'invalid' => 'invalid', 'failed' => 'failed', 'mail_failed' => 'success' )[ $status ] ?? '';
 	if ( ! $key || empty( $copy[ $key ] ) ) {
 		return '';
 	}
 	$success = $key === 'success';
 	$icon = $success ? '<path d="m5 12 4 4L19 6"/>' : '<path d="M12 5v8m0 4v1"/>';
-	return '<div id="jg-enquiry-result" class="form-message form-message-' . ( $success ? 'success' : 'error' ) . '" role="' . ( $success ? 'status' : 'alert' ) . '" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">' . $icon . '</svg><p>' . esc_html( $copy[ $key ] ) . '</p></div>';
+	$close = empty( $copy['dismiss'] ) ? '' : '<button type="button" class="jg-notice-close" aria-label="' . esc_attr( $copy['dismiss'] ) . '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="m6 6 12 12M6 18 18 6"/></svg></button>';
+	return '<div id="jg-enquiry-result" class="form-message form-message-' . ( $success ? 'success' : 'error' ) . '" role="' . ( $success ? 'status' : 'alert' ) . '" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">' . $icon . '</svg><p>' . esc_html( $copy[ $key ] ) . '</p>' . $close . '</div>';
 }
 
 function jg_render_editable_form( $content, $block ) {

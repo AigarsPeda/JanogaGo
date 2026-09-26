@@ -163,7 +163,7 @@ These figures must remain explicitly attached to Janoga's food business. Do not 
 
 If confirmed, a stronger and more specific headline is “Maltītes no Jāņogas virtuves.” Show the kitchen, team, or actual meals to substantiate it.
 
-Use customer logos with a precise explanation of the relationship. If they are existing catering customers, “Mūsu ēdināšanas klienti” is clearer than implying that all have vending installations. Add a vending case study once one is available: location type, people served, service scope, and an approved customer quote.
+Use customer logos with a precise explanation of the relationship. For existing catering customers, pair “Klienti, kuri mums uzticējušies.” with “Uzņēmumi, kuriem esam nodrošinājuši ēdināšanu.” to explain the relationship without implying that all have vending installations. Add a vending case study once one is available: location type, people served, service scope, and an approved customer quote.
 
 ### 5. Suitable locations
 
@@ -288,7 +288,7 @@ Button:
 
 Proposed confirmation message, only when the form has actually recorded the enquiry:
 
-> Paldies! Esam saņēmuši jūsu pieprasījumu. Sazināsimies ar jums, lai pārrunātu atrašanās vietu un nākamos soļus.
+> Paldies! Esam saņēmuši jūsu pieprasījumu. Sazināsimies ar jums.
 
 Do not add a response-time promise without an agreed service standard. Use a confirmed, monitored contact address consistently across pages.
 

@@ -228,7 +228,7 @@ function jg_is_valid_phone_number( $phone ) {
 function jg_enquiry_redirect( $status ) {
 	$url = get_permalink( absint( $_POST['page_id'] ?? 0 ) ) ?: wp_get_referer() ?: home_url( '/' );
 	$url = explode( '#', $url, 2 )[0];
-	wp_safe_redirect( add_query_arg( 'enquiry', $status, $url ) . '#jg-enquiry-result', 303 );
+	wp_safe_redirect( add_query_arg( 'enquiry', $status, $url ) . '#pieteikties', 303 );
 	exit;
 }
 
@@ -260,7 +260,8 @@ function jg_submit_enquiry() {
 	}
 	$recipient = preg_match( '/href="mailto:([^"?]+)"/', $page_content, $email_match ) ? sanitize_email( html_entity_decode( $email_match[1] ) ) : '';
 	$mail_sent = $recipient && wp_mail( $recipient, 'JāņogaGO website enquiry: ' . $company, $body, array( 'Reply-To: ' . $name . ' <' . $email . '>' ) );
-	jg_enquiry_redirect( $mail_sent ? 'sent' : 'mail_failed' );
+	update_post_meta( $post_id, '_jg_notification_sent', (int) $mail_sent );
+	jg_enquiry_redirect( 'sent' );
 }
 add_action( 'admin_post_nopriv_jg_submit_enquiry', 'jg_submit_enquiry' );
 add_action( 'admin_post_jg_submit_enquiry', 'jg_submit_enquiry' );

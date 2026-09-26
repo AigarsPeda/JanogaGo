@@ -48,3 +48,14 @@ Do not use `push-db-to-droplet.sh --yes` for a routine code/content release: it 
 The local-only integration test is `scripts/tests/content-sync.php`. Run it with Local's WP-CLI using `--skip-themes eval-file`. It creates and removes temporary pages and an image fixture, tests imports and repeated runs, and refuses sites whose hostname does not end in `.local`.
 
 The 2026-09-26 release deployed theme 1.0.36 and both language pages this way. See `HANDOFF.md` for the verified live state and private rollback backup location.
+
+
+## Enquiry notifications
+
+A saved enquiry shows a floating success notification in the site's existing green. Notification messages and the close-button label are native Paragraph blocks in each language's enquiry form group. The notification overlays the page without affecting layout, uses a short entrance/exit animation, supports Escape and close-button dismissal, and respects reduced motion. Saving failures and validation errors still display actionable errors. The internal `wp_mail` result is stored as `_jg_notification_sent` on the lead; an internal email failure does not turn a saved enquiry into a visitor-facing failure.
+
+`scripts/update-enquiry-notifications.php` updates existing homepage notification blocks while preserving other content and custom confirmation wording. Run it with Local's WP-CLI `eval-file` after installing the current theme. It removes the retired mail-failure warning, shortens the original confirmation, and adds missing editable close labels. Do not reset homepage seed markers. It is a release helper, not an automatic theme migration.
+
+`scripts/tests/enquiry-notifications.php` is a Local-only integration test. Run it with WP-CLI `eval-file` with the theme loaded. It intercepts all email, checks successful and failed mail, saving failure and invalid submissions, verifies accessible results and redirect behavior, and deletes its own test leads. Actual inbox delivery is not tested.
+
+The notification release is deployed as theme 1.0.41; see `HANDOFF.md` for the current content hashes and rollback locations.

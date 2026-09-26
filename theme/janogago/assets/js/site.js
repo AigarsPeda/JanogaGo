@@ -219,8 +219,34 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.jg-enquiry-form').forEach(form => {
     const result = form.querySelector('#jg-enquiry-result');
     if (result) {
-      result.scrollIntoView({block: 'center', behavior: 'instant'});
-      result.focus({preventScroll: true});
+      const showResult = () => {
+        if (!result.hidden) result.focus({preventScroll: true});
+      };
+      window.addEventListener('pageshow', () => {
+        if (document.fonts) document.fonts.ready.then(showResult);
+        else showResult();
+      });
+      const finishDismiss = () => {
+        if (result.contains(document.activeElement)) {
+          form.querySelector('input:not([type="hidden"])')?.focus({preventScroll: true});
+        }
+        result.hidden = true;
+        const url = new URL(location.href);
+        url.searchParams.delete('enquiry');
+        history.replaceState(history.state, '', url);
+      };
+      const dismiss = () => {
+        if (result.hidden || result.classList.contains('jg-notice-closing')) return;
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) finishDismiss();
+        else result.classList.add('jg-notice-closing');
+      };
+      result.querySelector('.jg-notice-close')?.addEventListener('click', dismiss);
+      result.addEventListener('animationend', event => {
+        if (event.target === result && result.classList.contains('jg-notice-closing')) finishDismiss();
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') dismiss();
+      });
     }
     const phone = form.elements.phone;
     const validatePhone = () => {
@@ -248,13 +274,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       form.setAttribute('aria-busy', 'true');
-      form.querySelector('[type="submit"]').disabled = true;
+      const submit = form.querySelector('[type="submit"]');
+      if (submit) submit.disabled = true;
     });
   });
   window.addEventListener('pageshow', () => {
     document.querySelectorAll('.jg-enquiry-form').forEach(form => {
       form.removeAttribute('aria-busy');
-      form.querySelector('[type="submit"]').disabled = false;
+      const submit = form.querySelector('[type="submit"]');
+      if (submit) submit.disabled = false;
     });
   });
 });

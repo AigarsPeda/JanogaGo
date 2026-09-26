@@ -88,19 +88,47 @@
 .janogago-blocks .jg-enquiry-form .form-message {
  background: var(--cream);
  color: var(--ink);
- display: flex;
+ display: grid;
  align-items: flex-start;
- gap: 14px;
- grid-column: 1 / -1;
- margin: 0 0 8px;
+ gap: 12px;
+ grid-template-columns: 24px minmax(0, 1fr) 32px;
+ position: fixed;
+ inset-inline-end: 24px;
+ inset-block-end: 24px;
+ z-index: 1000;
+ width: min(480px, calc(100vw - 48px));
+ margin: 0;
  padding: 24px;
- scroll-margin-top: 100px;
+ box-shadow: 0 8px 32px rgba(36, 35, 32, .2);
+ animation: jg-notice-in 360ms cubic-bezier(.16, 1, .3, 1) both;
 }
 .janogago-blocks .form-message p { color: inherit; font-size: 16px; line-height: 1.6; margin: 0; }
 .janogago-blocks .form-message svg { flex: 0 0 24px; height: 24px; margin-top: 2px; }
-.janogago-blocks .form-message-success svg { color: #286345; }
+.janogago-blocks .jg-enquiry-form .form-message-success { background: var(--green); }
+.janogago-blocks .form-message-success svg { color: var(--ink); }
 .janogago-blocks .form-message-error svg { color: var(--red); }
-.janogago-blocks .form-message:focus { outline: 2px solid var(--cream); outline-offset: 5px; }
+.janogago-blocks .form-message:focus { outline: none; }
+.janogago-blocks .form-message .jg-notice-close {
+ appearance: none; background: transparent; border: 0; color: var(--ink);
+ cursor: pointer; display: grid; place-items: center; width: 32px; height: 32px; padding: 4px; margin: -4px 0 0;
+}
+.janogago-blocks .form-message .jg-notice-close svg { color: inherit; width: 20px; height: 20px; margin: 0; }
+.janogago-blocks .jg-notice-close:hover { background: var(--paper); }
+.janogago-blocks .form-message-success .jg-notice-close:hover { background: rgba(36, 35, 32, .1); }
+.janogago-blocks .jg-notice-close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.janogago-blocks .form-message.jg-notice-closing { animation: jg-notice-out 140ms ease-in both; }
+.janogago-blocks .form-message[hidden] { display: none; }
+@keyframes jg-notice-in {
+ from { opacity: 0; transform: translateY(12px); box-shadow: 0 2px 8px rgba(36, 35, 32, .08); }
+ to { opacity: 1; transform: translateY(0); box-shadow: 0 8px 32px rgba(36, 35, 32, .2); }
+}
+@keyframes jg-notice-out { to { opacity: 0; transform: translateY(6px); } }
+@media (max-width: 530px) {
+ .janogago-blocks .jg-enquiry-form .form-message { inset-inline-end: 16px; inset-block-end: max(16px, env(safe-area-inset-bottom)); width: calc(100vw - 32px); padding: 20px; gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .janogago-blocks .jg-enquiry-form .form-message { animation: none; }
+}
 .janogago-blocks .section,
 .janogago-blocks .contact { opacity: 1; transform: none; }
 @media (max-width: 850px) {
