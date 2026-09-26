@@ -228,7 +228,8 @@ function jg_is_valid_phone_number( $phone ) {
 function jg_enquiry_redirect( $status ) {
 	$url = get_permalink( absint( $_POST['page_id'] ?? 0 ) ) ?: wp_get_referer() ?: home_url( '/' );
 	$url = explode( '#', $url, 2 )[0];
-	wp_safe_redirect( add_query_arg( 'enquiry', $status, $url ) . '#pieteikties', 303 );
+	$fragment = $status === 'sent' ? '' : '#pieteikties';
+	wp_safe_redirect( add_query_arg( 'enquiry', $status, $url ) . $fragment, 303 );
 	exit;
 }
 

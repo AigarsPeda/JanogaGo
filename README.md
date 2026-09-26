@@ -58,4 +58,8 @@ A saved enquiry shows a floating success notification in the site's existing gre
 
 `scripts/tests/enquiry-notifications.php` is a Local-only integration test. Run it with WP-CLI `eval-file` with the theme loaded. It intercepts all email, checks successful and failed mail, saving failure and invalid submissions, verifies accessible results and redirect behavior, and deletes its own test leads. Actual inbox delivery is not tested.
 
-The notification release is deployed as theme 1.0.41; see `HANDOFF.md` for the current content hashes and rollback locations.
+Theme 1.0.42 clears submission status URLs after showing the notification and removes automatic notification focus. Successful submissions redirect without a form anchor, preventing later opens from jumping to the form. Normal offer links still navigate to the form.
+
+The mobile client carousel preloads fixed repeated logo batches, keeps native horizontal scrolling in both directions, and waits for swipe momentum to settle before resuming autoplay. Run `node scripts/tests/client-carousel.cjs` for the scrolling logic regression checks. Verify physical iPhone Safari swipes separately.
+
+Theme 1.0.43 is deployed locally and on the droplet; see `HANDOFF.md` for the current content hashes and rollback locations.

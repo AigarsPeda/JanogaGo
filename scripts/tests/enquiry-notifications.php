@@ -45,7 +45,7 @@ try {
 		try { jg_submit_enquiry(); } catch ( RuntimeException $error ) {
 			if ( $error->getMessage() !== 'notification-test-redirect' ) { throw $error; }
 		}
-		$expected_url = add_query_arg( 'enquiry', $expected, get_permalink( $pages[ $lang ] ) ) . '#pieteikties';
+		$expected_url = add_query_arg( 'enquiry', $expected, get_permalink( $pages[ $lang ] ) ) . ( $expected === 'sent' ? '' : '#pieteikties' );
 		if ( $redirect !== $expected_url || $mail_calls !== $expected_mail || count( $lead_ids ) - $before_leads !== $expected_leads ) {
 			throw new RuntimeException( "Unexpected $lang $expected submission outcome." );
 		}

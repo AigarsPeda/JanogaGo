@@ -34,6 +34,7 @@
 .janogago-blocks .jg-responsibility-grid > .wp-block-column { margin: 0; min-width: 0; }
 .janogago-blocks .jg-experience-layout p:not(.jg-experience-number) { font-size: 17px; line-height: 1.7; }
 .janogago-blocks .jg-experience-stat { border-top: 1px solid var(--line); padding: 24px 0; }
+.janogago-blocks .jg-experience-stat:first-child { border-top: 0; }
 .janogago-blocks .jg-experience-number {
  color: var(--red);
  font-family: var(--serif);
@@ -118,6 +119,10 @@
 .janogago-blocks .jg-notice-close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .janogago-blocks .form-message.jg-notice-closing { animation: jg-notice-out 140ms ease-in both; }
 .janogago-blocks .form-message[hidden] { display: none; }
+
+@media (max-width: 700px) {
+ .janogago-blocks .jg-client-grid { overscroll-behavior-x: none; }
+}
 @keyframes jg-notice-in {
  from { opacity: 0; transform: translateY(12px); box-shadow: 0 2px 8px rgba(36, 35, 32, .08); }
  to { opacity: 1; transform: translateY(0); box-shadow: 0 8px 32px rgba(36, 35, 32, .2); }

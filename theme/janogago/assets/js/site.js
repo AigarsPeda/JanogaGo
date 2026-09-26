@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileCarouselQuery = window.matchMedia('(max-width: 700px)');
   if (clientCarousel) {
     const originalSlides = Array.from(clientCarousel.children);
+    const centreBatch = 5;
+    const batchCount = centreBatch * 2 + 1;
     let track;
     let loopWidth = 0;
     let carouselFrame;
@@ -39,9 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let scrollRemainder = 0;
     let resizeTimer;
     let resumeTimer;
-    let isBuffering = false;
+    let pointerActive = false;
+    let touchActive = false;
+    let imagesReady = false;
+    let viewportWidth = window.innerWidth;
 
-    const canAutoplay = () => track && mobileCarouselQuery.matches && !reducedMotionQuery.matches && !document.hidden;
+    const canAutoplay = () => track && loopWidth && imagesReady && !pointerActive && !touchActive && mobileCarouselQuery.matches && !reducedMotionQuery.matches && !document.hidden;
     const stopCarousel = () => {
       if (carouselFrame !== undefined) window.cancelAnimationFrame(carouselFrame);
       carouselFrame = undefined;
@@ -54,21 +59,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const clone = slide.cloneNode(true);
         clone.dataset.jgCarouselClone = 'true';
         clone.setAttribute('aria-hidden', 'true');
+        clone.querySelectorAll('img').forEach(image => { image.loading = 'eager'; });
         batch.append(clone);
       });
       return batch;
     };
-    const ensureBuffered = () => {
-      if (!track || !loopWidth || isBuffering) return;
-      const edgeBuffer = loopWidth * 2;
-      const remaining = clientCarousel.scrollWidth - clientCarousel.scrollLeft - clientCarousel.clientWidth;
-      isBuffering = true;
-      if (clientCarousel.scrollLeft < edgeBuffer) {
-        track.prepend(createCloneBatch(), createCloneBatch());
-        clientCarousel.scrollLeft += edgeBuffer;
-      }
-      if (remaining < edgeBuffer) track.append(createCloneBatch(), createCloneBatch());
-      isBuffering = false;
+    const recenterCarousel = (force = false) => {
+      if (!track || !loopWidth) return;
+      const left = clientCarousel.scrollLeft;
+      const remaining = clientCarousel.scrollWidth - left - clientCarousel.clientWidth;
+      if (!force && left >= loopWidth * 2 && remaining >= loopWidth * 2) return;
+      // Whole repeats preserve the visible logos without inserting DOM during a swipe.
+      const phase = ((left % loopWidth) + loopWidth) % loopWidth;
+      clientCarousel.scrollLeft = centreBatch * loopWidth + phase;
     };
     const moveCarousel = timestamp => {
       carouselFrame = undefined;
@@ -80,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const scrollBy = Math.floor(scrollRemainder);
       scrollRemainder -= scrollBy;
       if (scrollBy) clientCarousel.scrollLeft += scrollBy;
-      ensureBuffered();
+      recenterCarousel();
       carouselFrame = window.requestAnimationFrame(moveCarousel);
     };
     const startCarousel = () => {
@@ -90,19 +93,23 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const resumeCarousel = () => {
       window.clearTimeout(resumeTimer);
+      if (pointerActive || touchActive) return;
       resumeTimer = window.setTimeout(startCarousel, 700);
+    };
+    const pauseCarousel = () => {
+      window.clearTimeout(resumeTimer);
+      stopCarousel();
     };
     const initialiseCarousel = (mountedTrack, attempt = 0) => {
       if (track !== mountedTrack) return;
-      loopWidth = mountedTrack.children[originalSlides.length * 2].offsetLeft / 2;
+      loopWidth = mountedTrack.children[originalSlides.length].offsetLeft - mountedTrack.children[0].offsetLeft;
       if (!loopWidth && attempt < 12) {
         window.requestAnimationFrame(() => initialiseCarousel(mountedTrack, attempt + 1));
         return;
       }
       if (!loopWidth) return;
-      clientCarousel.scrollLeft = loopWidth * 2;
+      clientCarousel.scrollLeft = loopWidth * centreBatch;
       clientCarousel.classList.add('is-carousel');
-      ensureBuffered();
       startCarousel();
     };
 
@@ -110,11 +117,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (track) return;
       track = document.createElement('div');
       track.className = 'jg-client-track';
-      for (let batch = 0; batch < 2; batch += 1) track.append(createCloneBatch());
-      originalSlides.forEach(slide => track.append(slide));
-      for (let batch = 0; batch < 2; batch += 1) track.append(createCloneBatch());
+      originalSlides.forEach(slide => slide.querySelectorAll('img').forEach(image => { image.loading = 'eager'; }));
+      for (let batch = 0; batch < batchCount; batch += 1) {
+        if (batch === centreBatch) originalSlides.forEach(slide => track.append(slide));
+        else track.append(createCloneBatch());
+      }
       clientCarousel.append(track);
       const mountedTrack = track;
+      const images = originalSlides.flatMap(slide => Array.from(slide.querySelectorAll('img')));
+      Promise.all(images.map(image => image.decode().catch(() => {}))).then(() => {
+        if (track !== mountedTrack) return;
+        imagesReady = true;
+        resumeCarousel();
+      });
       window.requestAnimationFrame(() => initialiseCarousel(mountedTrack));
     };
     const unmountCarousel = () => {
@@ -126,24 +141,45 @@ document.addEventListener('DOMContentLoaded', () => {
       track.remove();
       track = undefined;
       loopWidth = 0;
+      imagesReady = false;
+      pointerActive = false;
+      touchActive = false;
       clientCarousel.scrollLeft = 0;
     };
     const syncCarousel = () => {
+      viewportWidth = window.innerWidth;
       unmountCarousel();
       if (mobileCarouselQuery.matches && !reducedMotionQuery.matches) mountCarousel();
     };
-    clientCarousel.addEventListener('scroll', ensureBuffered, { passive: true });
-    clientCarousel.addEventListener('pointerdown', stopCarousel, { passive: true });
-    clientCarousel.addEventListener('pointerup', resumeCarousel, { passive: true });
-    clientCarousel.addEventListener('pointercancel', resumeCarousel, { passive: true });
-    clientCarousel.addEventListener('touchstart', stopCarousel, { passive: true });
-    clientCarousel.addEventListener('touchend', resumeCarousel, { passive: true });
-    clientCarousel.addEventListener('touchcancel', resumeCarousel, { passive: true });
-    document.addEventListener('visibilitychange', () => document.hidden ? stopCarousel() : startCarousel());
+    clientCarousel.addEventListener('scroll', () => {
+      recenterCarousel();
+      // Momentum keeps producing scroll events after the finger has lifted.
+      if (carouselFrame === undefined) resumeCarousel();
+    }, { passive: true });
+    clientCarousel.addEventListener('pointerdown', () => {
+      pointerActive = true;
+      pauseCarousel();
+      recenterCarousel(true);
+    }, { passive: true });
+    const releasePointer = () => { pointerActive = false; resumeCarousel(); };
+    window.addEventListener('pointerup', releasePointer, { passive: true });
+    clientCarousel.addEventListener('pointercancel', releasePointer, { passive: true });
+    clientCarousel.addEventListener('touchstart', () => {
+      touchActive = true;
+      pauseCarousel();
+      recenterCarousel(true);
+    }, { passive: true });
+    const releaseTouch = () => { touchActive = false; resumeCarousel(); };
+    clientCarousel.addEventListener('touchend', releaseTouch, { passive: true });
+    clientCarousel.addEventListener('touchcancel', releaseTouch, { passive: true });
+    clientCarousel.addEventListener('wheel', () => { pauseCarousel(); resumeCarousel(); }, { passive: true });
+    document.addEventListener('visibilitychange', () => document.hidden ? pauseCarousel() : resumeCarousel());
     syncCarousel();
     mobileCarouselQuery.addEventListener('change', syncCarousel);
     reducedMotionQuery.addEventListener('change', syncCarousel);
     window.addEventListener('resize', () => {
+      // Safari's collapsing address bar changes height, not the logo layout.
+      if (window.innerWidth === viewportWidth) return;
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(syncCarousel, 120);
     });
@@ -219,21 +255,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.jg-enquiry-form').forEach(form => {
     const result = form.querySelector('#jg-enquiry-result');
     if (result) {
-      const showResult = () => {
-        if (!result.hidden) result.focus({preventScroll: true});
-      };
-      window.addEventListener('pageshow', () => {
-        if (document.fonts) document.fonts.ready.then(showResult);
-        else showResult();
-      });
+      // Consume the submission URL without changing this visit's scroll position.
+      // A later reload/open should not replay the notice or jump to the form.
+      const url = new URL(location.href);
+      url.searchParams.delete('enquiry');
+      if (url.hash === '#pieteikties') url.hash = '';
+      history.replaceState(history.state, '', url);
       const finishDismiss = () => {
         if (result.contains(document.activeElement)) {
           form.querySelector('input:not([type="hidden"])')?.focus({preventScroll: true});
         }
         result.hidden = true;
-        const url = new URL(location.href);
-        url.searchParams.delete('enquiry');
-        history.replaceState(history.state, '', url);
       };
       const dismiss = () => {
         if (result.hidden || result.classList.contains('jg-notice-closing')) return;
