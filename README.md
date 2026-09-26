@@ -10,16 +10,41 @@ The theme supports Latvian and English content through Polylang, editable page c
 
 ## Droplet deployment
 
-The `scripts/` folder contains theme and database synchronization scripts prepared for the future JāņogaGO droplet. They are safe to commit because they contain no host, domain, or private-key details.
+The `scripts/` folder contains theme, content, uploads, and database synchronization scripts for the JāņogaGO droplet. The scripts contain no private-key details; the local configuration must stay out of Git.
 
-After creating the droplet, copy `scripts/janogago-droplet.env.example` to `scripts/janogago-droplet.env`, add the real values, and keep that file out of Git. Each script explains the required fields and stops if the droplet details are missing.
+The existing droplet uses `scripts/janogago-droplet.env`. For another installation, copy the example configuration, add the real values, and keep it out of Git. Each script explains the required fields and stops if the droplet details are missing.
 
-For a complete release from Local, run the scripts in this order:
+For a routine theme release:
 
 ```bash
+./scripts/sync-code-to-droplet.sh --dry-run
 ./scripts/sync-code-to-droplet.sh
+```
+
+For new Media Library files:
+
+```bash
+./scripts/sync-uploads-to-droplet.sh --dry-run
 ./scripts/sync-uploads-to-droplet.sh
-./scripts/push-db-to-droplet.sh --yes
 ```
 
 `sync-uploads-to-droplet.sh` copies new and changed Media Library files but never deletes existing files on the droplet. Use `--dry-run` first whenever you want to review the file changes.
+
+Uploads sync transfers files only. To transfer both homepage languages and their referenced Image-block photos, use the reusable content script:
+
+```bash
+./scripts/sync-content-to-droplet.sh --dry-run
+./scripts/sync-content-to-droplet.sh
+```
+
+Use `--languages=lv` or `--languages=en` to transfer one language. The script exports the current native Gutenberg blocks, maps local image IDs and URLs to live records, and reuses photos by their original-file checksum, including files WordPress renamed or scaled. It imports missing photos through WordPress, which stores them in uploads, creates Media Library records and generates image sizes. A separate uploads sync is unnecessary for those photos. Ambiguous duplicate live media records stop the transfer for review.
+
+Before applying, it creates a private database backup plus page, marker and media-alt snapshots under `REMOTE_BACKUP_DIR`. Existing page IDs, titles, slugs, users, settings, enquiries and unrelated content stay intact. Theme migrations are skipped during export/import; the homepage migration markers are preserved/set so subsequent code sync does not replace authored content. Repeated runs reuse images and skip saving unchanged pages. The PHP helper `scripts/wordpress-content-sync.php` belongs with the scripts and must not be installed in the theme.
+
+For a combined content and code release, back up the existing theme, dry-run both scripts, then run content sync before code sync. This ensures media and authored content are ready before any new theme seed can run. Check LV/EN in the browser after deployment. Routine edits made directly in live WordPress need no deployment; content sync intentionally replaces the selected live homepage blocks with Local's versions.
+
+Do not use `push-db-to-droplet.sh --yes` for a routine code/content release: it replaces the whole live database and requires explicit authorization for that replacement.
+
+The local-only integration test is `scripts/tests/content-sync.php`. Run it with Local's WP-CLI using `--skip-themes eval-file`. It creates and removes temporary pages and an image fixture, tests imports and repeated runs, and refuses sites whose hostname does not end in `.local`.
+
+The 2026-09-26 release deployed theme 1.0.36 and both language pages this way. See `HANDOFF.md` for the verified live state and private rollback backup location.

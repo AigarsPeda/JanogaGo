@@ -217,6 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.querySelectorAll('.jg-enquiry-form').forEach(form => {
+    const result = form.querySelector('#jg-enquiry-result');
+    if (result) {
+      result.scrollIntoView({block: 'center', behavior: 'instant'});
+      result.focus({preventScroll: true});
+    }
     const phone = form.elements.phone;
     const validatePhone = () => {
       if (!phone) return;
@@ -240,7 +245,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!form.checkValidity()) {
         event.preventDefault();
         form.querySelector(':invalid').reportValidity();
+        return;
       }
+      form.setAttribute('aria-busy', 'true');
+      form.querySelector('[type="submit"]').disabled = true;
+    });
+  });
+  window.addEventListener('pageshow', () => {
+    document.querySelectorAll('.jg-enquiry-form').forEach(form => {
+      form.removeAttribute('aria-busy');
+      form.querySelector('[type="submit"]').disabled = false;
     });
   });
 });

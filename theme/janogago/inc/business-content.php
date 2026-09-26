@@ -26,6 +26,7 @@ function jg_business_defaults( $language ) {
 		'form_success_message' => 'Thank you! We have received your enquiry and will contact you to discuss your location and the next steps.',
 		'form_invalid_message' => 'Please complete the required fields and consent checkbox.',
 		'form_failed_message' => 'Your enquiry could not be saved. Please try again or contact us by email or phone.',
+		'form_mail_failed_message' => 'Your enquiry has been saved, but the email notification could not be sent. Please contact us by email or phone. You do not need to submit the form again.',
 	) : array(
 		'hero_title' => 'Maltītes uz vietas, bez savas ēdnīcas.',
 		'hero_text' => 'JāņogaGO piedāvā ēdienu automātus vietām, kur darbiniekiem vai apmeklētājiem nav ērtu iespēju paēst. Pilna servisa risinājumā mēs nodrošinām automāta uzstādīšanu, maltīšu piegādi, krājumu papildināšanu un tehnisko apkopi.',
@@ -47,19 +48,20 @@ function jg_business_defaults( $language ) {
 		'form_success_message' => 'Paldies! Esam saņēmuši jūsu pieprasījumu. Sazināsimies ar jums, lai pārrunātu atrašanās vietu un nākamos soļus.',
 		'form_invalid_message' => 'Lūdzu, aizpildiet obligātos laukus un atzīmējiet piekrišanu.',
 		'form_failed_message' => 'Neizdevās saglabāt pieprasījumu. Lūdzu, mēģiniet vēlreiz vai sazinieties ar mums pa e-pastu vai tālruni.',
+		'form_mail_failed_message' => 'Jūsu pieprasījums ir saglabāts, bet neizdevās nosūtīt e-pasta paziņojumu. Lūdzu, sazinieties ar mums pa e-pastu vai tālruni. Forma nav jāaizpilda atkārtoti.',
 	);
 }
 
 function jg_business_food_blocks( $language ) {
 	$is_en = $language === 'en';
 	$items = $is_en ? array(
-		array( 'Lunch meals', 'Hearty dishes for a proper lunch break.', 'leyli-sadeqian-wSmhn8taZpc-unsplash.jpg', 'Illustrative hot dog and fries in takeaway trays' ),
-		array( 'Salads and bowls', 'A lighter meal for lunch or a short break.', 'anh-nguyen-kcA-c3f_3FE-unsplash.jpg', 'Illustrative salad bowl' ),
-		array( 'Desserts', 'Something sweet after your meal or with coffee.', 'fidel-fernando-KY5ZBCIE18E-unsplash.jpg', 'Illustrative glazed doughnuts in a box' ),
+		array( 'Mains and salads', 'A proper meal for your lunch break.', 'anh-nguyen-kcA-c3f_3FE-unsplash.jpg', 'Illustrative salad bowl' ),
+		array( 'Sandwiches and snacks', 'Pastries for a short break.', 'leyli-sadeqian-wSmhn8taZpc-unsplash.jpg', 'Illustrative hot dog and fries in takeaway trays' ),
+		array( 'Desserts and drinks', 'For a sweet break.', 'fidel-fernando-KY5ZBCIE18E-unsplash.jpg', 'Illustrative glazed doughnuts in a box' ),
 	) : array(
-		array( 'Maltītes pusdienām', 'Sātīgi ēdieni pilnvērtīgai pusdienu pauzei.', 'leyli-sadeqian-wSmhn8taZpc-unsplash.jpg', 'Ilustratīvs hotdogs un frī kartupeļi līdzņemšanas iepakojumos' ),
-		array( 'Salāti un bļodas', 'Vieglāka maltīte pusdienām vai nelielai pauzei.', 'anh-nguyen-kcA-c3f_3FE-unsplash.jpg', 'Ilustratīva salātu bļoda' ),
-		array( 'Deserti', 'Kaut kas salds pēc maltītes vai pie kafijas.', 'fidel-fernando-KY5ZBCIE18E-unsplash.jpg', 'Ilustratīvi glazēti virtuļi kastītē' ),
+		array( 'Pamatēdieni un salāti', 'Pilnvērtīga maltīte pusdienu pauzei.', 'anh-nguyen-kcA-c3f_3FE-unsplash.jpg', 'Ilustratīva salātu bļoda' ),
+		array( 'Sendviči un uzkodas', 'Arī konditoreja nelielai pauzei.', 'leyli-sadeqian-wSmhn8taZpc-unsplash.jpg', 'Ilustratīvs hotdogs un frī kartupeļi līdzņemšanas iepakojumos' ),
+		array( 'Deserti un dzērieni', 'Saldai pauzei.', 'fidel-fernando-KY5ZBCIE18E-unsplash.jpg', 'Ilustratīvi glazēti virtuļi kastītē' ),
 	);
 	$cards = '';
 	foreach ( $items as $item ) {
@@ -67,7 +69,7 @@ function jg_business_food_blocks( $language ) {
 	}
 	return jg_block_group(
 		jg_block_heading( $is_en ? 'What can people buy at your machine?' : 'Ko varēs iegādāties jūsu automātā?' ) .
-		jg_block_paragraph( $is_en ? 'Lunch meals, salads and desserts for everyday mealtimes. We select the range around the needs of your employees and visitors.' : 'Maltītes pusdienām, salāti un deserti ikdienas ēdienreizēm. Sortimentu izvēlamies atbilstoši jūsu darbinieku un apmeklētāju vajadzībām.', 'jg-section-lede' ) .
+		jg_block_paragraph( $is_en ? 'Meals, snacks and drinks for everyday mealtimes and breaks. We select the range around the needs of your employees and visitors.' : 'Ēdieni, uzkodas un dzērieni ikdienas maltītēm un pauzēm. Sortimentu izvēlamies atbilstoši jūsu darbinieku un apmeklētāju vajadzībām.', 'jg-section-lede' ) .
 		jg_block_columns( $cards, 'jg-food-grid' ) .
 		jg_block_paragraph( $is_en ? 'Images illustrate food categories. The actual selection may differ.' : 'Attēli ilustrē ēdienu kategorijas. Faktiskais sortiments var atšķirties.', 'jg-image-note' ),
 		'food-range section jg-block-section jg-block-food-range', 'section', 'sortiments'
@@ -76,12 +78,12 @@ function jg_business_food_blocks( $language ) {
 
 function jg_business_experience_blocks( $language ) {
 	$is_en = $language === 'en';
-	$stats = $is_en ? array( array( '20 years', 'Experience in catering' ), array( '200+', 'Companies served over the years' ), array( '500+', 'People eat in our canteens every day' ) ) : array( array( '20 gadi', 'Pieredze ēdināšanā' ), array( '200+', 'Uzņēmumu apkalpoti šo gadu laikā' ), array( '500+', 'Cilvēku ik dienu paēd mūsu ēdnīcās' ) );
+	$stats = $is_en ? array( array( '20 years', 'Experience in catering' ), array( '250+', 'Companies served over the years' ), array( '650+', 'People eat in our cafés every day' ) ) : array( array( '20 gadi', 'Pieredze ēdināšanā' ), array( '250+', 'Uzņēmumu apkalpoti šo gadu laikā' ), array( '650+', 'Cilvēku ik dienu paēd mūsu kafejnīcās' ) );
 	$numbers = '';
 	foreach ( $stats as $stat ) {
 		$numbers .= jg_block_group( jg_block_paragraph( $stat[0], 'jg-experience-number' ) . jg_block_paragraph( $stat[1], 'jg-experience-label' ), 'jg-experience-stat', 'div' );
 	}
-	$copy = jg_block_heading( $is_en ? 'Janoga’s experience preparing meals.' : 'Jāņogas pieredze maltīšu gatavošanā.' ) . jg_block_paragraph( $is_en ? 'Every day, we prepare and serve meals for company employees and visitors to our canteens. With JāņogaGO, we bring that experience to locations without a canteen or convenient lunch options nearby.' : 'Ikdienā gatavojam un pasniedzam maltītes uzņēmumu darbiniekiem un mūsu ēdnīcu apmeklētājiem. Ar JāņogaGO šo pieredzi izmantojam, lai nodrošinātu maltītes arī vietās, kur nav ēdnīcas vai tuvumā pieejamu pusdienu iespēju.' );
+	$copy = jg_block_heading( $is_en ? 'Janoga’s experience preparing meals.' : 'Jāņogas pieredze maltīšu gatavošanā.' ) . jg_block_paragraph( $is_en ? 'Every day, we prepare and serve meals for company employees and visitors to our cafés. With JāņogaGO, we bring that experience to locations without a café or convenient lunch options nearby.' : 'Ikdienā gatavojam un pasniedzam maltītes uzņēmumu darbiniekiem un mūsu kafejnīcu apmeklētājiem. Ar JāņogaGO šo pieredzi izmantojam, lai nodrošinātu maltītes arī vietās, kur nav kafejnīcas vai tuvumā pieejamu pusdienu iespēju.' );
 	return jg_block_group( jg_block_columns( jg_block_column( $copy ) . jg_block_column( jg_block_group( $numbers, 'jg-experience-stats', 'div' ) ), 'jg-experience-layout' ), 'experience section jg-block-section jg-block-experience', 'section', 'pieredze' );
 }
 
@@ -154,7 +156,7 @@ function jg_business_form_blocks( $language ) {
 		$content .= jg_block_paragraph( $copy[ $key ], 'jg-form-field jg-field-' . $field );
 	}
 	$content .= jg_block_button( $copy['form_submit_label'], '#pieteikties', 'button button-dark jg-form-submit' );
-	foreach ( array( 'success', 'invalid', 'phone_invalid', 'failed' ) as $message ) {
+	foreach ( array( 'success', 'invalid', 'phone_invalid', 'failed', 'mail_failed' ) as $message ) {
 		$content .= jg_block_paragraph( $copy[ 'form_' . $message . '_message' ], 'jg-form-status jg-status-' . $message );
 	}
 	return jg_block_group( $content, 'jg-enquiry-form', 'div' );
@@ -185,7 +187,7 @@ function jg_business_home_blocks( $language, $page_id ) {
 	$hero_copy = jg_block_heading( $copy['hero_title'], 1 ) . jg_block_paragraph( $copy['hero_text'], 'lede' ) . jg_block_button( $copy['hero_cta'], '#pieteikties', 'button button-light' );
 	$hero_visual = jg_block_image( jg_seed_attachment( 'leyli-sadeqian-wSmhn8taZpc-unsplash.jpg' ), $is_en ? 'Hot dog and fries in takeaway trays' : 'Hotdogs un frī kartupeļi līdzņemšanas iepakojumos' );
 	$hero = jg_block_group( jg_block_columns( jg_block_column( $hero_copy, 'hero-copy', 'center' ) . jg_block_column( $hero_visual, 'hero-visual', 'center' ), 'jg-block-hero-layout', 'center' ), 'hero jg-block-section jg-block-hero' );
-	$clients = strtr( jg_clients_section_blocks( $language ), $is_en ? array( 'Trusted by teams who keep moving.' => 'Janoga’s catering clients.', 'From production and retail to logistics.' => 'Companies we have served through Janoga’s catering services.' ) : array( 'Mūs jau novērtē.' => 'Jāņogas ēdināšanas klienti.', 'No ražotnēm līdz mazumtirdzniecībai un loģistikai.' => 'Uzņēmumi, kurus esam apkalpojuši Jāņogas ēdināšanas pakalpojumu ietvaros.' ) );
+	$clients = strtr( jg_clients_section_blocks( $language ), $is_en ? array( 'Trusted by teams who keep moving.' => 'Our catering clients.', 'From production and retail to logistics.' => 'Companies we have served through our catering services.' ) : array( 'Mūs jau novērtē.' => 'Mūsu ēdināšanas klienti.', 'No ražotnēm līdz mazumtirdzniecībai un loģistikai.' => 'Uzņēmumi, kuriem esam nodrošinājuši ēdināšanu.' ) );
 	$footer = jg_block_group( jg_block_paragraph( $copy['contact_address'], 'jg-footer-address' ) . jg_block_paragraph( '© ' . gmdate( 'Y' ) . ' ' . get_bloginfo( 'name' ), 'jg-footer-copyright' ), 'jg-block-footer-content', 'div' );
 	return $hero . jg_business_food_blocks( $language ) . jg_business_experience_blocks( $language ) . $clients . jg_business_service_blocks( $language ) . jg_business_suitability_blocks( $language ) . jg_business_process_blocks( $language ) . jg_business_faq_blocks( $language ) . jg_business_contact_blocks( $language, $page_id ) . $footer;
 }
@@ -247,6 +249,17 @@ function jg_form_block_copy( $block ) {
 	return $copy;
 }
 
+function jg_enquiry_result_markup( $copy ) {
+	$status = sanitize_key( wp_unslash( $_GET['enquiry'] ?? '' ) );
+	$key = array( 'sent' => 'success', 'invalid' => 'invalid', 'failed' => 'failed', 'mail_failed' => 'mail_failed' )[ $status ] ?? '';
+	if ( ! $key || empty( $copy[ $key ] ) ) {
+		return '';
+	}
+	$success = $key === 'success';
+	$icon = $success ? '<path d="m5 12 4 4L19 6"/>' : '<path d="M12 5v8m0 4v1"/>';
+	return '<div id="jg-enquiry-result" class="form-message form-message-' . ( $success ? 'success' : 'error' ) . '" role="' . ( $success ? 'status' : 'alert' ) . '" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">' . $icon . '</svg><p>' . esc_html( $copy[ $key ] ) . '</p></div>';
+}
+
 function jg_render_editable_form( $content, $block ) {
 	if ( ( $block['blockName'] ?? '' ) !== 'core/group' || ! in_array( 'jg-enquiry-form', explode( ' ', $block['attrs']['className'] ?? '' ), true ) ) {
 		return $content;
@@ -255,6 +268,7 @@ function jg_render_editable_form( $content, $block ) {
 	$page_id = get_queried_object_id() ?: get_the_ID();
 	$html = '<form class="jg-enquiry-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" method="post" data-required-message="' . esc_attr( $copy['invalid'] ?? '' ) . '" data-phone-invalid-message="' . esc_attr( $copy['phone_invalid'] ?? '' ) . '">';
 	$html .= '<input type="hidden" name="action" value="jg_submit_enquiry"><input type="hidden" name="page_id" value="' . absint( $page_id ) . '"><input type="hidden" name="service_interest" value="full-service">' . wp_nonce_field( 'jg_submit_enquiry', 'jg_enquiry_nonce', true, false );
+	$html .= jg_enquiry_result_markup( $copy );
 	$inputs = array(
 		'company' => 'type="text" autocomplete="organization" maxlength="120"',
 		'name' => 'type="text" autocomplete="name" maxlength="120"',
@@ -276,11 +290,6 @@ function jg_render_editable_form( $content, $block ) {
 	}
 	if ( isset( $copy['submit'] ) ) {
 		$html .= '<button class="button button-dark" type="submit">' . esc_html( $copy['submit'] ) . jg_arrow_icon() . '</button>';
-	}
-	$status = sanitize_key( wp_unslash( $_GET['enquiry'] ?? '' ) );
-	$status_key = array( 'sent' => 'success', 'invalid' => 'invalid', 'failed' => 'failed' )[ $status ] ?? '';
-	if ( $status_key && isset( $copy[ $status_key ] ) ) {
-		$html .= '<p class="form-message" role="status">' . esc_html( $copy[ $status_key ] ) . '</p>';
 	}
 	return $html . '</form>';
 }

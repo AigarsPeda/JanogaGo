@@ -84,6 +84,23 @@
 .janogago-blocks .suitability p { font-size: 17px; line-height: 1.7; max-width: 75ch; }
 .janogago-blocks .jg-enquiry-form label { font-family: var(--sans); font-size: 13px; letter-spacing: 0; line-height: 1.5; }
 .janogago-blocks .jg-enquiry-form .button { font-family: var(--sans); }
+.janogago-blocks .jg-enquiry-form .button:disabled { opacity: .65; cursor: wait; }
+.janogago-blocks .jg-enquiry-form .form-message {
+ background: var(--cream);
+ color: var(--ink);
+ display: flex;
+ align-items: flex-start;
+ gap: 14px;
+ grid-column: 1 / -1;
+ margin: 0 0 8px;
+ padding: 24px;
+ scroll-margin-top: 100px;
+}
+.janogago-blocks .form-message p { color: inherit; font-size: 16px; line-height: 1.6; margin: 0; }
+.janogago-blocks .form-message svg { flex: 0 0 24px; height: 24px; margin-top: 2px; }
+.janogago-blocks .form-message-success svg { color: #286345; }
+.janogago-blocks .form-message-error svg { color: var(--red); }
+.janogago-blocks .form-message:focus { outline: 2px solid var(--cream); outline-offset: 5px; }
 .janogago-blocks .section,
 .janogago-blocks .contact { opacity: 1; transform: none; }
 @media (max-width: 850px) {

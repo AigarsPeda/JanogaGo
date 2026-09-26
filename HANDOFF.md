@@ -52,20 +52,21 @@ Do not commit the deployment configuration or SSH key.
 | `theme/janogago/header.php` / `footer.php` | Header, WordPress menu, logo, footer. |
 | `scripts/sync-code-to-droplet.sh` | Safely synchronizes the local theme to the droplet, flushes cache/rewrite rules, verifies the file hash and HTTP response. |
 | `scripts/sync-uploads-to-droplet.sh` | Synchronizes Media Library uploads to live without deleting existing live uploads. |
+| `scripts/sync-content-to-droplet.sh` / `wordpress-content-sync.php` | Selectively transfers LV/EN homepage blocks and referenced media, with dry runs and private backups. Registers new photos through WordPress and maps live IDs/URLs. |
 | `scripts/push-db-to-droplet.sh` | Full database replacement. Destructive: only run with explicit user approval. |
 
 ## Current homepage structure
 
 1. Hero — “Maltītes uz vietas, bez savas ēdnīcas.” / “Meals on site, without running a canteen.”
-2. Food assortment — lunch meals, salads/bowls, desserts, with an illustrative-photo note.
-3. Janoga's catering experience — **20 years**, **200+ companies served**, **500+ daily canteen diners**. These are the user's figures for the existing catering business, not vending installations.
-4. Client logos, explicitly presented as Janoga catering clients.
+2. Food assortment — left: “Pamatēdieni un salāti”; middle: “Sendviči un uzkodas”; right: “Deserti un dzērieni”, with an illustrative-photo note.
+3. Janoga's catering experience — **20 years**, **250+ companies served**, **650+ daily café diners**. These are the user's updated figures for the existing catering business, not vending installations.
+4. Client logos, presented under “Mūsu ēdināšanas klienti.” as existing catering clients.
 5. Fully managed service — what Janoga provides and what the host provides.
 6. Location suitability — daily users, meal alternatives, shifts, space and delivery feasibility.
 7. Three-step cooperation process, five FAQs, and enquiry form.
 8. Footer copy authored in a native group and rendered in the footer.
 
-The hero and lunch-card photos on both local pages now use `leyli-sadeqian-wSmhn8taZpc-unsplash.jpg`, as requested from `/Users/aigarspeda/Desktop/vending-img/`. Both use the same Media Library attachment, ID 41, in native Image blocks. The lunch card's previous chicken attachment remains available in WordPress uploads. The initial content seed resolves this photo from Media Library for both positions; the existing business migration markers were preserved.
+The hero and middle food card (“Sendviči un uzkodas”) use `leyli-sadeqian-wSmhn8taZpc-unsplash.jpg`, supplied from `/Users/aigarspeda/Desktop/vending-img/`. Both use Media Library attachment 41 in native Image blocks. The left card (“Pamatēdieni un salāti”) uses the existing Anh Nguyen salad-bowl attachment 42. The previous chicken attachment remains available in WordPress uploads. The initial content seed resolves the existing Media Library records; business migration markers are preserved.
 
 The dessert card on both local pages now uses `fidel-fernando-KY5ZBCIE18E-unsplash.jpg`, supplied from `/Users/aigarspeda/Downloads/`. It shows glazed doughnuts in a box and has matching LV/EN alt text. It is stored only in WordPress uploads as Media Library attachment ID 55; only the dessert Image blocks were replaced. The previous cake attachment remains available. The initial content seed and `IMAGE-CREDITS.md` reflect the replacement, without resetting any migration markers.
 
@@ -94,13 +95,13 @@ The carousel is deliberately native horizontal scrolling on screens up to 700px,
 - `ensureBuffered()` prepends or appends two cloned logo batches before an edge becomes visible, so a quick swipe should not expose empty space.
 - `prefers-reduced-motion` disables the automatic carousel and keeps the logos static.
 
-Latest local version is **1.0.36**; live remains **1.0.31**. The clients section now uses the same `--paper` background as the food assortment section, via `assets/css/business.css`. The carousel was unchanged in these updates. The buffering implementation should be tested on a real iPhone Safari after any future carousel change; do not revert to a transform-only marquee because it blocks natural manual swiping.
+Local and live theme versions are **1.0.36**, deployed on 2026-09-26 with both language pages. The clients section uses the same `--paper` background as the food assortment section, via `assets/css/business.css`. The carousel was unchanged in these updates. The buffering implementation should be tested on a real iPhone Safari after any future carousel change; do not revert to a transform-only marquee because it blocks natural manual swiping.
 
 Desktop hero text now uses `align-self: center` at widths of 851px and above in `assets/css/business.css`, overriding the earlier top alignment. This lowers the text group within tall desktop viewports to align with the image. Mobile spacing and all Gutenberg text/image content remain unchanged.
 
 ## Experience figures animation
 
-`assets/js/counters.js` counts each `.jg-experience-number` up once when half of it enters the viewport, over one second. It reads the integer and suffix from the native Paragraph text, so edits such as `20 gadi`, `200+`, or `500+` in Gutenberg remain authoritative. No extra counter fields, shortcode or stored numeric values are required. Non-integer formats remain static.
+`assets/js/counters.js` counts each `.jg-experience-number` up once when half of it enters the viewport, over one second. It reads the integer and suffix from the native Paragraph text, so edits such as `20 gadi`, `250+`, or `650+` in Gutenberg remain authoritative. No extra counter fields, shortcode or stored numeric values are required. Non-integer formats remain static.
 
 The full figures are visible without JavaScript and when reduced motion is enabled. During animation, assistive technology receives the final text through a visually hidden span, while the changing visual span is `aria-hidden`. On completion the original authored nodes are restored. Switching to reduced motion or hiding the tab finishes active animations immediately. The existing carousel code is unchanged.
 
@@ -143,9 +144,19 @@ Temporary recovery/test files: `/tmp/janogago-before-business-copy.json` contain
 
 ## Deploying safely
 
-Theme-only deployment (the normal route):
+### Latest release, 2026-09-26
 
-**No deployment was requested or performed for this update.** A future code deployment will run the once-only business migration on live if its markers are absent. Import the required photos into live Media Library before triggering that migration; it now resolves existing attachments rather than importing theme assets. Local edits made after the seed, such as changes in Gutenberg, must be carried across deliberately; do not overwrite live with the entire local database merely to move copy.
+The user authorized deployment of new code and content. Used the existing `sync-uploads-to-droplet.sh` and `sync-code-to-droplet.sh` scripts, following successful dry runs. Transferred only LV page 6 and EN page 7 through a temporary WP-CLI importer, preserving the live database, users, settings, other pages, and enquiries. The importer updated native block content and media alt text, and set the existing migration markers before deploying the theme. No full database replacement was performed.
+
+All eight referenced Media Library attachments already existed on live. Their original files were verified against the local photos using SHA-256, and the importer mapped image IDs and URLs to live records. Live IDs are 41, 42, 55 and 44–48. Live attachment 55 uses WordPress's renamed file `2026/09/fidel-fernando-KY5ZBCIE18E-unsplash-1-scaled.jpg`; preserve its actual URL rather than assuming the local filename. All content images remain in WordPress uploads. The uploads script ran with `LOCAL_UPLOADS_PATH=/tmp/janogago-release-uploads`, containing only the 43 original/derived files used by these attachments.
+
+Private rollback backup on the droplet: `/root/janogago-backups/20260926-054215-before-business-release/`. It contains `database.sql`, `theme.tar.gz`, and `pages-before.json`. The exported release content and temporary importer are also retained there as deployment records. Directory permissions are 700 and files are 600. Local temporary transfer files are `/tmp/janogago-export-release.php`, `/tmp/janogago-import-release.php`, and `/tmp/janogago-release-content.json`; they are not repository files.
+
+Verified theme version 1.0.36, exact source/theme checksum comparison, and saved page-content hashes after initialization. LV hash: `72365b1a822816715d0fb6237d9f2fd5486cfa40dac5de272ddbb306dc845c98`; EN hash: `38e20f12aca7ecd5a86faf171c56707d76137f1bd6c94337a5c2fb4d331107d9`. Cache and rewrite rules were flushed. Both language URLs returned HTTP 200; maintenance mode is inactive. Browser checks confirmed the new copy and functional form fields, all food photographs and client logos loaded from uploads, matching food/client backgrounds, final experience figures, and no horizontal overflow on LV desktop or EN at 390px. No live form submission or external email was sent. Future content edits will change these hashes normally.
+
+### Future deployments
+
+Theme-only deployment is the normal route:
 
 ```sh
 ./scripts/sync-code-to-droplet.sh
@@ -157,7 +168,40 @@ It deploys the current working tree, so commit first when a clean release histor
 ./scripts/sync-uploads-to-droplet.sh
 ```
 
-This script copies upload files only. It does not create Media Library records or transfer page content. Import/register new images through live WordPress Media or WP-CLI and use the live attachment IDs when transferring page content. Never assume local attachment IDs match live IDs.
+The uploads script copies files only. It does not create Media Library records or transfer page content. For the homepage copy and its native Image-block photos, use the saved content sync instead:
+
+```sh
+./scripts/sync-content-to-droplet.sh --dry-run
+./scripts/sync-content-to-droplet.sh
+```
+
+Add `--languages=lv` or `--languages=en` to transfer only one language. It uses the existing deployment configuration and Local PHP/socket paths. Its companion `scripts/wordpress-content-sync.php` exports current Gutenberg content and original media files to private temporary staging. Remote preflight verifies pages, image checksums and duplicate matches. Apply backs up the database to a new private directory under `REMOTE_BACKUP_DIR`, saves page/marker/alt snapshots, reuses matching media by original-file SHA-256 and imports missing photos with WordPress's native sideload API. WordPress handles uploads filenames, scaling, thumbnails and attachment records. No theme photo copies or full database replacement are used. A separate uploads sync is not needed for these page photos.
+
+The helper runs with `--skip-themes` to avoid incidental migrations. It sets per-page migration markers, sets the global business marker when both pages are migrated, verifies saved content, and skips writing unchanged pages. The wrapper flushes cache afterwards and removes temporary staging. It deliberately overwrites selected live homepage blocks with Local's blocks, so review live edits before running. It preserves existing page IDs, titles, slugs, users, settings, enquiries and unrelated content.
+
+Verified the reusable script in dry-run mode against the live droplet: two pages, eight reused photos, no new imports or live changes. `scripts/tests/content-sync.php` is a local-only WP-CLI integration test covering dry-run preservation, new native media import, a filename collision, nested block ID/URL mapping, media metadata, backups, unchanged-page revision counts, repeat runs without duplicate images and unrelated homepage preservation. It removes its fixtures and refuses production hostnames. PHP and Bash syntax checks passed. The reusable script was added after the initial release above and first applied live for the figure update below.
+
+On 2026-09-26, the user updated the experience figures to **250+ companies** and **650+ daily canteen diners**. Changed only the two native Paragraph values on both local language pages, then deployed with `sync-content-to-droplet.sh` after a successful dry run. The matching initial defaults in `inc/business-content.php` were updated locally and deployed with `sync-code-to-droplet.sh`; no migration markers were reset. The theme remains 1.0.36 because no cached CSS/JS changed. Full-content comparisons against the before-update snapshots confirmed that only the two requested figures changed on local and live LV/EN pages. The live browser confirmed 20 gadi, 250+, 650+.
+
+Figure-update rollback backup: `/var/backups/janogago/content-20260926-112002.eSIYSIvf/`, containing `database.sql.gz`, `pages-before.json` and `release.json`. Page hashes recorded for this figure update: LV `24b06efad2fd9b9d3e557baa4832fa4f889ef9f2a7791d2dd893314c9fa11fd3`; EN `cddef0d3ccce03a7ca607e22d03386d8ac63b3ffa07b7a32c1df9162c20f2c56`. The earlier release hashes above are historical. Local before-update content is `/tmp/janogago-before-figure-update.json`; live screenshot proof is `/tmp/janogago-250-650-live.png`.
+
+The next user-requested wording update replaced `mūsu ēdnīcu apmeklētājiem` with `mūsu kafejnīcu apmeklētājiem` and `kur nav ēdnīcas` with `kur nav kafejnīcas` in the experience paragraph. Its English equivalent now uses `our cafés` and `without a café`. Only that paragraph was changed in each language. Native Gutenberg content, initial theme defaults and the copy brief were updated; content/code were deployed using the saved scripts. Hashes recorded for that wording update: LV `141f960878dc9821df2f839f17852966c5d773d1dd5a43f45f7d548cccf81b4e`; EN `5ae99763c229d6f8cd84f2a44e117a49da176f7f19a7a1e102970bc2eeaecfe2`. Rollback backup: `/var/backups/janogago/content-20260926-112357.FMK7Fax1/`. Local before-update content: `/tmp/janogago-before-cafe-copy.json`.
+
+The client then requested three food categories, left to right: “Pamatēdieni un salāti”, “Sendviči / uzkodas / konditoreja”, “Deserti / našķi / dzērieni”. These were deployed on local and live LV pages, with EN equivalents “Mains and salads”, “Sandwiches / snacks / pastries”, “Desserts / treats / drinks”, before the later shortening below. Descriptions and the section introduction were updated. The existing salad-bowl photo is now on the left (attachment 42), the existing sandwich/hotdog photo in the middle (41), and the existing doughnuts on the right (55). The hero photo stays 41. No new photos were added. All remain native Gutenberg/Media Library content.
+
+Checked the revised section at local desktop 1280px and phone 390px: photos loaded and headings wrapped without horizontal overflow. No CSS/JS changes were needed. Deployed through content sync and code sync after the dry run. All non-food page blocks were preserved. Historical category-update hashes: LV `066132b1d10bf3f977d93fd68531864145fac37020abcdb697eac0f7ab7f6c63`; EN `1dccfe88ce8bf6db53a215688a34f6688886a286b3421429fdf61e9fe8120797`. Rollback backup: `/var/backups/janogago/content-20260926-113011.iP9MEEvo/`. Local before-update content: `/tmp/janogago-before-food-category-update.json`.
+
+The user approved simpler middle/right headings and descriptions, then requested a more natural left-card description. Final copy is now local and live:
+
+| Card | LV heading | LV description | EN heading | EN description |
+| --- | --- | --- | --- | --- |
+| Left | Pamatēdieni un salāti | Pilnvērtīga maltīte pusdienu pauzei. | Mains and salads | A proper meal for your lunch break. |
+| Middle | Sendviči un uzkodas | Arī konditoreja nelielai pauzei. | Sandwiches and snacks | Pastries for a short break. |
+| Right | Deserti un dzērieni | Saldai pauzei. | Desserts and drinks | For a sweet break. |
+
+The photos, their order, and other sections are unchanged from the category update. Native blocks, matching initial theme defaults and the copy brief were updated. Both updates used the saved content/code scripts and retained theme version 1.0.36. Rollback backups: `/var/backups/janogago/content-20260926-113437.is9UE8fm/` before shortening, and `/var/backups/janogago/content-20260926-113556.pyXwrGRY/` before the left-card description change. Hashes recorded for that wording update: LV `0bcddbfa0ec3e9c02ff881cdc292459bd5a74d2321d6455f687f486ca0ec31b4`; EN `1b1c004781ce63201e2e2963467727f6dbb44a035dcf78091f97cc08f041d4ac`. Local original snapshot for both changes is `/tmp/janogago-before-short-food-copy.json`. Full-content checks on local/live LV/EN confirmed only the approved card text changed. The live LV layout was checked at 1280px and 390px: photos loaded, no horizontal overflow, all desktop titles fit on one line. Screenshot proof: `/tmp/janogago-short-food-copy-live.png`.
+
+For a combined content/code release, back up the existing theme and run content sync before code sync. Preserve actual Gutenberg edits, including changes made after the initial seed. Do not reset migration markers during routine updates. The PHP helper belongs alongside the shell scripts, not in the WordPress theme.
 
 Only with explicit user approval, because this overwrites live WordPress data:
 
@@ -169,7 +213,7 @@ After a live deployment, verify LV and EN with a cache-busting query string and 
 
 ## Git status at handoff
 
-The business update is **local only and uncommitted**. Intended source/document changes are in:
+The business update is **deployed**. Its base source is committed as `bf5dea6` (`Add business content and styles for JāņogaGO service`). The updated figure defaults, copy brief, release notes and reusable content-sync scripts added afterwards remain uncommitted. The business update covers:
 
 - `theme/janogago/functions.php`
 - `theme/janogago/header.php`
@@ -182,8 +226,10 @@ The business update is **local only and uncommitted**. Intended source/document 
 - `IMAGE-CREDITS.md` (new)
 - `janogago-copy-brief.md` (new, earlier copy planning)
 - `HANDOFF.md`
+- `README.md` (deployment guidance)
+- `scripts/sync-content-to-droplet.sh`, `scripts/wordpress-content-sync.php`, `scripts/tests/content-sync.php` (reusable selective content release and local integration test)
 
-The generated `.impeccable/` directory is untracked diagnostic output; do not add it to Git. Before committing, review the diff and stage only the intended files. Previous GitHub commits include `2f318e2` (homepage/client carousel) and `3c8bd6e` (reusable Media Library deployment sync).
+The generated `.impeccable/` directory is diagnostic output; do not add it to Git. Before committing, review the diff and stage only the intended files. Earlier commits include `0cdb546` (mobile carousel and removed homepage sections) and `3c8bd6e` (reusable Media Library deployment sync).
 
 ## Starting a fresh chat
 
@@ -192,3 +238,9 @@ Attach or reference this file and state the requested change, scope, and whether
 > Read `HANDOFF.md` in `/Users/aigarspeda/Desktop/JanogaGo`. Make this change locally first: [request]. Do not deploy until I approve.
 
 For a production request, replace the last sentence with: “Deploy the verified change to the droplet and report the live check.”
+
+
+The daily-diners stat label now reads `Cilvēku ik dienu paēd mūsu kafejnīcās` in LV and `People eat in our cafés every day` in EN. The figure remains 650+. Native Gutenberg content and matching initial theme defaults were updated locally and deployed with the saved content/code scripts; theme version remains 1.0.36. Full-content verification against local and remote backups confirmed only this label changed in each language. Hashes recorded for that label update: LV `82d892d1a5eff662a8aea65a7a606a116e3d92a284393516b52509174c68447f`; EN `e92cbef6e368e4c81df30d4f2ce63bd0e148e79e046bc44c05efc41224887b1e`. Rollback backup: `/var/backups/janogago/content-20260926-114003.108PnPGD/`. Local before-update content: `/tmp/janogago-before-cafe-label.json`. Live screenshot proof: `/tmp/janogago-cafe-label-live.png`.
+
+
+The client section now uses `Mūsu ēdināšanas klienti.` / `Our catering clients.` and `Uzņēmumi, kuriem esam nodrošinājuši ēdināšanu.` / `Companies we have served through our catering services.` The user requested improved wording without mentioning Janoga here. Native Gutenberg blocks, matching initial theme defaults and the copy brief were updated; content and code were deployed using the saved scripts. Theme remains 1.0.36. Exact-content checks against local/live backups confirmed only these two strings changed in each language, and the live LV section was visually verified. Current live hashes: LV `1d7571ee90f996c143fa4ffbce5ec04ee42fd4d68cebbad8a44cf241ff904dff`; EN `fcf2458bc923fe89e7912c152a6daddbf42441d3df0fff56a998e160aa15e57c`. Rollback backup: `/var/backups/janogago/content-20260926-114501.r0AZP99P/`. Local snapshot: `/tmp/janogago-before-client-copy.json`. Screenshot: `/tmp/janogago-client-copy-live.png`.

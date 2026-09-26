@@ -4,7 +4,7 @@ Working draft, 26 September 2026. Reviewed the Latvian and English pages of the 
 
 The user confirmed that fully managed service is the main offer, with commercial details still being decided. The equipment comes from Boost inc. Cooling is the user's current understanding, so the exact machine model and food/reheating process still need confirmation.
 
-The user has asked to retain the food images already on the new page and supplied these experience figures for the draft: 20 years in operation, more than 200 companies served, and more than 500 people served daily in Janoga's canteens. These describe Janoga's existing catering business, not the new vending service. The user also requested proposed answers for service scope, location suitability, and the setup process. Those sections below are draft operating commitments for Janoga to review.
+The user has asked to retain the food images already on the new page and supplied these updated experience figures: 20 years in operation, more than 250 companies served, and more than 650 people served daily in Janoga's cafés. These describe Janoga's existing catering business, not the new vending service. The user also requested proposed answers for service scope, location suitability, and the setup process. Those sections below are draft operating commitments for Janoga to review.
 
 Sources:
 
@@ -114,32 +114,27 @@ Keep the existing page photos for now, as requested. Present them as illustratio
 
 Updated introduction:
 
-> Maltītes pusdienām, salāti un deserti ikdienas ēdienreizēm. Sortimentu izvēlamies atbilstoši jūsu darbinieku un apmeklētāju vajadzībām.
+> Ēdieni, uzkodas un dzērieni ikdienas maltītēm un pauzēm. Sortimentu izvēlamies atbilstoši jūsu darbinieku un apmeklētāju vajadzībām.
 
-Keep the current three image cards with these proposed labels and descriptions:
+Keep three image cards with the client's requested categories, left to right. Use the existing salad-bowl photo first, the sandwich/hotdog photo in the middle, and the doughnuts on the right.
 
-**Maltītes pusdienām**
+**Pamatēdieni un salāti**
 
-> Sātīgi ēdieni pilnvērtīgai pusdienu pauzei.
+> Pilnvērtīga maltīte pusdienu pauzei.
 
-**Salāti un bļodas**
+**Sendviči un uzkodas**
 
-> Vieglāka maltīte pusdienām vai nelielai pauzei.
+> Arī konditoreja nelielai pauzei.
 
-**Deserti**
+**Deserti un dzērieni**
 
-> Kaut kas salds pēc maltītes vai pie kafijas.
+> Saldai pauzei.
 
 Small note below the cards:
 
 > Attēli ilustrē ēdienu kategorijas. Faktiskais sortiments var atšķirties.
 
-Suggested category labels, only for products confirmed in the launch assortment:
-
-- Maltītes pusdienām
-- Salāti un aukstās maltītes
-- Uzkodas un deserti
-- Dzērieni
+The client confirmed the category grouping above. Confirm the individual products in the launch assortment separately.
 
 The food section needs one plain sentence explaining heating. Choose the version that matches the actual service:
 
@@ -156,19 +151,19 @@ Headline:
 
 Updated copy using the user's supplied figures:
 
-> Ikdienā gatavojam un pasniedzam maltītes uzņēmumu darbiniekiem un mūsu ēdnīcu apmeklētājiem. Ar JāņogaGO šo pieredzi izmantojam, lai nodrošinātu maltītes arī vietās, kur nav ēdnīcas vai tuvumā pieejamu pusdienu iespēju.
+> Ikdienā gatavojam un pasniedzam maltītes uzņēmumu darbiniekiem un mūsu kafejnīcu apmeklētājiem. Ar JāņogaGO šo pieredzi izmantojam, lai nodrošinātu maltītes arī vietās, kur nav kafejnīcas vai tuvumā pieejamu pusdienu iespēju.
 
 Suggested figures displayed next to the copy:
 
 - **20 gadi**. Pieredze ēdināšanā.
-- **200+ uzņēmumu**. Apkalpoti šo gadu laikā.
-- **500+ cilvēku**. Ik dienu paēd mūsu ēdnīcās.
+- **250+ uzņēmumu**. Apkalpoti šo gadu laikā.
+- **650+ cilvēku**. Ik dienu paēd mūsu kafejnīcās.
 
 These figures must remain explicitly attached to Janoga's food business. Do not label them vending customers, installations, or vending users.
 
 If confirmed, a stronger and more specific headline is “Maltītes no Jāņogas virtuves.” Show the kitchen, team, or actual meals to substantiate it.
 
-Use customer logos with a precise explanation of the relationship. If they are existing catering customers, “Jāņogas ēdināšanas klienti” is clearer than implying that all have vending installations. Add a vending case study once one is available: location type, people served, service scope, and an approved customer quote.
+Use customer logos with a precise explanation of the relationship. If they are existing catering customers, “Mūsu ēdināšanas klienti” is clearer than implying that all have vending installations. Add a vending case study once one is available: location type, people served, service scope, and an approved customer quote.
 
 ### 5. Suitable locations
 

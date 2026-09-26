@@ -225,6 +225,13 @@ function jg_is_valid_phone_number( $phone ) {
 	return strlen( $digits ) >= 7 && strlen( $digits ) <= 15;
 }
 
+function jg_enquiry_redirect( $status ) {
+	$url = get_permalink( absint( $_POST['page_id'] ?? 0 ) ) ?: wp_get_referer() ?: home_url( '/' );
+	$url = explode( '#', $url, 2 )[0];
+	wp_safe_redirect( add_query_arg( 'enquiry', $status, $url ) . '#jg-enquiry-result', 303 );
+	exit;
+}
+
 function jg_submit_enquiry() {
 	if ( ! isset( $_POST['jg_enquiry_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['jg_enquiry_nonce'] ) ), 'jg_submit_enquiry' ) ) {
 		wp_die( 'Invalid form submission.' );
@@ -238,19 +245,22 @@ function jg_submit_enquiry() {
 	$message = sanitize_textarea_field( wp_unslash( $_POST['message'] ?? '' ) );
 	$page_content = (string) get_post_field( 'post_content', absint( $_POST['page_id'] ?? 0 ) );
 	if ( ! $company || ! $name || ! is_email( $email ) || ! $phone || ! $people || empty( $_POST['privacy_consent'] ) || ( str_contains( $page_content, 'jg-field-location' ) && ! $location ) ) {
-		wp_safe_redirect( add_query_arg( 'enquiry', 'invalid', wp_get_referer() ?: home_url( '/' ) ) ); exit;
+		jg_enquiry_redirect( 'invalid' );
 	}
 	if ( ! jg_is_valid_phone_number( $phone ) || ! ctype_digit( $people ) || 0 >= (int) $people ) {
-		wp_safe_redirect( add_query_arg( 'enquiry', 'invalid', wp_get_referer() ?: home_url( '/' ) ) ); exit;
+		jg_enquiry_redirect( 'invalid' );
 	}
 	$interest = sanitize_key( wp_unslash( $_POST['service_interest'] ?? '' ) );
 	$interest_labels = array( 'full-service' => 'Pilna servisa risinājums', 'equipment-lease' => 'Aprīkojuma noma' );
 	$interest_label = $interest_labels[ $interest ] ?? 'Nav norādīts';
 	$body = "Company: {$company}\nContact: {$name}\nEmail: {$email}\nPhone: {$phone}\nLocation: {$location}\nPeople: {$people}\nInterested service: {$interest_label}\n\n{$message}";
 	$post_id = wp_insert_post( array( 'post_type' => 'janogago_lead', 'post_status' => 'private', 'post_title' => $company . ' — ' . $name, 'post_content' => $body ) );
+	if ( ! $post_id ) {
+		jg_enquiry_redirect( 'failed' );
+	}
 	$recipient = preg_match( '/href="mailto:([^"?]+)"/', $page_content, $email_match ) ? sanitize_email( html_entity_decode( $email_match[1] ) ) : '';
-	if ( $recipient ) { wp_mail( $recipient, 'JāņogaGO website enquiry: ' . $company, $body, array( 'Reply-To: ' . $name . ' <' . $email . '>' ) ); }
-	wp_safe_redirect( add_query_arg( 'enquiry', $post_id ? 'sent' : 'failed', wp_get_referer() ?: home_url( '/' ) ) ); exit;
+	$mail_sent = $recipient && wp_mail( $recipient, 'JāņogaGO website enquiry: ' . $company, $body, array( 'Reply-To: ' . $name . ' <' . $email . '>' ) );
+	jg_enquiry_redirect( $mail_sent ? 'sent' : 'mail_failed' );
 }
 add_action( 'admin_post_nopriv_jg_submit_enquiry', 'jg_submit_enquiry' );
 add_action( 'admin_post_jg_submit_enquiry', 'jg_submit_enquiry' );
