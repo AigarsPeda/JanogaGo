@@ -1,0 +1,33 @@
+/* Editor hints describe the native paragraph blocks that become form fields. */
+.editor-styles-wrapper .jg-form-field {
+ border: 1px solid #b8b8b8;
+ padding: 14px;
+ margin-block: 12px;
+}
+.editor-styles-wrapper .jg-form-field::after {
+ content: "";
+ display: block;
+ height: 30px;
+ border-bottom: 1px solid #999;
+ margin-top: 8px;
+}
+.editor-styles-wrapper .jg-field-message::after { height: 72px; }
+.editor-styles-wrapper .jg-field-privacy::after { display: none; }
+.editor-styles-wrapper .jg-form-status {
+ border: 1px dashed #888;
+ padding: 12px;
+}
+.editor-styles-wrapper .jg-form-status::before,
+.editor-styles-wrapper .jg-footer-address::before,
+.editor-styles-wrapper .jg-footer-copyright::before {
+ display: block;
+ font: 12px/1.5 sans-serif;
+ color: #555;
+ margin-bottom: 5px;
+}
+.editor-styles-wrapper .jg-status-success::before { content: "Confirmation message / Apstiprinājuma teksts"; }
+.editor-styles-wrapper .jg-status-invalid::before { content: "Required fields message / Obligāto lauku paziņojums"; }
+.editor-styles-wrapper .jg-status-phone_invalid::before { content: "Phone validation / Tālruņa pārbaude"; }
+.editor-styles-wrapper .jg-status-failed::before { content: "Submission error / Nosūtīšanas kļūda"; }
+.editor-styles-wrapper .jg-footer-address::before { content: "Footer text / Kājenes teksts"; }
+.editor-styles-wrapper .jg-footer-copyright::before { content: "Copyright text / Autortiesību teksts"; }

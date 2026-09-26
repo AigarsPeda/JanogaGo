@@ -10,6 +10,8 @@ function jg_setup() {
 	add_theme_support( 'custom-logo', array( 'height' => 90, 'width' => 280, 'flex-height' => true, 'flex-width' => true ) );
 	add_theme_support( 'html5', array( 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script' ) );
 	register_nav_menus( array( 'primary' => __( 'Primary navigation', 'janogago' ), 'footer' => __( 'Footer navigation', 'janogago' ) ) );
+	add_theme_support( 'editor-styles' );
+	add_editor_style( 'assets/css/editor.css' );
 }
 add_action( 'after_setup_theme', 'jg_setup' );
 
@@ -17,7 +19,9 @@ function jg_enqueue_assets() {
 	$version = wp_get_theme()->get( 'Version' );
 	wp_enqueue_style( 'janogago-fonts', 'https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap', array(), null );
 	wp_enqueue_style( 'janogago', get_stylesheet_uri(), array( 'janogago-fonts' ), $version );
+	wp_enqueue_style( 'janogago-business', get_template_directory_uri() . '/assets/css/business.css', array( 'janogago' ), $version );
 	wp_enqueue_script( 'janogago', get_template_directory_uri() . '/assets/js/site.js', array(), $version, true );
+	wp_enqueue_script( 'janogago-counters', get_template_directory_uri() . '/assets/js/counters.js', array( 'janogago' ), $version, true );
 }
 add_action( 'wp_enqueue_scripts', 'jg_enqueue_assets' );
 
@@ -97,7 +101,8 @@ function jg_defaults( $language = null ) {
 		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 28 317 179', 'contact_address' => 'Riga, Latvia',
 		'form_company_label' => 'Company', 'form_name_label' => 'Your name', 'form_email_label' => 'Email', 'form_phone_label' => 'Phone', 'form_people_label' => 'Number of people', 'form_message_label' => 'What do you need?', 'form_privacy_label' => 'I agree that JāņogaGO may use the information I provide to contact me about my request.', 'form_submit_label' => 'Send enquiry', 'form_success_message' => 'Thank you. We will be in touch.', 'form_invalid_message' => 'Please complete every field and consent checkbox.', 'form_phone_invalid_message' => 'Please enter a valid phone number.',
 	);
-	return ( $language ?: jg_lang() ) === 'en' ? $en : $lv;
+	$language = $language ?: jg_lang();
+	return array_replace( $language === 'en' ? $en : $lv, jg_business_defaults( $language ) );
 }
 
 function jg_field( $post_id, $key ) {
@@ -127,14 +132,15 @@ function jg_primary_cta( $page_id ) {
 		}
 		$label = trim( preg_replace( '/\s*↗\s*$/u', '', wp_strip_all_tags( $block['innerHTML'] ) ) );
 		$url = $block['attrs']['url'] ?? '';
+		// Gutenberg stores source-derived attributes in HTML after a visual save.
+		if ( ! $url && preg_match( '/href="([^"]*)"/', $block['innerHTML'], $match ) ) {
+			$url = html_entity_decode( $match[1] );
+		}
 		if ( $label && $url ) {
 			return array( 'label' => $label, 'url' => $url );
 		}
 	}
-	return array(
-		'label' => jg_field( $page_id, 'hero_cta' ),
-		'url' => jg_field( $page_id, 'hero_cta_url' ),
-	);
+	return array( 'label' => '', 'url' => '' );
 }
 
 function jg_image_url( $post_id, $key, $fallback ) {
@@ -227,9 +233,11 @@ function jg_submit_enquiry() {
 	$name = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
 	$email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
 	$phone = sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) );
+	$location = sanitize_text_field( wp_unslash( $_POST['location'] ?? '' ) );
 	$people = sanitize_text_field( wp_unslash( $_POST['people'] ?? '' ) );
 	$message = sanitize_textarea_field( wp_unslash( $_POST['message'] ?? '' ) );
-	if ( ! $company || ! $name || ! is_email( $email ) || ! $phone || ! $people || ! $message || empty( $_POST['privacy_consent'] ) ) {
+	$page_content = (string) get_post_field( 'post_content', absint( $_POST['page_id'] ?? 0 ) );
+	if ( ! $company || ! $name || ! is_email( $email ) || ! $phone || ! $people || empty( $_POST['privacy_consent'] ) || ( str_contains( $page_content, 'jg-field-location' ) && ! $location ) ) {
 		wp_safe_redirect( add_query_arg( 'enquiry', 'invalid', wp_get_referer() ?: home_url( '/' ) ) ); exit;
 	}
 	if ( ! jg_is_valid_phone_number( $phone ) || ! ctype_digit( $people ) || 0 >= (int) $people ) {
@@ -238,9 +246,9 @@ function jg_submit_enquiry() {
 	$interest = sanitize_key( wp_unslash( $_POST['service_interest'] ?? '' ) );
 	$interest_labels = array( 'full-service' => 'Pilna servisa risinājums', 'equipment-lease' => 'Aprīkojuma noma' );
 	$interest_label = $interest_labels[ $interest ] ?? 'Nav norādīts';
-	$body = "Company: {$company}\nContact: {$name}\nEmail: {$email}\nPhone: {$phone}\nPeople: {$people}\nInterested service: {$interest_label}\n\n{$message}";
+	$body = "Company: {$company}\nContact: {$name}\nEmail: {$email}\nPhone: {$phone}\nLocation: {$location}\nPeople: {$people}\nInterested service: {$interest_label}\n\n{$message}";
 	$post_id = wp_insert_post( array( 'post_type' => 'janogago_lead', 'post_status' => 'private', 'post_title' => $company . ' — ' . $name, 'post_content' => $body ) );
-	$recipient = sanitize_email( jg_field( absint( $_POST['page_id'] ?? 0 ), 'contact_email' ) );
+	$recipient = preg_match( '/href="mailto:([^"?]+)"/', $page_content, $email_match ) ? sanitize_email( html_entity_decode( $email_match[1] ) ) : '';
 	if ( $recipient ) { wp_mail( $recipient, 'JāņogaGO website enquiry: ' . $company, $body, array( 'Reply-To: ' . $name . ' <' . $email . '>' ) ); }
 	wp_safe_redirect( add_query_arg( 'enquiry', $post_id ? 'sent' : 'failed', wp_get_referer() ?: home_url( '/' ) ) ); exit;
 }
@@ -261,26 +269,26 @@ function jg_seed_site() {
 }
 add_action( 'after_switch_theme', 'jg_seed_site' );
 
+/** Legacy helper name; resolves existing Media Library items without importing theme files. */
 function jg_seed_attachment( $filename ) {
 	$option = 'jg_seed_image_' . md5( $filename );
 	$attachment_id = absint( get_option( $option ) );
-	if ( $attachment_id && get_post( $attachment_id ) ) {
+	if ( $attachment_id && get_post_type( $attachment_id ) === 'attachment' && get_post_status( $attachment_id ) === 'inherit' ) {
 		return $attachment_id;
 	}
-	$source = get_template_directory() . '/assets/images/' . $filename;
-	if ( ! file_exists( $source ) ) {
+	global $wpdb;
+	$basename = wp_basename( $filename );
+	$scaled = pathinfo( $basename, PATHINFO_FILENAME ) . '-scaled.' . pathinfo( $basename, PATHINFO_EXTENSION );
+	$attachment_id = absint( $wpdb->get_var( $wpdb->prepare(
+		"SELECT p.ID FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} m ON p.ID = m.post_id
+		WHERE p.post_type = 'attachment' AND p.post_status = 'inherit' AND m.meta_key = '_wp_attached_file'
+		AND (m.meta_value IN (%s, %s) OR m.meta_value LIKE %s OR m.meta_value LIKE %s)
+		ORDER BY p.ID DESC LIMIT 1",
+		$basename, $scaled, '%/' . $wpdb->esc_like( $basename ), '%/' . $wpdb->esc_like( $scaled )
+	) ) );
+	if ( ! $attachment_id ) {
 		return 0;
 	}
-	require_once ABSPATH . 'wp-admin/includes/image.php';
-	$upload = wp_upload_bits( wp_basename( $source ), null, file_get_contents( $source ) );
-	if ( ! empty( $upload['error'] ) ) {
-		return 0;
-	}
-	$attachment_id = wp_insert_attachment( array( 'post_mime_type' => wp_check_filetype( $upload['file'] )['type'], 'post_title' => sanitize_file_name( wp_basename( $source ) ), 'post_status' => 'inherit' ), $upload['file'] );
-	if ( ! $attachment_id || is_wp_error( $attachment_id ) ) {
-		return 0;
-	}
-	wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $upload['file'] ) );
 	update_option( $option, $attachment_id, false );
 	return $attachment_id;
 }
@@ -371,7 +379,7 @@ function jg_block_image( $attachment_id, $alt, $class = '' ) {
 		return '';
 	}
 	$attributes = array_filter( array( 'id' => absint( $attachment_id ), 'sizeSlug' => 'large', 'linkDestination' => 'none', 'className' => $class ) );
-	$html = '<figure class="wp-block-image size-large ' . esc_attr( $class ) . '"><img src="' . esc_url( $url ) . '" alt="' . esc_attr( $alt ) . '" class="wp-image-' . absint( $attachment_id ) . '"/></figure>';
+	$html = '<figure class="' . esc_attr( trim( 'wp-block-image size-large ' . $class ) ) . '"><img src="' . esc_url( $url ) . '" alt="' . esc_attr( $alt ) . '" class="wp-image-' . absint( $attachment_id ) . '"/></figure>';
 	return jg_block( 'image', $attributes, $html );
 }
 
@@ -480,6 +488,10 @@ function jg_clients_section_blocks( $language ) {
 }
 
 function jg_home_blocks( $language, $page_id ) {
+	return jg_business_home_blocks( $language, $page_id );
+}
+
+function jg_legacy_home_blocks( $language, $page_id ) {
 	$copy = jg_defaults( $language );
 	$hero_image = absint( get_post_meta( $page_id, '_jg_hero_image', true ) ) ?: jg_seed_attachment( 'se-tsuchiya-JDoyICyNcfg-unsplash.jpg' );
 	$is_en = $language === 'en';
@@ -509,7 +521,7 @@ function jg_home_blocks( $language, $page_id ) {
 	$faq = jg_faq_section_blocks( $language );
 	$contact = jg_contact_section_blocks( $language );
 
-	return $hero . $machines . $menu . $food_range . $clients . $models . $process . $faq . $contact;
+	return $hero . $machines . $food_range . $clients . $models . $process . $faq . $contact;
 }
 
 function jg_homepage_ids() {
@@ -570,10 +582,13 @@ function jg_seed_gutenberg_homepages() {
 	foreach ( array( 'lv', 'en' ) as $language ) {
 		$page_id = absint( $pages[ $language ] ?? 0 );
 		$page = $page_id ? get_post( $page_id ) : null;
-		if ( ! $page || trim( $page->post_content ) !== '' ) {
+		if ( ! $page || get_post_meta( $page_id, '_jg_gutenberg_seeded', true ) ) {
 			continue;
 		}
-		wp_update_post( array( 'ID' => $page_id, 'post_content' => jg_home_blocks( $language, $page_id ) ) );
+		if ( trim( $page->post_content ) === '' ) {
+			wp_update_post( array( 'ID' => $page_id, 'post_content' => jg_home_blocks( $language, $page_id ) ) );
+		}
+		update_post_meta( $page_id, '_jg_gutenberg_seeded', 1 );
 	}
 }
 add_action( 'admin_init', 'jg_seed_gutenberg_homepages', 20 );
@@ -977,3 +992,5 @@ function jg_fallback_menu() {
 	}
 	echo '</ul>';
 }
+
+require_once get_template_directory() . '/inc/business-content.php';

@@ -9,8 +9,7 @@
 			<a class="brand" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( $brand_name ); ?>"><?php echo esc_html( $brand_prefix ); ?><?php if ( $brand_prefix !== $brand_name ) { ?><span>GO</span><?php } ?></a>
 		<?php } ?>
 	</div>
-	<p><?php echo esc_html( jg_field( get_queried_object_id(), 'contact_address' ) ); ?></p>
-	<p>© <?php echo esc_html( gmdate( 'Y' ) . ' ' . get_bloginfo( 'name' ) ); ?></p>
+	<?php jg_page_footer_content( get_queried_object_id() ); ?>
 </footer>
 <?php wp_footer(); ?>
 </body>
