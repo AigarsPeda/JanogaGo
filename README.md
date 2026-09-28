@@ -96,4 +96,4 @@ Theme 1.0.42 clears submission status URLs after showing the notification and re
 
 The mobile client carousel preloads fixed repeated logo batches, keeps native horizontal scrolling in both directions, and waits for swipe momentum to settle before resuming autoplay. Run `node scripts/tests/client-carousel.cjs` for the scrolling logic regression checks. Verify physical iPhone Safari swipes separately.
 
-Theme 1.0.57 is on Local and the droplet. See `HANDOFF.md` for release verification and rollback locations.
+Theme 1.0.58 is on Local and the droplet. See `HANDOFF.md` for release verification and rollback locations.
