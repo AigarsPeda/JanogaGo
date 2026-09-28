@@ -12,6 +12,122 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && header.classList.contains('nav-open')) setMenuOpen(false);
   });
+  const closeDietBadges = () => document.querySelectorAll('.jg-diet-badge[aria-expanded="true"]').forEach(badge => badge.setAttribute('aria-expanded', 'false'));
+  document.addEventListener('click', event => {
+    const badge = event.target.closest('.jg-diet-badge');
+    const open = badge && badge.getAttribute('aria-expanded') !== 'true';
+    closeDietBadges();
+    if (open) badge.setAttribute('aria-expanded', 'true');
+  });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeDietBadges(); });
+
+  const catalog = document.querySelector('.jg-catalog-layout');
+  if (catalog) {
+    const form = catalog.querySelector('.jg-product-filters');
+    const results = catalog.querySelector('.jg-catalog-results');
+    const allLink = form.querySelector('.jg-filter-all');
+    const clearLink = form.querySelector('.jg-filter-clear');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const desktopCatalog = window.matchMedia('(min-width: 701px)');
+    let controller;
+    let revealTimer;
+    let resizeTimer;
+    let stickyFrame;
+
+    const updateStickyHeadings = () => {
+      stickyFrame = undefined;
+      results.querySelectorAll('.jg-product-group h2').forEach(heading => {
+        const groupTop = heading.parentElement.getBoundingClientRect().top;
+        const headingTop = heading.getBoundingClientRect().top;
+        heading.classList.toggle('is-stuck', desktopCatalog.matches && groupTop < 23 && headingTop >= 23 && headingTop <= 25);
+      });
+    };
+    const scheduleStickyHeadings = () => {
+      if (stickyFrame === undefined) stickyFrame = window.requestAnimationFrame(updateStickyHeadings);
+    };
+    window.addEventListener('scroll', scheduleStickyHeadings, { passive: true });
+    window.addEventListener('resize', scheduleStickyHeadings);
+    scheduleStickyHeadings();
+
+    const syncFilters = (url) => {
+      const params = new URL(url).searchParams;
+      const categories = [...params.entries()].filter(([name]) => name.startsWith('food_category[')).map(([, value]) => value);
+      form.querySelectorAll('input[type="checkbox"]').forEach(input => {
+        input.checked = (input.name === 'food_category[]' ? categories : params.getAll(input.name)).includes(input.value);
+      });
+      allLink.classList.toggle('is-current', !categories.length && !params.has('vegan') && !params.has('vegetarian') && !params.has('gluten_free'));
+    };
+
+    const updateCatalog = async (url, saveHistory = true, showTop = false) => {
+      controller?.abort();
+      const request = new AbortController();
+      controller = request;
+      clearTimeout(revealTimer);
+      results.classList.remove('is-revealing');
+      results.classList.add('is-loading');
+      results.setAttribute('aria-busy', 'true');
+      try {
+        const response = await fetch(url, { signal: request.signal });
+        if (!response.ok) throw new Error('Catalog request failed');
+        const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const next = page.querySelector('.jg-catalog-results');
+        if (!next) throw new Error('Catalog results missing');
+        if (controller !== request) return;
+        const oldHeight = results.getBoundingClientRect().height;
+        clearTimeout(resizeTimer);
+        results.classList.remove('is-resizing');
+        results.style.height = `${oldHeight}px`;
+        results.style.overflow = 'hidden';
+        results.innerHTML = next.innerHTML;
+        scheduleStickyHeadings();
+        const lastChild = results.lastElementChild;
+        const newHeight = lastChild ? lastChild.getBoundingClientRect().bottom - results.getBoundingClientRect().top : 0;
+        results.classList.remove('is-loading');
+        results.removeAttribute('aria-busy');
+        if (!reducedMotion.matches) {
+          results.offsetHeight;
+          results.classList.add('is-resizing');
+          results.style.height = `${newHeight}px`;
+          resizeTimer = setTimeout(() => {
+            results.classList.remove('is-resizing');
+            results.style.height = '';
+            results.style.overflow = '';
+          }, 480);
+          results.classList.add('is-revealing');
+          revealTimer = setTimeout(() => {
+            results.classList.remove('is-revealing');
+            scheduleStickyHeadings();
+          }, 550);
+        } else {
+          results.style.height = '';
+          results.style.overflow = '';
+        }
+        if (saveHistory) history.pushState(null, '', url);
+        syncFilters(url);
+        if (showTop) results.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
+      } catch (error) {
+        if (controller === request && error.name !== 'AbortError') window.location.assign(url);
+      }
+    };
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const url = new URL(clearLink.href);
+      url.search = new URLSearchParams(new FormData(form)).toString();
+      updateCatalog(url.href);
+    });
+    [allLink, clearLink].forEach(link => link.addEventListener('click', event => {
+      event.preventDefault();
+      updateCatalog(link.href);
+    }));
+    results.addEventListener('click', event => {
+      const pageLink = event.target.closest('.jg-product-pages a');
+      if (!pageLink) return;
+      event.preventDefault();
+      updateCatalog(pageLink.href, true, true);
+    });
+    window.addEventListener('popstate', () => updateCatalog(window.location.href, false));
+  }
   const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('in-view'); }), { threshold: .12 });
   document.querySelectorAll('.section, .contact, .jg-block-section').forEach(section => observer.observe(section));
   const hero = document.querySelector('.hero');

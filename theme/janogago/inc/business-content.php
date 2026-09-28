@@ -54,24 +54,14 @@ function jg_business_defaults( $language ) {
 
 function jg_business_food_blocks( $language ) {
 	$is_en = $language === 'en';
-	$items = $is_en ? array(
-		array( 'Mains and salads', 'A proper meal for your lunch break.', 'anh-nguyen-kcA-c3f_3FE-unsplash.jpg', 'Illustrative salad bowl' ),
-		array( 'Sandwiches and snacks', 'Pastries for a short break.', 'leyli-sadeqian-wSmhn8taZpc-unsplash.jpg', 'Illustrative hot dog and fries in takeaway trays' ),
-		array( 'Desserts and drinks', 'For a sweet break.', 'fidel-fernando-KY5ZBCIE18E-unsplash.jpg', 'Illustrative glazed doughnuts in a box' ),
-	) : array(
-		array( 'Pamatēdieni un salāti', 'Pilnvērtīga maltīte pusdienu pauzei.', 'anh-nguyen-kcA-c3f_3FE-unsplash.jpg', 'Ilustratīva salātu bļoda' ),
-		array( 'Sendviči un uzkodas', 'Arī konditoreja nelielai pauzei.', 'leyli-sadeqian-wSmhn8taZpc-unsplash.jpg', 'Ilustratīvs hotdogs un frī kartupeļi līdzņemšanas iepakojumos' ),
-		array( 'Deserti un dzērieni', 'Saldai pauzei.', 'fidel-fernando-KY5ZBCIE18E-unsplash.jpg', 'Ilustratīvi glazēti virtuļi kastītē' ),
-	);
-	$cards = '';
-	foreach ( $items as $item ) {
-		$cards .= jg_block_column( jg_block_group( jg_block_image( jg_seed_attachment( $item[2] ), $item[3] ) . jg_block_heading( $item[0], 3 ) . jg_block_paragraph( $item[1] ), 'jg-food-card', 'article' ) );
-	}
+	$pages = get_option( 'jg_food_pages', array() );
+	$url = ! empty( $pages[ $language ] ) ? get_permalink( $pages[ $language ] ) : home_url( $is_en ? '/en/food/' : '/edieni/' );
 	return jg_block_group(
 		jg_block_heading( $is_en ? 'What can people buy at your machine?' : 'Ko varēs iegādāties jūsu automātā?' ) .
 		jg_block_paragraph( $is_en ? 'Meals, snacks and drinks for everyday mealtimes and breaks. We select the range around the needs of your employees and visitors.' : 'Ēdieni, uzkodas un dzērieni ikdienas maltītēm un pauzēm. Sortimentu izvēlamies atbilstoši jūsu darbinieku un apmeklētāju vajadzībām.', 'jg-section-lede' ) .
-		jg_block_columns( $cards, 'jg-food-grid' ) .
-		jg_block_paragraph( $is_en ? 'Images illustrate food categories. The actual selection may differ.' : 'Attēli ilustrē ēdienu kategorijas. Faktiskais sortiments var atšķirties.', 'jg-image-note' ),
+		jg_block( 'shortcode', array(), '<div class="wp-block-shortcode">[jg_products featured="1"]</div>' ) .
+		jg_block_group( jg_block_button( $is_en ? 'Explore all food' : 'Apskatīt visus ēdienus', $url, 'button' ), 'jg-food-more', 'div' ) .
+		jg_block_paragraph( $is_en ? 'The selection at each location may differ.' : 'Sortiments katrā atrašanās vietā var atšķirties.', 'jg-image-note' ),
 		'food-range section jg-block-section jg-block-food-range', 'section', 'sortiments'
 	);
 }

@@ -8,6 +8,18 @@ The theme supports Latvian and English content through Polylang, editable page c
 
 `theme/janogago`
 
+## Food catalog on Local
+
+The local WordPress site has one `Ēdieni / Products` entry per dish. The entry title is Latvian; the Product details box holds the English name, optional descriptions, the homepage switch and Vegan, Vegetarian and Gluten-free recipe switches. Set its Featured image from the Media Library, choose a category in the editor sidebar, and use the Order field to control listing order. Both language catalogs and the homepage read these same entries. Dietary switches add filters and hover, focus or tap labels to compact badges on the catalog only. Category English names are edited under `Ēdieni / Products → Kategorijas / Categories`; filter and empty-state labels are under `Ēdieni / Products → Catalog labels`. Page headings, introductions, the homepage link and contact copy stay in Gutenberg.
+
+Local pages: `/edieni/` and `/en/food/`. The `Drinks` and `Snacks` filters are present but disabled until a published product uses those categories. Dietary tags should be set only after checking the recipe; photos do not establish ingredients.
+
+Catalog filters and pagination update results in place with a short animation. The URL and browser Back button reflect the selected filters; standard page navigation remains available when JavaScript is disabled.
+
+`scripts/setup-local-food-catalog.php` is the one-time, idempotent Local setup. It imports the supplied photos into WordPress uploads, creates the initial products and bilingual pages, and replaces the old illustrative homepage cards. It refuses non-local sites. The old homepage content is saved in `/tmp` before replacement.
+
+The existing droplet content sync transfers homepage blocks only. It does not transfer product entries, category terms, catalog pages or product Media Library records. Do not use it alone to release this catalog.
+
 ## Droplet deployment
 
 The `scripts/` folder contains theme, content, uploads, and database synchronization scripts for the JāņogaGO droplet. The scripts contain no private-key details; the local configuration must stay out of Git.

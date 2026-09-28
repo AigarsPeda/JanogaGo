@@ -20,6 +20,7 @@ function jg_enqueue_assets() {
 	wp_enqueue_style( 'janogago-fonts', 'https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap', array(), null );
 	wp_enqueue_style( 'janogago', get_stylesheet_uri(), array( 'janogago-fonts' ), $version );
 	wp_enqueue_style( 'janogago-business', get_template_directory_uri() . '/assets/css/business.css', array( 'janogago' ), $version );
+	wp_enqueue_style( 'janogago-food', get_template_directory_uri() . '/assets/css/food.css', array( 'janogago-business' ), $version );
 	wp_enqueue_script( 'janogago', get_template_directory_uri() . '/assets/js/site.js', array(), $version, true );
 	wp_enqueue_script( 'janogago-counters', get_template_directory_uri() . '/assets/js/counters.js', array( 'janogago' ), $version, true );
 }
@@ -997,7 +998,13 @@ function jg_enquiry_form_shortcode() {
 add_shortcode( 'janogago_enquiry_form', 'jg_enquiry_form_shortcode' );
 
 function jg_fallback_menu() {
-	$items = jg_lang() === 'en' ? array( '#sortiments' => 'Food', '#risinajumi' => 'Solutions', '#ka-tas-notiek' => 'How it works' ) : array( '#sortiments' => 'Ēdiens', '#risinajumi' => 'Risinājumi', '#ka-tas-notiek' => 'Kā tas notiek' );
+	$language = jg_lang();
+	$food_pages = get_option( 'jg_food_pages', array() );
+	$home_pages = get_option( 'jg_seeded_pages', array() );
+	$home = ! empty( $home_pages[ $language ] ) ? get_permalink( $home_pages[ $language ] ) : home_url( '/' );
+	$anchor = is_front_page() ? '#' : trailingslashit( $home ) . '#';
+	$food = ! empty( $food_pages[ $language ] ) ? get_permalink( $food_pages[ $language ] ) : $anchor . 'sortiments';
+	$items = $language === 'en' ? array( $food => 'Food', $anchor . 'risinajumi' => 'Solutions', $anchor . 'ka-tas-notiek' => 'How it works' ) : array( $food => 'Ēdiens', $anchor . 'risinajumi' => 'Risinājumi', $anchor . 'ka-tas-notiek' => 'Kā tas notiek' );
 	echo '<ul class="jg-menu">';
 	foreach ( $items as $url => $label ) {
 		echo '<li><a href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></li>';
@@ -1006,3 +1013,4 @@ function jg_fallback_menu() {
 }
 
 require_once get_template_directory() . '/inc/business-content.php';
+require_once get_template_directory() . '/inc/product-catalog.php';
