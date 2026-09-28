@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -Eeuo pipefail
+umask 077
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -16,6 +17,7 @@ fi
 SSH_KEY="${SSH_KEY:-}"
 REMOTE_HOST="${REMOTE_HOST:-}"
 REMOTE_WP_PATH="${REMOTE_WP_PATH:-/var/www/janogago}"
+REMOTE_BACKUP_DIR="${REMOTE_BACKUP_DIR:-/var/backups/janogago}"
 REMOTE_URL="${REMOTE_URL:-}"
 LOCAL_THEME_PATH="${LOCAL_THEME_PATH:-$PROJECT_ROOT/theme/janogago}"
 REMOTE_THEME_PATH="${REMOTE_THEME_PATH:-$REMOTE_WP_PATH/wp-content/themes/janogago}"
@@ -28,12 +30,13 @@ Usage: ./scripts/sync-code-to-droplet.sh [--dry-run]
 
 Synchronize the local JāņogaGO theme with the DigitalOcean droplet.
 The remote theme directory becomes an exact copy of the local theme directory.
+Apply runs save a private archive of the live theme before changing files.
 
 Before the first use, copy scripts/janogago-droplet.env.example to
 scripts/janogago-droplet.env and fill in the TODO values.
 
 Environment overrides:
-  CONFIG_FILE, SSH_KEY, REMOTE_HOST, REMOTE_WP_PATH, REMOTE_URL,
+  CONFIG_FILE, SSH_KEY, REMOTE_HOST, REMOTE_WP_PATH, REMOTE_BACKUP_DIR, REMOTE_URL,
   LOCAL_THEME_PATH, REMOTE_THEME_PATH
 EOF
 }
@@ -76,6 +79,9 @@ case "$REMOTE_THEME_PATH" in
 		die "Refusing to synchronize unexpected remote path: $REMOTE_THEME_PATH"
 		;;
 esac
+case "$REMOTE_BACKUP_DIR/" in
+	"$REMOTE_WP_PATH/"*) die "Backups must be outside the public WordPress directory." ;;
+esac
 
 SSH_ARGS=(-i "$SSH_KEY" -o BatchMode=yes -o ConnectTimeout=10)
 RSYNC_SSH="ssh -i $SSH_KEY -o BatchMode=yes -o ConnectTimeout=10"
@@ -98,6 +104,12 @@ RSYNC_ARGS=(
 if [ "$DRY_RUN" -eq 1 ]; then
 	RSYNC_ARGS+=(--dry-run)
 	printf 'Dry run. No remote files will change.\n'
+else
+	REMOTE_BACKUP="$(ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" \
+		"umask 077; mkdir -p '$REMOTE_BACKUP_DIR' && mktemp -d '$REMOTE_BACKUP_DIR/theme-$(date +%Y%m%d-%H%M%S).XXXXXXXX'")"
+	ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" \
+		"umask 077; tar -czf '$REMOTE_BACKUP/theme.tar.gz' -C '$(dirname "$REMOTE_THEME_PATH")' janogago"
+	printf 'Private theme rollback archive: %s/theme.tar.gz\n' "$REMOTE_BACKUP"
 fi
 
 rsync "${RSYNC_ARGS[@]}" -e "$RSYNC_SSH" \

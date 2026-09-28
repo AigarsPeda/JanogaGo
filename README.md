@@ -18,7 +18,7 @@ Catalog filters and pagination update results in place with a short animation. T
 
 `scripts/setup-local-food-catalog.php` is the one-time, idempotent Local setup. It imports the supplied photos into WordPress uploads, creates the initial products and bilingual pages, and replaces the old illustrative homepage cards. It refuses non-local sites. The old homepage content is saved in `/tmp` before replacement.
 
-The existing droplet content sync transfers homepage blocks only. It does not transfer product entries, category terms, catalog pages or product Media Library records. Do not use it alone to release this catalog.
+The homepage content sync transfers homepage blocks only. For catalog releases, use `scripts/release-food-to-droplet.sh` or the dedicated `sync-food-to-droplet.sh` as described below.
 
 ## Droplet deployment
 
@@ -32,6 +32,26 @@ For a routine theme release:
 ./scripts/sync-code-to-droplet.sh --dry-run
 ./scripts/sync-code-to-droplet.sh
 ```
+
+An apply run now archives the current live theme under `REMOTE_BACKUP_DIR` before rsync changes it. The script prints the private archive path.
+
+For a complete food release from Local to the droplet:
+
+```bash
+./scripts/release-food-to-droplet.sh --dry-run
+./scripts/release-food-to-droplet.sh
+```
+
+The release script backs up the live database and theme outside the public WordPress directory, deploys the theme, transfers food categories, products, original photos, dietary and homepage switches, LV/EN catalog pages and labels, then synchronizes both homepages. Each content transfer also saves its own database backup. It preserves live enquiries, users and unrelated pages. It does not delete products that are absent locally. The dry run checks theme and homepage changes; catalog preflight runs after the theme is deployed because the live site must first register the product type. A failed step stops the release and leaves the printed backups available for recovery.
+
+For catalog data only, after the current theme is already live:
+
+```bash
+./scripts/sync-food-to-droplet.sh --dry-run
+./scripts/sync-food-to-droplet.sh
+```
+
+The catalog helper matches existing seeded dishes by their source key and future dishes by a stable key derived from their WordPress GUID, so repeat releases update the same records and reuse matching photos. Publish a product with a featured image before syncing. The helper is `scripts/wordpress-food-sync.php`; keep it outside the theme. Running a sync replaces matching live catalog fields and both food pages with Local's versions.
 
 For new Media Library files:
 
@@ -53,7 +73,9 @@ Use `--languages=lv` or `--languages=en` to transfer one language. The script ex
 
 Before applying, it creates a private database backup plus page, marker and media-alt snapshots under `REMOTE_BACKUP_DIR`. Existing page IDs, titles, slugs, users, settings, enquiries and unrelated content stay intact. Theme migrations are skipped during export/import; the homepage migration markers are preserved/set so subsequent code sync does not replace authored content. Repeated runs reuse images and skip saving unchanged pages. The PHP helper `scripts/wordpress-content-sync.php` belongs with the scripts and must not be installed in the theme.
 
-For a combined content and code release, back up the existing theme, dry-run both scripts, then run content sync before code sync. This ensures media and authored content are ready before any new theme seed can run. Check LV/EN in the browser after deployment. Routine edits made directly in live WordPress need no deployment; content sync intentionally replaces the selected live homepage blocks with Local's versions.
+For combined food releases, use the release script above. For other combined content and code changes, back up the existing theme and dry-run both relevant scripts first. Check LV/EN in the browser after deployment. Routine edits made directly in live WordPress need no deployment; content sync intentionally replaces the selected live homepage blocks with Local's versions.
+
+To bring the live database and uploads back into Local, `scripts/pull-db-from-droplet.sh` already backs up the local database and then imports the droplet state. It replaces all local WordPress data, so use it only when a complete local refresh is intended.
 
 Do not use `push-db-to-droplet.sh --yes` for a routine code/content release: it replaces the whole live database and requires explicit authorization for that replacement.
 
@@ -74,4 +96,4 @@ Theme 1.0.42 clears submission status URLs after showing the notification and re
 
 The mobile client carousel preloads fixed repeated logo batches, keeps native horizontal scrolling in both directions, and waits for swipe momentum to settle before resuming autoplay. Run `node scripts/tests/client-carousel.cjs` for the scrolling logic regression checks. Verify physical iPhone Safari swipes separately.
 
-Theme 1.0.43 is deployed locally and on the droplet; see `HANDOFF.md` for the current content hashes and rollback locations.
+Theme 1.0.57 is on Local and the droplet. See `HANDOFF.md` for release verification and rollback locations.

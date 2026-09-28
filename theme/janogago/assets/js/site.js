@@ -25,6 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (catalog) {
     const form = catalog.querySelector('.jg-product-filters');
     const results = catalog.querySelector('.jg-catalog-results');
+    const sidebar = catalog.querySelector('.jg-catalog-sidebar');
+    const filterToggle = sidebar.querySelector('.jg-filter-toggle');
+    const filterPanel = sidebar.querySelector('.jg-filter-panel');
+    const filterCount = filterToggle.querySelector('.jg-filter-count');
     const allLink = form.querySelector('.jg-filter-all');
     const clearLink = form.querySelector('.jg-filter-clear');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -33,6 +37,54 @@ document.addEventListener('DOMContentLoaded', () => {
     let revealTimer;
     let resizeTimer;
     let stickyFrame;
+    let filterAnimation;
+    let filtersOpen = false;
+
+    const updateFilterCount = () => {
+      const count = form.querySelectorAll('input[type="checkbox"]:checked').length;
+      filterCount.textContent = count;
+      filterCount.hidden = count === 0;
+    };
+    const setFiltersOpen = (open, animate = false) => {
+      filtersOpen = open;
+      const startHeight = filterPanel.hidden ? 0 : filterPanel.getBoundingClientRect().height;
+      const startOpacity = filterPanel.hidden ? 0 : Number(getComputedStyle(filterPanel).opacity);
+      filterAnimation?.cancel();
+      filterToggle.setAttribute('aria-expanded', String(open));
+      if (desktopCatalog.matches || !animate || reducedMotion.matches) {
+        filterPanel.hidden = desktopCatalog.matches ? false : !open;
+        filterPanel.inert = !desktopCatalog.matches && !open;
+        return Promise.resolve();
+      }
+      filterPanel.hidden = false;
+      filterPanel.inert = !open;
+      const endHeight = open ? filterPanel.scrollHeight : 0;
+      const animation = filterPanel.animate([
+        { height: `${startHeight}px`, opacity: startOpacity },
+        { height: `${endHeight}px`, opacity: open ? 1 : 0 },
+      ], { duration: 340, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+      filterAnimation = animation;
+      return new Promise(resolve => {
+        animation.onfinish = () => {
+          if (filterAnimation === animation) {
+            filterPanel.hidden = !open;
+            filterAnimation = undefined;
+          }
+          resolve();
+        };
+        animation.oncancel = resolve;
+      });
+    };
+    const syncFilterLayout = () => {
+      sidebar.classList.add('jg-filters-enhanced');
+      filterToggle.hidden = desktopCatalog.matches;
+      setFiltersOpen(filtersOpen);
+    };
+    filterToggle.addEventListener('click', () => setFiltersOpen(!filtersOpen, true));
+    form.addEventListener('change', updateFilterCount);
+    desktopCatalog.addEventListener('change', syncFilterLayout);
+    syncFilterLayout();
+    updateFilterCount();
 
     const updateStickyHeadings = () => {
       stickyFrame = undefined;
@@ -56,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         input.checked = (input.name === 'food_category[]' ? categories : params.getAll(input.name)).includes(input.value);
       });
       allLink.classList.toggle('is-current', !categories.length && !params.has('vegan') && !params.has('vegetarian') && !params.has('gluten_free'));
+      updateFilterCount();
     };
 
     const updateCatalog = async (url, saveHistory = true, showTop = false) => {
@@ -110,11 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    form.addEventListener('submit', event => {
+    form.addEventListener('submit', async event => {
       event.preventDefault();
       const url = new URL(clearLink.href);
       url.search = new URLSearchParams(new FormData(form)).toString();
-      updateCatalog(url.href);
+      const onMobile = !desktopCatalog.matches;
+      if (onMobile) await setFiltersOpen(false, true);
+      updateCatalog(url.href, true, onMobile);
     });
     [allLink, clearLink].forEach(link => link.addEventListener('click', event => {
       event.preventDefault();

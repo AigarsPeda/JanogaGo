@@ -234,7 +234,9 @@ function jg_products_shortcode( $attributes ) {
 	}
 	$filters .= '</fieldset>';
 	$filters .= '<button type="submit">' . esc_html( $copy['apply'] ) . '</button><a class="jg-filter-clear" href="' . esc_url( get_permalink( get_queried_object_id() ) ) . '">' . esc_html( $copy['clear'] ) . '</a></form>';
-	$out = '<div class="jg-catalog-layout"><aside class="jg-catalog-sidebar"><h2>' . esc_html( $copy['filter'] ) . '</h2>' . $filters . '</aside><div class="jg-catalog-results">';
+	$out = '<div class="jg-catalog-layout"><aside class="jg-catalog-sidebar"><h2>' . esc_html( $copy['filter'] ) . '</h2>';
+	$out .= '<button class="jg-filter-toggle" type="button" aria-expanded="true" aria-controls="jg-filter-panel" hidden><span class="jg-filter-toggle-label">' . esc_html( $copy['filter'] ) . '</span><span class="jg-filter-count" aria-hidden="true" hidden></span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 9 7 7 7-7"/></svg></button>';
+	$out .= '<div class="jg-filter-panel" id="jg-filter-panel">' . $filters . '</div></aside><div class="jg-catalog-results">';
 	$out .= $cards ?: '<p class="jg-products-empty">' . esc_html( $copy['empty'] ) . '</p>';
 	if ( $total_pages > 1 ) {
 		$out .= '<nav class="jg-product-pages" aria-label="' . esc_attr( $lang === 'en' ? 'Product pages' : 'Ēdienu lapas' ) . '"><ul>';
