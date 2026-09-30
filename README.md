@@ -10,13 +10,13 @@ The theme supports Latvian and English content through Polylang, editable page c
 
 ## Food catalog on Local
 
-The local WordPress site has one `Ēdieni / Products` entry per dish. Add, edit, trash, or delete dishes in WordPress; changing a dish never requires editing theme or setup code. The entry title is Latvian; the Product details box holds the English name, optional descriptions, the homepage switch and Vegan, Vegetarian and Gluten-free recipe switches. Set its Featured image from the Media Library, choose a category in the editor sidebar, and use the Order field to control listing order. Both language catalogs and the homepage read these same entries. Dietary switches add filters and hover, focus or tap labels to compact badges on the catalog only. Category English names are edited under `Ēdieni / Products → Kategorijas / Categories`; filter and empty-state labels are under `Ēdieni / Products → Catalog labels`. Page headings, introductions, the homepage link and contact copy stay in Gutenberg. `scripts/setup-local-food-catalog.php` is only a one-time starter import; do not edit or rerun it for regular product changes.
+The local WordPress site has one `Ēdieni / Products` entry per dish. Add, edit, trash, or delete dishes in WordPress; changing a dish never requires editing theme or setup code. The entry title is Latvian; the Product details box holds the English name, optional descriptions, the homepage switch and Vegan, Vegetarian and Gluten-free recipe switches. Set its Featured image from the Media Library, choose a category in the editor sidebar, and use the Order field to control listing order. Both language catalogs and the homepage read these same entries. Dietary switches add filters and hover, focus or tap labels to compact badges on the catalog only. Category English names are edited under `Ēdieni / Products → Kategorijas / Categories`; filter and empty-state labels are under `Ēdieni / Products → Catalog labels`. Page headings, introductions, the homepage link and contact copy stay in Gutenberg. `scripts/setup-local-food-catalog.php` only creates the food pages and homepage links on a new Local site; it contains no product data.
 
 Local pages: `/edieni/` and `/en/food/`. The `Drinks` and `Snacks` filters are present but disabled until a published product uses those categories. Dietary tags should be set only after checking the recipe; photos do not establish ingredients.
 
 Catalog filters and pagination update results in place with a short animation. The URL and browser Back button reflect the selected filters; standard page navigation remains available when JavaScript is disabled.
 
-`scripts/setup-local-food-catalog.php` is the one-time, idempotent Local setup. It imports the supplied photos into WordPress uploads, creates the initial products and bilingual pages, and replaces the old illustrative homepage cards. It refuses non-local sites. The old homepage content is saved in `/tmp` before replacement.
+`scripts/setup-local-food-catalog.php` is the one-time, idempotent Local page setup. It creates the bilingual food pages and replaces the old illustrative homepage cards. Add products and categories in WordPress, or restore them from a database backup. The script refuses non-local sites and saves the old homepage content in `/tmp` before replacement.
 
 The homepage content sync transfers homepage blocks only. For catalog releases, use `scripts/release-food-to-droplet.sh` or the dedicated `sync-food-to-droplet.sh` as described below.
 
@@ -42,7 +42,7 @@ For a complete food release from Local to the droplet:
 ./scripts/release-food-to-droplet.sh
 ```
 
-The release script backs up the live database and theme outside the public WordPress directory, deploys the theme, transfers food categories, products, original photos, dietary and homepage switches, LV/EN catalog pages and labels, then synchronizes both homepages. Each content transfer also saves its own database backup. It preserves live enquiries, users and unrelated pages. It does not delete products that are absent locally. The dry run checks theme and homepage changes; catalog preflight runs after the theme is deployed because the live site must first register the product type. A failed step stops the release and leaves the printed backups available for recovery.
+The release script backs up the live database and theme outside the public WordPress directory, deploys the theme, transfers food categories, products, original photos, dietary and homepage switches, LV/EN catalog pages and labels, then synchronizes both homepages. Each content transfer also saves its own database backup. It preserves live enquiries, users and unrelated pages. Previously synced products absent from the Local published catalog move to WordPress Trash; review the catalog dry run before release. The dry run checks theme and homepage changes; catalog preflight runs after the theme is deployed because the live site must first register the product type. A failed step stops the release and leaves the printed backups available for recovery.
 
 For catalog data only, after the current theme is already live:
 
@@ -96,4 +96,4 @@ Theme 1.0.42 clears submission status URLs after showing the notification and re
 
 The mobile client carousel preloads fixed repeated logo batches, keeps native horizontal scrolling in both directions, and waits for swipe momentum to settle before resuming autoplay. Run `node scripts/tests/client-carousel.cjs` for the scrolling logic regression checks. Verify physical iPhone Safari swipes separately.
 
-Theme 1.0.61 is on Local for review; the droplet remains on 1.0.58. See `HANDOFF.md` for release verification and rollback locations.
+Theme 1.0.61 and the updated food catalog are on Local and the droplet. See `HANDOFF.md` for release verification and rollback locations.

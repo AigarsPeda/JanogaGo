@@ -1,67 +1,7 @@
 <?php
-/** Run once with WP-CLI against janogago.local after copying the theme. */
+/** Create the food pages and homepage links once on janogago.local. Manage products in WordPress. */
 if ( ! defined( 'WP_CLI' ) || ! WP_CLI || ! str_ends_with( wp_parse_url( home_url(), PHP_URL_HOST ), '.local' ) ) {
 	exit( 'This setup runs only through WP-CLI on a .local WordPress site.' );
-}
-require_once ABSPATH . 'wp-admin/includes/file.php';
-require_once ABSPATH . 'wp-admin/includes/media.php';
-require_once ABSPATH . 'wp-admin/includes/image.php';
-
-$source_dir = '/Users/aigarspeda/Desktop/JanogaGo-doc/food-normal-cut-out';
-$products = array(
-	array( '05c5d0b7', 'Gaļa ar biezeni', 'Meat with mash', 'mains', true ),
-	array( 'bbc6dfa4', 'Cēzara salāti', 'Caesar salad', 'salads', true ),
-	array( '907939c8', 'Svaigais sendvičs', 'Fresh sandwich', 'sandwiches', true ),
-	array( '92db92a3', 'Ogu deserts', 'Berry dessert', 'desserts', true ),
-	array( '766dfb41', 'Makaronu salāti', 'Pasta salad', 'salads', false ),
-	array( '5ba0025b', 'Panēta fileja', 'Breaded fillet', 'mains', false ),
-	array( '6e90767e', 'Sacepums', 'Baked dish', 'mains', false ),
-	array( '84b68ed2', 'Sendvičs', 'Sandwich', 'sandwiches', false ),
-	array( 'e9c6449c', 'Sendvičs ar tomātu', 'Tomato sandwich', 'sandwiches', false ),
-	array( 'bd21672b', 'Pankūkas', 'Pancakes', 'desserts', false ),
-	array( 'cb05f7c1', 'Biezpiena plācenīši', 'Cheese pancakes', 'desserts', false ),
-);
-$categories = array(
-	'mains' => array( 'Pamatēdieni', 'Main courses' ),
-	'salads' => array( 'Salāti', 'Salads' ),
-	'sandwiches' => array( 'Sendviči', 'Sandwiches' ),
-	'snacks' => array( 'Uzkodas', 'Snacks' ),
-	'desserts' => array( 'Deserti', 'Desserts' ),
-	'drinks' => array( 'Dzērieni', 'Drinks' ),
-);
-foreach ( $categories as $slug => $names ) {
-	$term = get_term_by( 'slug', $slug, 'jg_food_category' );
-	if ( ! $term ) {
-		$result = wp_insert_term( $names[0], 'jg_food_category', array( 'slug' => $slug ) );
-		if ( is_wp_error( $result ) ) { WP_CLI::error( $result->get_error_message() ); }
-		$term_id = $result['term_id'];
-	} else { $term_id = $term->term_id; }
-	if ( ! get_term_meta( $term_id, 'jg_name_en', true ) ) { update_term_meta( $term_id, 'jg_name_en', $names[1] ); }
-}
-
-foreach ( $products as $index => $item ) {
-	list( $asset, $lv, $en, $category, $featured ) = $item;
-	$matches = glob( $source_dir . '/exec-' . $asset . '-*.png' );
-	if ( count( $matches ) !== 1 ) { WP_CLI::error( "Missing or ambiguous source image for $asset" ); }
-	$existing = get_posts( array( 'post_type' => 'jg_product', 'post_status' => 'any', 'meta_key' => '_jg_source_asset', 'meta_value' => $asset, 'posts_per_page' => 1, 'suppress_filters' => true ) );
-	if ( $existing ) { WP_CLI::log( "Preserved product: $lv" ); continue; }
-	$tmp = wp_tempnam( $matches[0] );
-	if ( ! $tmp || ! copy( $matches[0], $tmp ) ) { WP_CLI::error( "Cannot prepare $asset" ); }
-	$attachment_id = media_handle_sideload( array( 'name' => 'janogago-' . $asset . '.png', 'tmp_name' => $tmp ), 0, $lv );
-	if ( is_wp_error( $attachment_id ) ) { @unlink( $tmp ); WP_CLI::error( $attachment_id->get_error_message() ); }
-	update_post_meta( $attachment_id, '_jg_source_asset', $asset );
-	update_post_meta( $attachment_id, '_wp_attachment_image_alt', $lv );
-	$post_id = wp_insert_post( array( 'post_type' => 'jg_product', 'post_status' => 'publish', 'post_title' => $lv, 'menu_order' => $index + 1 ), true );
-	if ( is_wp_error( $post_id ) ) { WP_CLI::error( $post_id->get_error_message() ); }
-	set_post_thumbnail( $post_id, $attachment_id );
-	wp_set_object_terms( $post_id, $category, 'jg_food_category' );
-	update_post_meta( $post_id, '_jg_source_asset', $asset );
-	update_post_meta( $post_id, '_jg_name_en', $en );
-	update_post_meta( $post_id, '_jg_on_home', $featured ? '1' : '0' );
-	update_post_meta( $post_id, '_jg_vegan', '0' );
-	update_post_meta( $post_id, '_jg_vegetarian', '0' );
-	update_post_meta( $post_id, '_jg_gluten_free', '0' );
-	WP_CLI::log( "Added product $post_id: $lv" );
 }
 
 $home_pages = get_option( 'jg_seeded_pages', array() );
@@ -137,4 +77,4 @@ foreach ( array( 'lv', 'en' ) as $lang ) {
 if ( $backup ) {
 	WP_CLI::log( "Homepage backup: $backup_path" );
 }
-WP_CLI::success( 'Local food catalog setup complete.' );
+WP_CLI::success( 'Local food pages setup complete.' );

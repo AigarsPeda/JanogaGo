@@ -121,7 +121,7 @@ function jgfs_import( $directory, $apply ) {
 		if ( $matches ) { $post_data['ID'] = $matches[0]->ID; $id = wp_update_post( wp_slash( $post_data ), true ); }
 		else { $id = wp_insert_post( wp_slash( $post_data ), true ); }
 		if ( is_wp_error( $id ) ) { jgfs_fail( $id->get_error_message() ); }
-		foreach ( jgfs_meta_keys() as $key ) { update_post_meta( $id, $key, wp_slash( $product['meta'][$key] ?? '' ) ); }
+		foreach ( jgfs_meta_keys() as $meta_key ) { update_post_meta( $id, $meta_key, wp_slash( $product['meta'][$meta_key] ?? '' ) ); }
 		set_post_thumbnail( $id, $image_id );
 		$result = wp_set_object_terms( $id, $product['categories'], 'jg_food_category' );
 		if ( is_wp_error( $result ) ) { jgfs_fail( $result->get_error_message() ); }
