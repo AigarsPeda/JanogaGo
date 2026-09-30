@@ -78,13 +78,13 @@
 .janogago-blocks .jg-product-info { padding: 18px 0 0; }
 .janogago-blocks .jg-product-card h3 {
  font-family: var(--serif);
- font-size: clamp(18px, 1.6vw, 26px);
+ font-size: clamp(22px, 2vw, 28px);
  letter-spacing: -.04em;
  line-height: 1.14;
  margin: 0 0 8px;
- overflow: hidden;
- text-overflow: ellipsis;
- white-space: nowrap;
+ min-height: 2.28em;
+ overflow-wrap: anywhere;
+ text-wrap: balance;
 }
 .janogago-blocks .jg-product-card p {
  color: #55534e;
@@ -120,15 +120,25 @@
 .janogago-blocks .jg-filter-toggle[hidden],
 .janogago-blocks .jg-filter-count[hidden] { display: none !important; }
 .janogago-blocks .jg-product-filters fieldset { border: 0; margin: 0 0 28px; padding: 0; }
-.janogago-blocks .jg-product-filters legend {
- font-family: var(--mono);
- font-size: 11px;
- margin: 0 0 13px;
- text-transform: uppercase;
+.janogago-blocks .jg-product-filters .jg-visually-hidden {
+ border: 0;
+ clip: rect(0, 0, 0, 0);
+ clip-path: inset(50%);
+ height: 1px;
+ margin: -1px;
+ overflow: hidden;
+ padding: 0;
+ position: absolute;
+ white-space: nowrap;
+ width: 1px;
 }
 .janogago-blocks .jg-filter-option { align-items: center; cursor: pointer; display: flex; gap: 10px; margin: 0 0 12px; }
-.janogago-blocks .jg-filter-all { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
-.janogago-blocks .jg-filter-all.is-current { color: var(--red); }
+.janogago-blocks .jg-filter-all { font-weight: 700; margin-bottom: 16px; }
+.janogago-blocks .jg-filter-all.is-current span:last-child { color: var(--red); }
+.janogago-blocks .jg-filter-check { border: 1px solid #8e90a0; border-radius: 2px; flex: 0 0 17px; height: 17px; position: relative; width: 17px; }
+.janogago-blocks .jg-filter-all.is-current .jg-filter-check { background: var(--red); border-color: var(--red); }
+.janogago-blocks .jg-filter-all.is-current .jg-filter-check::after { border-bottom: 2px solid #fff; border-right: 2px solid #fff; content: ''; height: 8px; left: 5px; position: absolute; top: 2px; transform: rotate(45deg); width: 4px; }
+.janogago-blocks .jg-filter-all:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
 .janogago-blocks .jg-filter-option input { accent-color: var(--red); flex: 0 0 17px; height: 17px; margin: 0; width: 17px; }
 .janogago-blocks .jg-filter-option span { font-size: 14px; line-height: 1.4; }
 .janogago-blocks .jg-filter-option.is-empty { color: #8b8982; cursor: default; }
@@ -235,21 +245,21 @@
  .janogago-blocks .jg-filter-panel[hidden] { display: none; }
  .janogago-blocks .jg-filter-panel .jg-product-filters { padding-bottom: 22px; }
  .janogago-blocks .jg-product-filters fieldset:first-child { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
- .janogago-blocks .jg-product-filters legend { grid-column: 1 / -1; }
  .janogago-blocks .jg-product-filters .jg-diet-filter { margin-bottom: 15px; }
  .janogago-blocks .jg-product-filters button { display: inline-block; }
  .janogago-blocks .jg-filter-clear { margin-left: 20px; }
 }
 @media (max-width: 520px) {
  .janogago-blocks .jg-products-grid,
- .janogago-blocks .jg-products-featured,
- .janogago-blocks .jg-products-grid:not(.jg-products-featured) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; }
+ .janogago-blocks .jg-products-featured { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; }
+ .janogago-blocks .jg-products-grid:not(.jg-products-featured) { grid-template-columns: 1fr; gap: 28px; }
  .janogago-blocks .jg-products-featured { margin-top: 35px; }
  .janogago-blocks .jg-product-image { aspect-ratio: 1 / 1; }
  .janogago-blocks .jg-product-image img { padding: 4px; }
  .janogago-blocks .jg-diet-badges { right: 6px; gap: 3px; }
  .janogago-blocks .jg-diet-badge { height: 36px; width: 30px; font-size: 10px; }
- .janogago-blocks .jg-product-card h3 { font-size: 18px; }
+ .janogago-blocks .jg-product-card h3 { font-size: 20px; }
+ .janogago-blocks .jg-products-featured .jg-product-card h3 { font-size: 18px; }
  .janogago-blocks .jg-product-info { padding-top: 12px; }
  .janogago-blocks .jg-catalog-intro p { font-size: 16px; }
 }

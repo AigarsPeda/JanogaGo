@@ -42,6 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateFilterCount = () => {
       const count = form.querySelectorAll('input[type="checkbox"]:checked').length;
+      allLink.classList.toggle('is-current', count === 0);
+      if (count === 0) allLink.setAttribute('aria-current', 'true');
+      else allLink.removeAttribute('aria-current');
       filterCount.textContent = count;
       filterCount.hidden = count === 0;
     };
@@ -107,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
       form.querySelectorAll('input[type="checkbox"]').forEach(input => {
         input.checked = (input.name === 'food_category[]' ? categories : params.getAll(input.name)).includes(input.value);
       });
-      allLink.classList.toggle('is-current', !categories.length && !params.has('vegan') && !params.has('vegetarian') && !params.has('gluten_free'));
       updateFilterCount();
     };
 

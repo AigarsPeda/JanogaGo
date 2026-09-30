@@ -40,7 +40,6 @@ ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "set -e; umask 077; $REMOTE_WP db export $(q
 "$SCRIPT_DIR/sync-food-to-droplet.sh"
 "$SCRIPT_DIR/sync-content-to-droplet.sh" --dry-run
 "$SCRIPT_DIR/sync-content-to-droplet.sh"
-REMOTE_COUNT="$(ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "$REMOTE_WP post list --post_type=jg_product --post_status=publish --format=count")"
 REMOTE_PAGES="$(ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "$REMOTE_WP option get jg_food_pages --format=json")"
-python3 -c 'import json,sys; count=int(sys.argv[1]); pages=json.loads(sys.argv[2]); assert count >= 11 and all(int(pages.get(lang, 0)) > 0 for lang in ("lv", "en")), "Catalog verification failed"; print(f"Verified {count} products and both food pages.")' "$REMOTE_COUNT" "$REMOTE_PAGES"
+python3 -c 'import json,sys; pages=json.loads(sys.argv[1]); assert all(int(pages.get(lang, 0)) > 0 for lang in ("lv", "en")), "Catalog page verification failed"; print("Verified both food pages.")' "$REMOTE_PAGES"
 printf 'Food release complete. Pre-release backup: %s\n' "$BACKUP"

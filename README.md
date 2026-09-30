@@ -10,7 +10,7 @@ The theme supports Latvian and English content through Polylang, editable page c
 
 ## Food catalog on Local
 
-The local WordPress site has one `Ēdieni / Products` entry per dish. The entry title is Latvian; the Product details box holds the English name, optional descriptions, the homepage switch and Vegan, Vegetarian and Gluten-free recipe switches. Set its Featured image from the Media Library, choose a category in the editor sidebar, and use the Order field to control listing order. Both language catalogs and the homepage read these same entries. Dietary switches add filters and hover, focus or tap labels to compact badges on the catalog only. Category English names are edited under `Ēdieni / Products → Kategorijas / Categories`; filter and empty-state labels are under `Ēdieni / Products → Catalog labels`. Page headings, introductions, the homepage link and contact copy stay in Gutenberg.
+The local WordPress site has one `Ēdieni / Products` entry per dish. Add, edit, trash, or delete dishes in WordPress; changing a dish never requires editing theme or setup code. The entry title is Latvian; the Product details box holds the English name, optional descriptions, the homepage switch and Vegan, Vegetarian and Gluten-free recipe switches. Set its Featured image from the Media Library, choose a category in the editor sidebar, and use the Order field to control listing order. Both language catalogs and the homepage read these same entries. Dietary switches add filters and hover, focus or tap labels to compact badges on the catalog only. Category English names are edited under `Ēdieni / Products → Kategorijas / Categories`; filter and empty-state labels are under `Ēdieni / Products → Catalog labels`. Page headings, introductions, the homepage link and contact copy stay in Gutenberg. `scripts/setup-local-food-catalog.php` is only a one-time starter import; do not edit or rerun it for regular product changes.
 
 Local pages: `/edieni/` and `/en/food/`. The `Drinks` and `Snacks` filters are present but disabled until a published product uses those categories. Dietary tags should be set only after checking the recipe; photos do not establish ingredients.
 
@@ -96,4 +96,4 @@ Theme 1.0.42 clears submission status URLs after showing the notification and re
 
 The mobile client carousel preloads fixed repeated logo batches, keeps native horizontal scrolling in both directions, and waits for swipe momentum to settle before resuming autoplay. Run `node scripts/tests/client-carousel.cjs` for the scrolling logic regression checks. Verify physical iPhone Safari swipes separately.
 
-Theme 1.0.58 is on Local and the droplet. See `HANDOFF.md` for release verification and rollback locations.
+Theme 1.0.61 is on Local for review; the droplet remains on 1.0.58. See `HANDOFF.md` for release verification and rollback locations.

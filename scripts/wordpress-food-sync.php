@@ -77,7 +77,14 @@ function jgfs_import( $directory, $apply ) {
 		$existing = get_page_by_path( $page['slug'] );
 		if ( $existing && ( $existing->post_type !== 'page' || ( pll_get_post_language( $existing->ID ) && pll_get_post_language( $existing->ID ) !== $language ) ) ) { jgfs_fail( 'Food page slug collision: ' . $page['slug'] ); }
 	}
-	WP_CLI::log( 'Validated ' . count( $release['products'] ) . ' products and 2 language pages.' );
+	$removed = array();
+	foreach ( get_posts( array( 'post_type' => 'jg_product', 'post_status' => 'publish', 'numberposts' => -1, 'suppress_filters' => true ) ) as $post ) {
+		$key = get_post_meta( $post->ID, '_jg_sync_key', true );
+		$asset = get_post_meta( $post->ID, '_jg_source_asset', true );
+		if ( ( $key || $asset ) && ! isset( $keys[ $key ] ) && ! isset( $keys[ $asset ] ) ) { $removed[] = $post; }
+	}
+	WP_CLI::log( 'Validated ' . count( $release['products'] ) . ' products and 2 language pages; ' . count( $removed ) . ' previously synced products to trash.' );
+	foreach ( $removed as $post ) { WP_CLI::log( 'Trash product ' . $post->ID . ': ' . $post->post_title ); }
 	if ( ! $apply ) { WP_CLI::success( 'Dry run passed; no live content changed.' ); return; }
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/media.php';
@@ -119,6 +126,9 @@ function jgfs_import( $directory, $apply ) {
 		$result = wp_set_object_terms( $id, $product['categories'], 'jg_food_category' );
 		if ( is_wp_error( $result ) ) { jgfs_fail( $result->get_error_message() ); }
 		WP_CLI::log( "Product $key → $id; image $image_id" );
+	}
+	foreach ( $removed as $post ) {
+		if ( ! wp_trash_post( $post->ID ) ) { jgfs_fail( 'Could not trash removed product: ' . $post->ID ); }
 	}
 	$food_pages = array();
 	foreach ( $release['pages'] as $language => $page ) {

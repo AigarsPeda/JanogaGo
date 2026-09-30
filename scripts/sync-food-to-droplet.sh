@@ -31,7 +31,7 @@ for arg in "$@"; do
 		*) die "Unknown argument: $arg" ;;
 	esac
 done
-for command in ssh scp gzip; do command -v "$command" >/dev/null || die "$command is not installed."; done
+for command in ssh scp gzip python3; do command -v "$command" >/dev/null || die "$command is not installed."; done
 [ -r "$SSH_KEY" ] || die 'SSH key unavailable.'
 [ -n "$REMOTE_HOST" ] || die 'REMOTE_HOST unavailable.'
 [ -x "$LOCAL_PHP_BIN" ] || die 'Local PHP unavailable.'
@@ -54,4 +54,7 @@ if [ "$DRY_RUN" -eq 1 ]; then printf 'Dry run passed. Live catalog unchanged.\n'
 REMOTE_BACKUP="$(ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "umask 077; mkdir -p $(quote "$REMOTE_BACKUP_DIR") && mktemp -d $(quote "$REMOTE_BACKUP_DIR/food-$(date +%Y%m%d-%H%M%S).XXXXXXXX")")"
 printf 'Private rollback backup: %s\n' "$REMOTE_BACKUP"
 ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "set -e; umask 077; $REMOTE_WP db export $(quote "$REMOTE_BACKUP/database.sql") --quiet; gzip $(quote "$REMOTE_BACKUP/database.sql"); cp $REMOTE_PACKAGE/release.json $(quote "$REMOTE_BACKUP/release.json"); $REMOTE_WP eval-file $REMOTE_HELPER apply $REMOTE_PACKAGE; $REMOTE_WP cache flush; $REMOTE_WP rewrite flush"
+EXPECTED_COUNT="$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))["products"]))' "$LOCAL_STAGE/release.json")"
+REMOTE_COUNT="$(ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "$REMOTE_WP post list --post_type=jg_product --post_status=publish --format=count")"
+[ "$REMOTE_COUNT" = "$EXPECTED_COUNT" ] || die "Live catalog has $REMOTE_COUNT published products; expected $EXPECTED_COUNT. Rollback backup: $REMOTE_BACKUP"
 printf 'Food catalog synchronized.\n'

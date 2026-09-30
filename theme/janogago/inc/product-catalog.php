@@ -222,13 +222,14 @@ function jg_products_shortcode( $attributes ) {
 		$cards .= jg_product_card( $item['post']->ID, $lang, true );
 	}
 	if ( $previous_group ) { $cards .= '</div></section>'; }
-	$filters = '<form class="jg-product-filters" method="get"><fieldset><legend>' . esc_html( $copy['category'] ) . '</legend>';
-	$filters .= '<a class="jg-filter-option jg-filter-all' . ( ! $selected && ! $vegan && ! $vegetarian && ! $gluten_free ? ' is-current' : '' ) . '" href="' . esc_url( get_permalink( get_queried_object_id() ) ) . '">' . esc_html( $copy['all'] ) . '</a>';
+	$all_current = ! $selected && ! $vegan && ! $vegetarian && ! $gluten_free;
+	$filters = '<form class="jg-product-filters" method="get"><fieldset><legend class="jg-visually-hidden">' . esc_html( $copy['category'] ) . '</legend>';
+	$filters .= '<a class="jg-filter-option jg-filter-all' . ( $all_current ? ' is-current' : '' ) . '" href="' . esc_url( get_permalink( get_queried_object_id() ) ) . '"' . ( $all_current ? ' aria-current="true"' : '' ) . '><span class="jg-filter-check" aria-hidden="true"></span><span>' . esc_html( $copy['all'] ) . '</span></a>';
 	foreach ( $terms as $term ) {
 		$empty = ! $term->count;
 		$filters .= '<label class="jg-filter-option' . ( $empty ? ' is-empty' : '' ) . '"><input type="checkbox" name="food_category[]" value="' . esc_attr( $term->slug ) . '" ' . checked( in_array( $term->slug, $selected, true ), true, false ) . ( $empty ? ' disabled' : '' ) . '><span>' . esc_html( jg_product_category_name( $term, $lang ) ) . '</span></label>';
 	}
-	$filters .= '</fieldset><fieldset class="jg-diet-filter"><legend>' . esc_html( $copy['diet'] ) . '</legend>';
+	$filters .= '</fieldset><fieldset class="jg-diet-filter"><legend class="jg-visually-hidden">' . esc_html( $copy['diet'] ) . '</legend>';
 	foreach ( array( 'vegan' => $vegan, 'vegetarian' => $vegetarian, 'gluten_free' => $gluten_free ) as $key => $checked ) {
 		$filters .= '<label class="jg-filter-option"><input type="checkbox" name="' . esc_attr( $key ) . '" value="1" ' . checked( $checked, true, false ) . '><span>' . esc_html( $copy[ $key ] ) . '</span></label>';
 	}
