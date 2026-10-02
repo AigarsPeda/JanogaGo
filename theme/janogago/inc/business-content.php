@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 function jg_business_defaults( $language ) {
 	return $language === 'en' ? array(
-		'hero_title' => 'Meals on site, without running a canteen.',
+		'hero_title' => 'Meals on site, without running a canteen',
 		'hero_text' => 'JāņogaGO provides food vending for locations where employees or visitors have few convenient meal options. Our fully managed service includes installation, meal deliveries, restocking and equipment maintenance.',
 		'hero_cta' => 'Request a proposal',
 		'process_title' => 'How do we get started?',
@@ -16,7 +16,7 @@ function jg_business_defaults( $language ) {
 		'step_two_text' => 'We discuss your needs and assess installation options. Your proposal includes suitable equipment, a food selection, service terms and costs.',
 		'step_three' => 'We install and manage the service',
 		'step_three_text' => 'Once agreed, we install the machine and make the first food delivery. We then take care of restocking and equipment maintenance.',
-		'contact_title' => 'Let’s discuss meals at your location.',
+		'contact_title' => 'Let’s discuss meals at your location',
 		'contact_text' => 'Tell us where you need food vending, how many people might use it, and at what times. We will contact you to assess suitability and prepare a proposal.',
 		'form_name_label' => 'Contact name',
 		'form_location_label' => 'Location or city',
@@ -28,7 +28,7 @@ function jg_business_defaults( $language ) {
 		'form_failed_message' => 'Your enquiry could not be saved. Please try again or contact us by email or phone.',
 		'form_dismiss_label' => 'Close notification',
 	) : array(
-		'hero_title' => 'Maltītes uz vietas, bez savas ēdnīcas.',
+		'hero_title' => 'Maltītes uz vietas, bez savas ēdnīcas',
 		'hero_text' => 'JāņogaGO piedāvā ēdienu automātus vietām, kur darbiniekiem vai apmeklētājiem nav ērtu iespēju paēst. Pilna servisa risinājumā mēs nodrošinām automāta uzstādīšanu, maltīšu piegādi, krājumu papildināšanu un tehnisko apkopi.',
 		'hero_cta' => 'Saņemt piedāvājumu',
 		'process_title' => 'Kā sākt sadarbību?',
@@ -38,7 +38,7 @@ function jg_business_defaults( $language ) {
 		'step_two_text' => 'Pārrunājam jūsu vajadzības un izvērtējam uzstādīšanas iespējas. Piedāvājumā iekļaujam piemērotu automātu, sortimentu, servisa nosacījumus un izmaksas.',
 		'step_three' => 'Uzstādām un apkalpojam',
 		'step_three_text' => 'Pēc vienošanās uzstādām automātu un nodrošinām pirmo pārtikas piegādi. Turpmāk rūpējamies par krājumu papildināšanu un automāta apkopi.',
-		'contact_title' => 'Pārrunāsim ēdināšanu jūsu atrašanās vietā.',
+		'contact_title' => 'Pārrunāsim ēdināšanu jūsu atrašanās vietā',
 		'contact_text' => 'Pastāstiet, kur nepieciešams ēdienu automāts, cik cilvēku varētu to izmantot un kādā laikā. Sazināsimies, lai pārrunātu piemērotību un sagatavotu piedāvājumu.',
 		'form_name_label' => 'Kontaktpersonas vārds',
 		'form_location_label' => 'Atrašanās vieta vai pilsēta',
@@ -73,7 +73,7 @@ function jg_business_experience_blocks( $language ) {
 	foreach ( $stats as $stat ) {
 		$numbers .= jg_block_group( jg_block_paragraph( $stat[0], 'jg-experience-number' ) . jg_block_paragraph( $stat[1], 'jg-experience-label' ), 'jg-experience-stat', 'div' );
 	}
-	$copy = jg_block_heading( $is_en ? 'Janoga’s experience preparing meals.' : 'Jāņogas pieredze maltīšu gatavošanā.' ) . jg_block_paragraph( $is_en ? 'Every day, we prepare and serve meals for company employees and visitors to our cafés. With JāņogaGO, we bring that experience to locations without a café or convenient lunch options nearby.' : 'Ikdienā gatavojam un pasniedzam maltītes uzņēmumu darbiniekiem un mūsu kafejnīcu apmeklētājiem. Ar JāņogaGO šo pieredzi izmantojam, lai nodrošinātu maltītes arī vietās, kur nav kafejnīcas vai tuvumā pieejamu pusdienu iespēju.' );
+	$copy = jg_block_heading( $is_en ? 'Janoga’s experience preparing meals' : 'Jāņogas pieredze maltīšu gatavošanā' ) . jg_block_paragraph( $is_en ? 'Every day, we prepare and serve meals for company employees and visitors to our cafés. With JāņogaGO, we bring that experience to locations without a café or convenient lunch options nearby.' : 'Ikdienā gatavojam un pasniedzam maltītes uzņēmumu darbiniekiem un mūsu kafejnīcu apmeklētājiem. Ar JāņogaGO šo pieredzi izmantojam, lai nodrošinātu maltītes arī vietās, kur nav kafejnīcas vai tuvumā pieejamu pusdienu iespēju.' );
 	return jg_block_group( jg_block_columns( jg_block_column( $copy ) . jg_block_column( jg_block_group( $numbers, 'jg-experience-stats', 'div' ) ), 'jg-experience-layout' ), 'experience section jg-block-section jg-block-experience', 'section', 'pieredze' );
 }
 
@@ -133,7 +133,7 @@ function jg_business_faq_blocks( $language ) {
 	foreach ( $questions as $question => $answer ) {
 		$items .= jg_block_faq_item( $question, $answer );
 	}
-	return jg_block_group( jg_block_heading( $is_en ? 'Frequently asked questions.' : 'Biežāk uzdotie jautājumi.' ) . jg_block_group( $items, 'jg-faq-list', 'div' ), 'faq section jg-block-section jg-block-faq', 'section', 'biezi-uzdotie-jautajumi' );
+	return jg_block_group( jg_block_heading( $is_en ? 'Frequently asked questions' : 'Biežāk uzdotie jautājumi' ) . jg_block_group( $items, 'jg-faq-list', 'div' ), 'faq section jg-block-section jg-block-faq', 'section', 'biezi-uzdotie-jautajumi' );
 }
 
 /** Each label and message is a normal Paragraph block, editable on the canvas. */
@@ -178,7 +178,7 @@ function jg_business_home_blocks( $language, $page_id ) {
 	$hero_copy = jg_block_heading( $copy['hero_title'], 1 ) . jg_block_paragraph( $copy['hero_text'], 'lede' ) . jg_block_button( $copy['hero_cta'], '#pieteikties', 'button button-light' );
 	$hero_visual = jg_block_image( jg_seed_attachment( 'janoga-go-automats-clean-logo-up.png' ), $is_en ? 'JāņogaGO food vending machine' : 'JāņogaGO ēdienu automāts' );
 	$hero = jg_block_group( jg_block_columns( jg_block_column( $hero_copy, 'hero-copy', 'center' ) . jg_block_column( $hero_visual, 'hero-visual hero-machine', 'center' ), 'jg-block-hero-layout', 'center' ), 'hero jg-block-section jg-block-hero' );
-	$clients = strtr( jg_clients_section_blocks( $language ), $is_en ? array( 'Trusted by teams who keep moving.' => 'Clients who have trusted us.', 'From production and retail to logistics.' => 'Companies we have served through our catering services.' ) : array( 'Mūs jau novērtē.' => 'Klienti, kuri mums uzticējušies.', 'No ražotnēm līdz mazumtirdzniecībai un loģistikai.' => 'Uzņēmumi, kuriem esam nodrošinājuši ēdināšanu.' ) );
+	$clients = strtr( jg_clients_section_blocks( $language ), $is_en ? array( 'Trusted by teams who keep moving' => 'Clients who have trusted us', 'From production and retail to logistics.' => 'Companies we have served through our catering services.' ) : array( 'Mūs jau novērtē' => 'Klienti, kuri mums uzticējušies', 'No ražotnēm līdz mazumtirdzniecībai un loģistikai.' => 'Uzņēmumi, kuriem esam nodrošinājuši ēdināšanu.' ) );
 	$footer = jg_block_group( jg_block_paragraph( $copy['contact_address'], 'jg-footer-address' ) . jg_block_paragraph( '© ' . gmdate( 'Y' ) . ' ' . get_bloginfo( 'name' ), 'jg-footer-copyright' ), 'jg-block-footer-content', 'div' );
 	return $hero . jg_business_food_blocks( $language ) . jg_business_experience_blocks( $language ) . $clients . jg_business_service_blocks( $language ) . jg_business_suitability_blocks( $language ) . jg_business_process_blocks( $language ) . jg_business_faq_blocks( $language ) . jg_business_contact_blocks( $language, $page_id ) . $footer;
 }

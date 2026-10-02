@@ -11,15 +11,42 @@ function jgcs_page( $pages, $language ) {
 	return $post;
 }
 
-function jgcs_image_ids( $blocks ) {
+function jgcs_media_ids( $blocks ) {
 	$ids = array();
 	foreach ( $blocks as $block ) {
-		if ( $block['blockName'] === 'core/image' && ! empty( $block['attrs']['id'] ) ) {
-			$ids[] = absint( $block['attrs']['id'] );
+		if ( $block['blockName'] === 'core/image' ) {
+			foreach ( array( 'id', 'jgModelId', 'jgModelPosterId' ) as $key ) {
+				if ( ! empty( $block['attrs'][$key] ) ) { $ids[] = absint( $block['attrs'][$key] ); }
+			}
 		}
-		$ids = array_merge( $ids, jgcs_image_ids( $block['innerBlocks'] ) );
+		$ids = array_merge( $ids, jgcs_media_ids( $block['innerBlocks'] ) );
 	}
 	return array_unique( $ids );
+}
+
+function jgcs_media_file( $id ) {
+	return get_post_mime_type( $id ) === 'model/gltf-binary' ? get_attached_file( $id ) : wp_get_original_image_path( $id );
+}
+
+function jgcs_valid_glb( $file ) {
+	$stream = fopen( $file, 'rb' );
+	$header = $stream ? fread( $stream, 12 ) : '';
+	if ( $stream ) { fclose( $stream ); }
+	if ( strlen( $header ) !== 12 || substr( $header, 0, 4 ) !== 'glTF' ) { return false; }
+	$fields = unpack( 'Vversion/Vlength', substr( $header, 4 ) );
+	return $fields['version'] === 2 && $fields['length'] === filesize( $file );
+}
+
+// The CLI importer runs with --skip-themes, so it cannot use theme upload hooks.
+function jgcs_upload_mimes( $mimes ) {
+	$mimes['glb'] = 'model/gltf-binary';
+	return $mimes;
+}
+
+function jgcs_check_upload( $data, $file, $filename ) {
+	if ( strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) ) !== 'glb' ) { return $data; }
+	$valid = jgcs_valid_glb( $file );
+	return array( 'ext' => $valid ? 'glb' : false, 'type' => $valid ? 'model/gltf-binary' : false, 'proper_filename' => false );
 }
 
 function jgcs_write_json( $path, $data ) {
@@ -34,27 +61,32 @@ function jgcs_export( $package, $languages, $pages ) {
 	foreach ( $languages as $language ) {
 		$post = jgcs_page( $pages, $language );
 		$release['pages'][$language] = array( 'content' => $post->post_content, 'url' => get_permalink( $post ) );
-		$ids = array_merge( $ids, jgcs_image_ids( parse_blocks( $post->post_content ) ) );
+		$ids = array_merge( $ids, jgcs_media_ids( parse_blocks( $post->post_content ) ) );
 	}
 	if ( ! mkdir( "$package/media", 0700 ) ) { WP_CLI::error( 'Cannot create media staging directory.' ); }
 	foreach ( array_unique( $ids ) as $id ) {
 		$post = get_post( $id );
-		$original = wp_get_original_image_path( $id );
+		$mime = get_post_mime_type( $id );
+		$is_model = $mime === 'model/gltf-binary';
+		$original = jgcs_media_file( $id );
 		$metadata = wp_get_attachment_metadata( $id );
-		if ( ! $post || $post->post_status !== 'inherit' || ! $original || ! is_file( $original ) || ! is_array( $metadata ) ) {
-			WP_CLI::error( "Missing Media Library image $id." );
+		if ( ! $post || $post->post_status !== 'inherit' || ! $original || ! is_file( $original )
+			|| ( ! $is_model && ( ! str_starts_with( (string) $mime, 'image/' ) || ! is_array( $metadata ) ) )
+			|| ( $is_model && ! jgcs_valid_glb( $original ) ) ) {
+			WP_CLI::error( "Missing or invalid Media Library image/model $id." );
 		}
 		$staged = $id . '-' . basename( $original );
-		if ( ! copy( $original, "$package/media/$staged" ) ) { WP_CLI::error( "Cannot stage image $id." ); }
+		if ( ! copy( $original, "$package/media/$staged" ) ) { WP_CLI::error( "Cannot stage media $id." ); }
 		$release['media'][$id] = array(
 			'filename' => basename( $original ), 'staged' => $staged, 'sha256' => hash_file( 'sha256', $original ),
-			'metadata' => $metadata, 'url' => wp_get_attachment_url( $id ), 'title' => $post->post_title,
+			'mime_type' => $mime, 'metadata' => $metadata ?: array(), 'url' => wp_get_attachment_url( $id ), 'title' => $post->post_title,
 			'caption' => $post->post_excerpt, 'description' => $post->post_content,
 			'alt' => get_post_meta( $id, '_wp_attachment_image_alt', true ),
+			'model_dimensions' => $is_model ? get_post_meta( $id, '_jg_model_dimensions_mm', true ) : array(),
 		);
 	}
 	jgcs_write_json( "$package/release.json", $release );
-	WP_CLI::success( 'Exported ' . count( $release['pages'] ) . ' pages and ' . count( $release['media'] ) . ' referenced images.' );
+	WP_CLI::success( 'Exported ' . count( $release['pages'] ) . ' pages and ' . count( $release['media'] ) . ' referenced media files.' );
 }
 
 function jgcs_replace( $value, $urls, $map ) {
@@ -71,10 +103,13 @@ function jgcs_replace( $value, $urls, $map ) {
 function jgcs_blocks( $blocks, $urls, $map ) {
 	foreach ( $blocks as &$block ) {
 		$block['attrs'] = jgcs_replace( $block['attrs'], $urls, $map );
-		if ( $block['blockName'] === 'core/image' && isset( $block['attrs']['id'] ) ) {
-			$local_id = $block['attrs']['id'];
-			if ( ! isset( $map[$local_id] ) ) { WP_CLI::error( 'Unmapped image block.' ); }
-			$block['attrs']['id'] = $map[$local_id];
+		if ( $block['blockName'] === 'core/image' ) {
+			foreach ( array( 'id', 'jgModelId', 'jgModelPosterId' ) as $key ) {
+				if ( empty( $block['attrs'][$key] ) ) { continue; }
+				$local_id = $block['attrs'][$key];
+				if ( empty( $map[$local_id] ) ) { WP_CLI::error( "Unmapped image/model attribute $key." ); }
+				$block['attrs'][$key] = $map[$local_id];
+			}
 		}
 		$block['innerHTML'] = jgcs_replace( $block['innerHTML'], $urls, $map );
 		$block['innerContent'] = jgcs_replace( $block['innerContent'], $urls, $map );
@@ -95,15 +130,15 @@ function jgcs_import( $package, $apply, $backup, $pages ) {
 		$page_ids[$language] = $post->ID;
 		$urls[$page['url']] = get_permalink( $post );
 		$before['pages'][$post->ID] = array( 'content' => $post->post_content, 'business_marker' => get_post_meta( $post->ID, '_jg_business_content_v1', true ), 'seed_marker' => get_post_meta( $post->ID, '_jg_gutenberg_seeded', true ) );
-		foreach ( jgcs_image_ids( parse_blocks( $page['content'] ) ) as $id ) {
-			if ( ! isset( $release['media'][$id] ) ) { WP_CLI::error( 'Page refers to an image missing from the package.' ); }
+		foreach ( jgcs_media_ids( parse_blocks( $page['content'] ) ) as $id ) {
+			if ( ! isset( $release['media'][$id] ) ) { WP_CLI::error( 'Page refers to media missing from the package.' ); }
 		}
 	}
 	// Match original file contents, including photos WordPress renamed or scaled.
-	$live_images = array();
+	$live_media = array();
 	foreach ( get_posts( array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'numberposts' => -1 ) ) as $post ) {
-		$original = wp_get_original_image_path( $post->ID );
-		if ( $original && is_file( $original ) ) { $live_images[hash_file( 'sha256', $original )][] = $post->ID; }
+		$original = jgcs_media_file( $post->ID );
+		if ( $original && is_file( $original ) ) { $live_media[hash_file( 'sha256', $original )][] = $post->ID; }
 	}
 	$map = array();
 	$new_hashes = array();
@@ -111,7 +146,11 @@ function jgcs_import( $package, $apply, $backup, $pages ) {
 		if ( basename( $media['staged'] ) !== $media['staged'] || basename( $media['filename'] ) !== $media['filename'] ) { WP_CLI::error( 'Invalid media filename.' ); }
 		$file = "$package/media/" . $media['staged'];
 		if ( ! is_file( $file ) || hash_file( 'sha256', $file ) !== $media['sha256'] ) { WP_CLI::error( 'Staged media checksum mismatch.' ); }
-		$matches = $live_images[$media['sha256']] ?? array();
+		$mime = $media['mime_type'] ?? wp_check_filetype( $media['filename'] )['type'];
+		if ( $mime === 'model/gltf-binary' ) {
+			if ( strtolower( pathinfo( $media['filename'], PATHINFO_EXTENSION ) ) !== 'glb' || ! jgcs_valid_glb( $file ) ) { WP_CLI::error( 'Invalid GLB in release package.' ); }
+		} elseif ( ! str_starts_with( (string) $mime, 'image/' ) ) { WP_CLI::error( 'Unsupported release media type.' ); }
+		$matches = array_values( array_filter( $live_media[$media['sha256']] ?? array(), function ( $id ) use ( $mime ) { return get_post_mime_type( $id ) === $mime; } ) );
 		if ( count( $matches ) > 1 ) { WP_CLI::error( 'Ambiguous duplicate Media Library records for ' . $media['filename'] . '; resolve before syncing.' ); }
 		$map[$local_id] = $matches[0] ?? 0;
 		if ( ! $map[$local_id] ) { $new_hashes[$media['sha256']] = true; }
@@ -122,7 +161,7 @@ function jgcs_import( $package, $apply, $backup, $pages ) {
 		WP_CLI::log( ( $map[$local_id] ? 'Reuse' : 'Import' ) . ': ' . $media['filename'] );
 	}
 	if ( ! $apply ) {
-		WP_CLI::success( 'Validated ' . count( $page_ids ) . ' homepages; ' . count( array_filter( $map ) ) . ' images reused, ' . count( $new_hashes ) . ' new imports planned.' );
+		WP_CLI::success( 'Validated ' . count( $page_ids ) . ' homepages; ' . count( array_filter( $map ) ) . ' media reused, ' . count( $new_hashes ) . ' new imports planned.' );
 		return;
 	}
 	if ( ! is_dir( $backup ) || file_exists( "$backup/pages-before.json" ) ) { WP_CLI::error( 'Backup directory is missing or already used.' ); }
@@ -132,19 +171,31 @@ function jgcs_import( $package, $apply, $backup, $pages ) {
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	require_once ABSPATH . 'wp-admin/includes/media.php';
 	require_once ABSPATH . 'wp-admin/includes/image.php';
+	add_filter( 'upload_mimes', 'jgcs_upload_mimes' );
+	add_filter( 'wp_check_filetype_and_ext', 'jgcs_check_upload', 10, 3 );
 	foreach ( $release['media'] as $local_id => $media ) {
-		if ( ! $map[$local_id] && ! empty( $live_images[$media['sha256']] ) ) { $map[$local_id] = $live_images[$media['sha256']][0]; }
+		$mime = $media['mime_type'] ?? wp_check_filetype( $media['filename'] )['type'];
+		if ( ! $map[$local_id] ) {
+			foreach ( $live_media[$media['sha256']] ?? array() as $candidate ) {
+				if ( get_post_mime_type( $candidate ) === $mime ) { $map[$local_id] = $candidate; break; }
+			}
+		}
 		if ( ! $map[$local_id] ) {
 			$tmp = wp_tempnam( $media['filename'] );
-			if ( ! $tmp || ! copy( "$package/media/" . $media['staged'], $tmp ) ) { WP_CLI::error( 'Cannot prepare image import.' ); }
+			if ( ! $tmp || ! copy( "$package/media/" . $media['staged'], $tmp ) ) { WP_CLI::error( 'Cannot prepare media import.' ); }
 			$id = media_handle_sideload( array( 'name' => $media['filename'], 'tmp_name' => $tmp ), 0, null, wp_slash( array( 'post_title' => $media['title'], 'post_excerpt' => $media['caption'], 'post_content' => $media['description'] ) ) );
 			if ( is_wp_error( $id ) ) { @unlink( $tmp ); WP_CLI::error( $id->get_error_message() ); }
 			$map[$local_id] = $id;
-			$live_images[$media['sha256']] = array( $id );
+			$live_media[$media['sha256']] = array( $id );
 			$before['new_media'][] = $id;
 			jgcs_write_json( "$backup/pages-before.json", $before );
 		}
 		$id = $map[$local_id];
+		if ( get_post_mime_type( $id ) === 'model/gltf-binary' ) {
+			update_post_meta( $id, '_jg_model_source_sha256', $media['sha256'] );
+			if ( ! empty( $media['model_dimensions'] ) ) { update_post_meta( $id, '_jg_model_dimensions_mm', $media['model_dimensions'] ); }
+			if ( hash_file( 'sha256', get_attached_file( $id ) ) !== $media['sha256'] ) { WP_CLI::error( 'Imported model checksum mismatch.' ); }
+		}
 		update_post_meta( $id, '_wp_attachment_image_alt', wp_slash( $media['alt'] ) );
 		$remote_url = wp_get_attachment_url( $id );
 		$urls[$media['url']] = $remote_url;
@@ -159,6 +210,8 @@ function jgcs_import( $package, $apply, $backup, $pages ) {
 			$urls[$local_dir . $media['metadata']['original_image']] = wp_get_original_image_url( $id );
 		}
 	}
+	remove_filter( 'upload_mimes', 'jgcs_upload_mimes' );
+	remove_filter( 'wp_check_filetype_and_ext', 'jgcs_check_upload', 10 );
 	$urls[rtrim( $release['local_url'], '/' )] = rtrim( home_url(), '/' );
 	foreach ( $release['pages'] as $language => $page ) {
 		$id = $page_ids[$language];

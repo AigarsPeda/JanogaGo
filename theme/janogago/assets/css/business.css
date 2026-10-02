@@ -25,6 +25,81 @@
  object-position: center;
  width: 72%;
 }
+.jg-hero-model { position: absolute; inset: 0; }
+.jg-model-fallback {
+ position: absolute;
+ inset: 0;
+ opacity: 1;
+ transition: opacity .32s cubic-bezier(.16, 1, .3, 1), visibility 0s;
+}
+/* The exported poster uses the renderer's framing, including transparent margins. */
+.jg-hero-model[data-model-poster] .jg-model-fallback {
+ inset: 7% 8%;
+ width: 84%;
+ height: 86%;
+}
+.janogago-blocks .hero-visual.hero-machine .jg-model-poster-image {
+ inset: 0;
+ width: 100%;
+ height: 100%;
+}
+.jg-model-viewer {
+ /* The matching preview covers loading; suppress the viewer's delayed loading bar. */
+ --progress-bar-height: 0px;
+ display: block;
+ position: absolute;
+ inset: 7% 8%;
+ width: 84%;
+ height: 86%;
+ opacity: 0;
+ pointer-events: none;
+ transition: opacity .32s cubic-bezier(.16, 1, .3, 1);
+}
+.jg-hero-model[data-model-state="revealing"] .jg-model-viewer,
+.jg-hero-model[data-model-state="ready"] .jg-model-viewer { opacity: 1; }
+.jg-hero-model[data-model-state="ready"] .jg-model-viewer { pointer-events: auto; }
+.jg-hero-model[data-model-state="revealing"] .jg-model-fallback,
+.jg-hero-model[data-model-state="ready"] .jg-model-fallback {
+ opacity: 0;
+ visibility: hidden;
+ transition: opacity .32s cubic-bezier(.16, 1, .3, 1), visibility 0s .32s;
+}
+/* Keep identical pixels behind the fading model to avoid a brightness dip. */
+.jg-hero-model[data-model-poster][data-model-state="revealing"] .jg-model-fallback {
+ opacity: 1;
+ visibility: visible;
+ transition: none;
+}
+.jg-hero-model[data-model-poster][data-model-state="ready"] .jg-model-fallback { transition: none; }
+.jg-model-controls {
+ position: absolute;
+ top: 24px;
+ inset-inline-end: 24px;
+ z-index: 1;
+ color: var(--cream);
+}
+.jg-model-controls[hidden] { display: none; }
+.jg-model-motion {
+ background: transparent;
+ color: inherit;
+ border: 1px solid rgba(255,250,242,.45);
+ border-radius: 0;
+ display: grid;
+ place-items: center;
+ width: 44px;
+ height: 44px;
+ padding: 0;
+ cursor: pointer;
+}
+.jg-model-motion:hover { background: rgba(255,250,242,.08); }
+.jg-model-motion:focus-visible { outline: 2px solid var(--cream); outline-offset: 4px; }
+.jg-model-motion svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.jg-model-motion[data-motion="running"] .jg-model-icon-play,
+.jg-model-motion[data-motion="paused"] .jg-model-icon-pause { display: none; }
+@media (prefers-reduced-motion: reduce) {
+ .jg-model-viewer,
+ .jg-hero-model[data-model-state] .jg-model-fallback { transition: none; }
+}
 @media (min-width: 851px) {
  .janogago-blocks .hero { grid-template-columns: 1fr 1fr; }
  .janogago-blocks .hero-copy { align-self: center; }

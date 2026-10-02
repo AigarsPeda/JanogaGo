@@ -57,7 +57,7 @@ foreach ( $photos as $photo ) {
 foreach ( $pending as $language => $page ) {
 	$is_en = $language === 'en';
 	$intro = jg_block_group(
-		jg_block_heading( $is_en ? 'Vending machines that fit your space.' : 'Automāti, kas iederas jūsu telpās.' ) .
+		jg_block_heading( $is_en ? 'Vending machines that fit your space' : 'Automāti, kas iederas jūsu telpās' ) .
 		jg_block_paragraph( $is_en ? 'Modern vending machines with contactless card and mobile payments. Real-time stock monitoring helps us plan restocking.' : 'Moderni ēdienu automāti, kuros var norēķināties ar karti vai tālruni. Krājumu uzskaite reāllaikā palīdz mums plānot sortimenta papildināšanu.', 'jg-section-lede' ),
 		'jg-vending-intro', 'div'
 	);

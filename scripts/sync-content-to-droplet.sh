@@ -30,8 +30,9 @@ Usage: ./scripts/sync-content-to-droplet.sh [--dry-run] [--languages=lv,en]
 
 Transfer the selected LV/EN home page blocks and referenced Image-block media
 from Local to the droplet. Existing page IDs, titles, slugs, users, settings,
-enquiries and unrelated content are preserved. Matching photos are reused;
-new photos are imported through WordPress into its Media Library/uploads.
+enquiries and unrelated content are preserved. Matching images and GLBs are reused;
+new media are imported into the Media Library, including the image fallback.
+Image and jgModelId references are remapped to the live attachment IDs.
 
 --dry-run checks the transfer without changing live content or uploads.
 --languages=lv or --languages=en transfers just that language; default is both.

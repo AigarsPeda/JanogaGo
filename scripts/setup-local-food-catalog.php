@@ -20,7 +20,7 @@ foreach ( array( 'lv', 'en' ) as $lang ) {
 	);
 	$listing = jg_block_group( jg_block( 'shortcode', array(), '<div class="wp-block-shortcode">[jg_products]</div>' ), 'jg-catalog-section', 'section' );
 	$contact = jg_block_group(
-		jg_block_heading( $is_en ? 'A selection made for your team.' : 'Sortiments, kas atbilst jūsu komandai.' ) .
+		jg_block_heading( $is_en ? 'A selection made for your team' : 'Sortiments, kas atbilst jūsu komandai' ) .
 		jg_block_paragraph( $is_en ? 'Tell us what your team would like, and we’ll plan the food selection together.' : 'Pastāstiet par savas komandas vēlmēm, un kopā izplānosim ēdienu piedāvājumu.' ) .
 		jg_block_button( $is_en ? 'Request a proposal' : 'Saņemt piedāvājumu', $home_url . '#pieteikties', 'button' ),
 		'jg-catalog-contact', 'section'

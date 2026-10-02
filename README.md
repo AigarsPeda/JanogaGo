@@ -62,16 +62,16 @@ For new Media Library files:
 
 `sync-uploads-to-droplet.sh` copies new and changed Media Library files but never deletes existing files on the droplet. Use `--dry-run` first whenever you want to review the file changes.
 
-Uploads sync transfers files only. To transfer both homepage languages and their referenced Image-block photos, use the reusable content script:
+Uploads sync transfers files only. To transfer both homepage languages and their referenced Image-block photos and GLB models, use the reusable content script:
 
 ```bash
 ./scripts/sync-content-to-droplet.sh --dry-run
 ./scripts/sync-content-to-droplet.sh
 ```
 
-Use `--languages=lv` or `--languages=en` to transfer one language. The script exports the current native Gutenberg blocks, maps local image IDs and URLs to live records, and reuses photos by their original-file checksum, including files WordPress renamed or scaled. It imports missing photos through WordPress, which stores them in uploads, creates Media Library records and generates image sizes. A separate uploads sync is unnecessary for those photos. Ambiguous duplicate live media records stop the transfer for review.
+Use `--languages=lv` or `--languages=en` to transfer one language. The script exports the current native Gutenberg blocks, maps image IDs, `jgModelId`, `jgModelPosterId` and URLs to live records, and reuses media by their original-file checksum, including files WordPress renamed or scaled. It imports missing images and validated GLBs through WordPress into the Media Library and uploads, generates image sizes, and transfers model dimension metadata. An optional matching render provides the loading preview. The original Image block stays available as the error fallback. A separate uploads sync is unnecessary for these files. Ambiguous duplicate live media records stop the transfer for review.
 
-Before applying, it creates a private database backup plus page, marker and media-alt snapshots under `REMOTE_BACKUP_DIR`. Existing page IDs, titles, slugs, users, settings, enquiries and unrelated content stay intact. Theme migrations are skipped during export/import; the homepage migration markers are preserved/set so subsequent code sync does not replace authored content. Repeated runs reuse images and skip saving unchanged pages. The PHP helper `scripts/wordpress-content-sync.php` belongs with the scripts and must not be installed in the theme.
+Before applying, it creates a private database backup plus page, marker and media-alt snapshots under `REMOTE_BACKUP_DIR`. Existing page IDs, titles, slugs, users, settings, enquiries and unrelated content stay intact. Theme migrations are skipped during export/import; the homepage migration markers are preserved/set so subsequent code sync does not replace authored content. Repeated runs reuse media and skip saving unchanged pages. The PHP helper `scripts/wordpress-content-sync.php` belongs with the scripts and must not be installed in the theme.
 
 For combined food releases, use the release script above. For other combined content and code changes, back up the existing theme and dry-run both relevant scripts first. Check LV/EN in the browser after deployment. Routine edits made directly in live WordPress need no deployment; content sync intentionally replaces the selected live homepage blocks with Local's versions.
 
@@ -79,9 +79,9 @@ To bring the live database and uploads back into Local, `scripts/pull-db-from-dr
 
 Do not use `push-db-to-droplet.sh --yes` for a routine code/content release: it replaces the whole live database and requires explicit authorization for that replacement.
 
-The local-only integration test is `scripts/tests/content-sync.php`. Run it with Local's WP-CLI using `--skip-themes eval-file`. It creates and removes temporary pages and an image fixture, tests imports and repeated runs, and refuses sites whose hostname does not end in `.local`.
+The local-only integration test is `scripts/tests/content-sync.php`. Run it with Local's WP-CLI using `--skip-themes eval-file`. It creates and removes temporary pages, image and GLB fixtures, tests import/export, reference mapping, dimensions and repeated runs, and refuses sites whose hostname does not end in `.local`.
 
-The 2026-09-26 release deployed theme 1.0.36 and both language pages this way. See `HANDOFF.md` for the verified live state and private rollback backup location.
+See `HANDOFF.md` for the verified live state and private rollback backup location.
 
 
 ## Enquiry notifications
@@ -96,4 +96,4 @@ Theme 1.0.42 clears submission status URLs after showing the notification and re
 
 The mobile client carousel preloads fixed repeated logo batches, keeps native horizontal scrolling in both directions, and waits for swipe momentum to settle before resuming autoplay. Run `node scripts/tests/client-carousel.cjs` for the scrolling logic regression checks. Verify physical iPhone Safari swipes separately.
 
-Theme 1.0.61 and the updated food catalog are on Local and the droplet. See `HANDOFF.md` for release verification and rollback locations.
+Theme 1.0.74, the updated food catalog, bilingual heading punctuation and the 3D hero with photo fallback are on Local and the droplet. See `HANDOFF.md` for release verification and rollback locations.

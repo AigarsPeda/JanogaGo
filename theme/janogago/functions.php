@@ -43,61 +43,61 @@ function jg_lang() {
 function jg_defaults( $language = null ) {
 	$lv = array(
 		'hero_eyebrow' => 'ĒDIENS DARBĀ, BEZ RŪPĒM',
-		'hero_title' => 'Svaigs un veselīgs ēdiens jūsu darba vietā 24/7.',
+		'hero_title' => 'Svaigs un veselīgs ēdiens jūsu darba vietā 24/7',
 		'hero_text' => 'Pilna servisa ēdienu automāti ar svaigām maltītēm, uzkodām un dzērieniem birojiem, ražotnēm un loģistikas centriem. Mēs uzstādām, piegādājam, papildinām un uzturam.',
 		'hero_cta' => 'Pieteikt konsultāciju',
 		'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'KĀPĒC JANOGAGO',
-		'intro_title' => 'Pusdienas, par kurām nav jādomā.',
+		'intro_title' => 'Pusdienas, par kurām nav jādomā',
 		'intro_text' => 'JāņogaGO komanda gatavo ēdienu, regulāri papildina automātus un rūpējas par tehniku. Jūsu komandai atliek izvēlēties to, kas garšo.',
 		'stat_one' => 'SVAIGI GATAVOTS KATRU DIENU', 'stat_two' => 'KARTE, TELEFONS VAI VIEDPULKSTENIS', 'stat_three' => 'HIGIĒNA UN TEMPERATŪRA KONTROLĒTA',
 		'menu_eyebrow' => 'NE TIKAI UZKODAS',
-		'menu_title' => 'Pusdienas, ko gaida, nevis izlaiž.',
+		'menu_title' => 'Pusdienas, ko gaida, nevis izlaiž',
 		'menu_text' => 'No siltām maltītēm līdz labai kafijai. Sortimentam jāatbilst jūsu cilvēkiem, tāpēc to veidojam kopā ar jums.',
 		'menu_one' => 'Siltās pusdienas', 'menu_two' => 'Salāti un bļodas', 'menu_three' => 'Sviestmaizes un deserti', 'menu_four' => 'Kafija un dzērieni',
 		'models_eyebrow' => 'DIVI SADARBĪBAS VEIDI',
-		'models_title' => 'Izvēlieties modeli. Pārējo izdaram mēs.',
+		'models_title' => 'Izvēlieties modeli. Pārējo izdaram mēs',
 		'model_one_title' => 'Pilna servisa risinājums',
 		'model_one_text' => 'Piemērots birojiem, ražotnēm un loģistikas centriem ar 30+ darbiniekiem. Mēs uzstādām automātu, piegādājam svaigu pārtiku, regulāri papildinām sortimentu un rūpējamies par tehniku. Jūsu komandai atliek izvēlēties, kas garšo.',
 		'model_two_title' => 'Aprīkojuma noma',
 		'model_two_text' => 'Piemērota komandām, kas vēlas pašas veidot un pārvaldīt sortimentu. Mēs nodrošinām iekārtu, tehnisko atbalstu un norēķinu risinājumu.',
 		'process_eyebrow' => 'KĀ TAS NOTIEK',
-		'process_title' => 'No pirmās sarunas līdz pirmajām pusdienām.',
+		'process_title' => 'No pirmās sarunas līdz pirmajām pusdienām',
 		'step_one' => 'Iepazīstam jūsu vidi', 'step_one_text' => 'Saprotam cilvēku skaitu, maiņas un to, kas viņiem tiešām noderēs.',
 		'step_two' => 'Sagatavojam risinājumu', 'step_two_text' => 'Piedāvājam iekārtu, sortimentu un sadarbības modeli.',
 		'step_three' => 'Uzstādām un aprūpējam', 'step_three_text' => 'Piegādājam, papildinām un reaģējam, ja vajadzīga palīdzība.',
 		'contact_eyebrow' => 'SĀKSIM AR KONSULTĀCIJU',
-		'contact_title' => 'Ienesiet restorāna līmeņa ēdienu savā darba vietā.',
+		'contact_title' => 'Ienesiet restorāna līmeņa ēdienu savā darba vietā',
 		'contact_text' => 'Pastāstiet par savu uzņēmumu. Atbildēsim ar piemērotu risinājumu un sarunāsim konsultāciju.',
 		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 28 317 179', 'contact_address' => 'Rīga, Latvija',
 		'form_company_label' => 'Uzņēmums', 'form_name_label' => 'Jūsu vārds', 'form_email_label' => 'E-pasts', 'form_phone_label' => 'Tālrunis', 'form_people_label' => 'Darbinieku skaits', 'form_message_label' => 'Ko vēlaties nodrošināt?', 'form_privacy_label' => 'Piekrītu, ka JāņogaGO izmantos manu sniegto informāciju, lai sazinātos par manu pieprasījumu.', 'form_submit_label' => 'Nosūtīt pieteikumu', 'form_success_message' => 'Paldies. Mēs ar jums sazināsimies.', 'form_invalid_message' => 'Lūdzu, aizpildiet visus laukus un atzīmējiet piekrišanu.', 'form_phone_invalid_message' => 'Lūdzu, ievadiet derīgu tālruņa numuru.',
 	);
 	$en = array(
 		'hero_eyebrow' => 'WORKPLACE FOOD, FULLY MANAGED',
-		'hero_title' => 'Fresh, healthy food at your workplace, 24/7.',
+		'hero_title' => 'Fresh, healthy food at your workplace, 24/7',
 		'hero_text' => 'Fully managed food vending with fresh meals, snacks and drinks for offices, production sites and logistics centres. We install, deliver, refill and maintain the service.',
 		'hero_cta' => 'Book a consultation', 'hero_cta_url' => '#pieteikties',
 		'intro_eyebrow' => 'WHY JANOGAGO',
-		'intro_title' => 'Lunch, without the logistics.',
+		'intro_title' => 'Lunch, without the logistics',
 		'intro_text' => 'The JāņogaGO team prepares the food, refills the machines and looks after the equipment. Your team simply chooses what they feel like.',
 		'stat_one' => 'FRESHLY PREPARED EVERY DAY', 'stat_two' => 'CARD, PHONE OR SMARTWATCH', 'stat_three' => 'HYGIENE AND TEMPERATURE CONTROLLED',
 		'menu_eyebrow' => 'MORE THAN SNACKS',
-		'menu_title' => 'Lunch worth taking a break for.',
+		'menu_title' => 'Lunch worth taking a break for',
 		'menu_text' => 'Warm meals, good coffee and everything in between. We shape the selection around the people who use it.',
 		'menu_one' => 'Hot lunch', 'menu_two' => 'Salads and bowls', 'menu_three' => 'Sandwiches and desserts', 'menu_four' => 'Coffee and drinks',
 		'models_eyebrow' => 'TWO WAYS TO WORK TOGETHER',
-		'models_title' => 'Choose the model. We handle the rest.',
+		'models_title' => 'Choose the model. We handle the rest',
 		'model_one_title' => 'Fully managed service',
 		'model_one_text' => 'For offices, production sites and logistics centres with 30+ employees. We install the machine, deliver fresh food, refill the selection regularly and look after the equipment. Your team simply chooses what they feel like.',
 		'model_two_title' => 'Equipment lease',
 		'model_two_text' => 'For teams that want to build and manage the selection themselves. We provide the equipment, technical support and payment system.',
 		'process_eyebrow' => 'HOW IT WORKS',
-		'process_title' => 'From the first call to the first lunch.',
+		'process_title' => 'From the first call to the first lunch',
 		'step_one' => 'We learn about your workplace', 'step_one_text' => 'We look at headcount, shifts and what will actually work for your people.',
 		'step_two' => 'We plan the service', 'step_two_text' => 'You get a clear proposal for equipment, food and the right service model.',
 		'step_three' => 'We install and run it', 'step_three_text' => 'We deliver, refill and respond whenever you need us.',
 		'contact_eyebrow' => 'START WITH A CONSULTATION',
-		'contact_title' => 'Bring restaurant-level food to your workplace.',
+		'contact_title' => 'Bring restaurant-level food to your workplace',
 		'contact_text' => 'Tell us about your company. We will come back with a practical proposal and arrange a consultation.',
 		'contact_email' => 'info@janoga.lv', 'contact_phone' => '+371 28 317 179', 'contact_address' => 'Riga, Latvia',
 		'form_company_label' => 'Company', 'form_name_label' => 'Your name', 'form_email_label' => 'Email', 'form_phone_label' => 'Phone', 'form_people_label' => 'Number of people', 'form_message_label' => 'What do you need?', 'form_privacy_label' => 'I agree that JāņogaGO may use the information I provide to contact me about my request.', 'form_submit_label' => 'Send enquiry', 'form_success_message' => 'Thank you. We will be in touch.', 'form_invalid_message' => 'Please complete every field and consent checkbox.', 'form_phone_invalid_message' => 'Please enter a valid phone number.',
@@ -421,7 +421,7 @@ function jg_block_faq_item( $question, $answer ) {
 
 function jg_faq_section_blocks( $language ) {
 	$is_en = $language === 'en';
-	$title = $is_en ? 'Questions, answered.' : 'Biežāk uzdotie jautājumi.';
+	$title = $is_en ? 'Questions, answered' : 'Biežāk uzdotie jautājumi';
 	$questions = $is_en ? array(
 		'How large does our team need to be?' => 'The fully managed service is designed for offices, production sites and logistics centres with 30+ employees.',
 		'What is included in the fully managed service?' => 'We install the machine, bring fresh food, refill the selection regularly and look after maintenance.',
@@ -456,7 +456,7 @@ function jg_machine_section_blocks( $language ) {
 		$card = jg_block_image( jg_seed_attachment( $machine[3] ), $machine[4] ) . jg_block_heading( $machine[0], 3 ) . jg_block_paragraph( $machine[1] ) . jg_block_paragraph( $machine[2], 'jg-machine-specs' );
 		$cards .= jg_block_column( jg_block_group( $card, 'jg-machine-card', 'article' ) );
 	}
-	$title = $is_en ? 'Explore our food vending machines.' : 'Apskatīt ēdienu automātus.';
+	$title = $is_en ? 'Explore our food vending machines' : 'Apskatīt ēdienu automātus';
 	$intro = $is_en ? 'Two machine formats for different workplaces.' : 'Divi automātu modeļi dažādām darba vietām.';
 	return jg_block_group( jg_block_heading( $title, 2 ) . jg_block_paragraph( $intro, 'jg-section-lede' ) . jg_block_columns( $cards, 'jg-machine-grid' ), 'machines section jg-block-section jg-block-machines', 'section', 'automati' );
 }
@@ -477,7 +477,7 @@ function jg_food_range_section_blocks( $language ) {
 		$card = jg_block_image( jg_seed_attachment( $item[2] ), $item[3] ) . jg_block_heading( $item[0], 3 ) . jg_block_paragraph( $item[1] );
 		$cards .= jg_block_column( jg_block_group( $card, 'jg-food-card', 'article' ) );
 	}
-	$title = $is_en ? 'Food for every kind of workday.' : 'Ēdiens katrai darba dienai.';
+	$title = $is_en ? 'Food for every kind of workday' : 'Ēdiens katrai darba dienai';
 	$intro = $is_en ? 'Hot lunches, fresh bowls and something small for the afternoon.' : 'Siltas pusdienas, svaigas bļodas un nelieli kārumi darba dienai.';
 	return jg_block_group( jg_block_heading( $title, 2 ) . jg_block_paragraph( $intro, 'jg-section-lede' ) . jg_block_columns( $cards, 'jg-food-grid' ), 'food-range section jg-block-section jg-block-food-range', 'section', 'sortiments' );
 }
@@ -495,7 +495,7 @@ function jg_clients_section_blocks( $language ) {
 	foreach ( $clients as $client ) {
 		$wordmarks .= jg_block_column( jg_block_group( jg_block_image( jg_seed_attachment( $client[1] ), $client[0] . ' logo' ), 'jg-client-wordmark', 'div' ) );
 	}
-	$title = $is_en ? 'Trusted by teams who keep moving.' : 'Mūs jau novērtē.';
+	$title = $is_en ? 'Trusted by teams who keep moving' : 'Mūs jau novērtē';
 	$intro = $is_en ? 'From production and retail to logistics.' : 'No ražotnēm līdz mazumtirdzniecībai un loģistikai.';
 	return jg_block_group( jg_block_heading( $title, 2 ) . jg_block_paragraph( $intro, 'jg-section-lede' ) . jg_block_columns( $wordmarks, 'jg-client-grid' ), 'clients section jg-block-section jg-block-clients', 'section', 'klienti' );
 }
@@ -1014,3 +1014,4 @@ function jg_fallback_menu() {
 
 require_once get_template_directory() . '/inc/business-content.php';
 require_once get_template_directory() . '/inc/product-catalog.php';
+require_once get_template_directory() . '/inc/hero-model.php';

@@ -23,19 +23,21 @@ try {
 		$pages[$language] = $id;
 		pll_set_post_language( $id, $language );
 	}
+	$references = array( array( 'blockName' => 'core/image', 'attrs' => array( 'id' => 1, 'jgModelId' => 2, 'jgModelPosterId' => 3 ), 'innerBlocks' => array() ) );
+	jgcs_assert( array_values( jgcs_media_ids( $references ) ) === array( 1, 2, 3 ), 'Export did not collect original, model and preview references.' );
 	// A small valid PNG fixture, staged outside the theme and Media Library.
 	$png = base64_decode( 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a0f8AAAAASUVORK5CYII=' );
 	$existing = get_posts( array( 'post_type' => 'attachment', 'post_mime_type' => 'image/png', 'post_status' => 'inherit', 'numberposts' => 1, 'orderby' => 'ID', 'order' => 'ASC' ) )[0];
 	$existing_path = get_attached_file( $existing->ID );
 	$existing_hash = hash_file( 'sha256', $existing_path );
-	// Deliberately collide with an existing filename. WordPress must create a new name.
+	// Deliberately collide with an existing filename. WordPress must preserve the existing file, using a new path or name.
 	$name = basename( $existing_path );
 	file_put_contents( "$root/media/fixture.png", $png );
 	$url = 'http://source.test/wp-content/uploads/2026/09/' . $name;
 	$content = serialize_blocks( array( array(
 		'blockName' => 'core/group', 'attrs' => array(), 'innerHTML' => '<div class="wp-block-group"></div>',
 		'innerContent' => array( '<div class="wp-block-group">', null, '</div>' ),
-		'innerBlocks' => array( array( 'blockName' => 'core/image', 'attrs' => array( 'id' => 900000 ), 'innerBlocks' => array(),
+		'innerBlocks' => array( array( 'blockName' => 'core/image', 'attrs' => array( 'id' => 900000, 'jgModelId' => 900001, 'jgModelPosterId' => 900000, 'jgModelPause' => 'Pause fixture' ), 'innerBlocks' => array(),
 			'innerHTML' => '<figure class="wp-block-image"><img src="' . $url . '" alt="Fixture" class="wp-image-900000"/></figure>',
 			'innerContent' => array( '<figure class="wp-block-image"><img src="' . $url . '" alt="Fixture" class="wp-image-900000"/></figure>' ),
 		) ),
@@ -45,6 +47,20 @@ try {
 		'url' => $url, 'metadata' => array(), 'title' => "Fixture's title", 'caption' => 'Fixture caption',
 		'description' => 'Fixture description', 'alt' => 'Fixture alt',
 	) ) );
+	// A minimal glTF 2 GLB, with no image metadata, exercises --skip-themes uploads.
+	$json = wp_json_encode( array( 'asset' => array( 'version' => '2.0' ), 'scene' => 0, 'scenes' => array( (object) array() ) ) );
+	$json .= str_repeat( ' ', ( 4 - strlen( $json ) % 4 ) % 4 );
+	$glb = 'glTF' . pack( 'VV', 2, 20 + strlen( $json ) ) . pack( 'V', strlen( $json ) ) . 'JSON' . $json;
+	file_put_contents( "$root/media/fixture.glb", $glb );
+	jgcs_assert( jgcs_valid_glb( "$root/media/fixture.glb" ), 'Valid GLB rejected.' );
+	jgcs_assert( ! jgcs_valid_glb( "$root/media/fixture.png" ), 'Image accepted as GLB.' );
+	$dimensions = array( 'height' => 1930, 'width' => 1105, 'depth' => 760, 'confirmed' => false );
+	$release['media'][900001] = array(
+		'filename' => 'fixture.glb', 'staged' => 'fixture.glb', 'sha256' => hash( 'sha256', $glb ),
+		'mime_type' => 'model/gltf-binary', 'metadata' => array(), 'model_dimensions' => $dimensions,
+		'url' => 'http://source.test/wp-content/uploads/2026/09/fixture.glb', 'title' => 'Model fixture',
+		'caption' => '', 'description' => '', 'alt' => '',
+	);
 	foreach ( $pages as $language => $id ) { $release['pages'][$language] = array( 'content' => $content, 'url' => "http://source.test/$language/" ); }
 	jgcs_write_json( "$root/release.json", $release );
 	$attachments_before = get_posts( array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'numberposts' => -1, 'fields' => 'ids' ) );
@@ -55,19 +71,31 @@ try {
 	jgcs_import( $root, true, "$root/backup1", $pages );
 	$state = json_decode( file_get_contents( "$root/backup1/pages-before.json" ), true );
 	$media_ids = $state['new_media'];
-	jgcs_assert( count( $media_ids ) === 1, 'Expected one native Media Library import.' );
+	jgcs_assert( count( $media_ids ) === 2, 'Expected native image and GLB imports.' );
 	$attachment = get_post( $media_ids[0] );
 	jgcs_assert( $attachment->post_title === "Fixture's title" && $attachment->post_content === 'Fixture description', 'Media text was not preserved.' );
 	$metadata = wp_get_attachment_metadata( $attachment->ID );
 	jgcs_assert( is_file( get_attached_file( $attachment->ID ) ) && ! empty( $metadata['width'] ), 'Native image file or metadata is missing.' );
-	jgcs_assert( basename( get_attached_file( $attachment->ID ) ) !== $name, 'Import did not avoid the existing filename.' );
+	jgcs_assert( get_attached_file( $attachment->ID ) !== $existing_path, 'Import overwrote an existing attachment path.' );
+	$model_id = $media_ids[1];
+	jgcs_assert( get_post_mime_type( $model_id ) === 'model/gltf-binary', 'Model MIME type not preserved.' );
+	jgcs_assert( hash_file( 'sha256', get_attached_file( $model_id ) ) === hash( 'sha256', $glb ), 'Model file changed.' );
+	jgcs_assert( get_post_meta( $model_id, '_jg_model_dimensions_mm', true ) === $dimensions, 'Model dimensions lost.' );
 	foreach ( $pages as $language => $id ) {
 		$post = get_post( $id );
 		$blocks = parse_blocks( $post->post_content );
 		jgcs_assert( $blocks[0]['innerBlocks'][0]['attrs']['id'] === $attachment->ID, 'Nested image ID was not mapped.' );
+		jgcs_assert( $blocks[0]['innerBlocks'][0]['attrs']['jgModelId'] === $model_id, 'Nested model ID was not mapped.' );
+		jgcs_assert( $blocks[0]['innerBlocks'][0]['attrs']['jgModelPosterId'] === $attachment->ID, 'Preview attachment ID was not mapped.' );
+		jgcs_assert( $blocks[0]['innerBlocks'][0]['attrs']['jgModelPause'] === 'Pause fixture', 'Model label changed.' );
 		jgcs_assert( strpos( $post->post_content, 'source.test' ) === false && strpos( $post->post_content, 'wp-image-' . $attachment->ID ) !== false, 'Image URL or HTML class was not mapped.' );
 		jgcs_assert( $post->post_title === "Content-sync test $language" && $post->post_status === 'publish', 'Existing page fields were replaced.' );
 	}
+	mkdir( "$root/export", 0700 );
+	jgcs_export( "$root/export", array( 'lv', 'en' ), $pages );
+	$exported = json_decode( file_get_contents( "$root/export/release.json" ), true );
+	jgcs_assert( count( $exported['media'] ) === 2, 'Export omitted image or GLB.' );
+	jgcs_assert( $exported['media'][$model_id]['sha256'] === hash( 'sha256', $glb ) && $exported['media'][$model_id]['model_dimensions'] === $dimensions, 'Export changed model or dimensions.' );
 	$revisions_before = count( wp_get_post_revisions( $pages['lv'] ) );
 	mkdir( "$root/backup2", 0700 );
 	jgcs_import( $root, true, "$root/backup2", $pages );
@@ -92,4 +120,4 @@ try {
 	rmdir( $root );
 }
 if ( $failure ) { WP_CLI::error( $failure ); }
-WP_CLI::success( 'Content sync: dry run, native media import, nested ID/URL mapping, repeat run, backups and unrelated-page preservation passed; fixtures removed.' );
+WP_CLI::success( 'Content sync: dry run, native image/GLB import and export, dimensions, nested image/model ID mapping, repeat run, backups and unrelated-page preservation passed; fixtures removed.' );
