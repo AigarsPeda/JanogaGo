@@ -36,6 +36,55 @@
  max-width: 75ch;
 }
 .janogago-blocks .experience { background: var(--cream); }
+/* Real machine photos remain native, replaceable WordPress Image blocks. */
+.janogago-blocks .vending-showcase {
+ background: var(--ink);
+ color: var(--cream);
+ padding-block: clamp(72px, 8vw, 112px);
+}
+.janogago-blocks .jg-vending-intro {
+ align-items: end;
+ display: grid;
+ gap: 40px;
+ grid-template-columns: 1.25fr 1fr;
+}
+.janogago-blocks .jg-vending-intro h2 { margin: 0; max-width: 650px; }
+.janogago-blocks .jg-vending-intro .jg-section-lede { color: #d2cdc2; margin: 0; max-width: 42ch; }
+.janogago-blocks .jg-vending-intro > .wp-block-group__inner-container,
+.janogago-blocks .jg-vending-display > .wp-block-group__inner-container { display: contents; }
+.janogago-blocks .jg-vending-display {
+ align-items: end;
+ display: grid;
+ gap: clamp(20px, 3vw, 48px);
+ grid-template-columns: 1fr 1fr 1.8fr;
+ margin-top: 56px;
+}
+.janogago-blocks .jg-vending-photo {
+ height: clamp(300px, 32vw, 460px);
+ margin: 0;
+ min-width: 0;
+ overflow: hidden;
+ position: relative;
+}
+/* Frame the supplied transparent canvases without modifying the original photos. */
+.janogago-blocks .jg-vending-photo img {
+ bottom: var(--photo-bottom, 0%);
+ height: var(--photo-height, 100%);
+ left: 50%;
+ max-width: none;
+ position: absolute;
+ transform: translateX(var(--photo-center, -50%));
+ width: auto;
+}
+.janogago-blocks .jg-vending-photo-front { --photo-height: 144.09%; --photo-bottom: -21.38%; --photo-center: -50.59%; }
+.janogago-blocks .jg-vending-photo-side { --photo-height: 126.21%; --photo-bottom: -8.78%; --photo-center: -44.16%; }
+.janogago-blocks .jg-vending-photo-double { --photo-height: 107.08%; --photo-bottom: -1.23%; --photo-center: -50.25%; }
+@media (max-width: 850px) {
+ .janogago-blocks .jg-vending-intro { grid-template-columns: 1fr; gap: 24px; }
+ .janogago-blocks .jg-vending-display { gap: 28px 20px; grid-template-columns: 1fr 1fr; margin-top: 40px; }
+ .janogago-blocks .jg-vending-photo { height: clamp(205px, 61vw, 350px); }
+ .janogago-blocks .jg-vending-photo-double { grid-column: 1 / -1; height: clamp(280px, 80vw, 440px); }
+}
 .janogago-blocks .clients { background: var(--paper); }
 .janogago-blocks .jg-experience-layout {
  display: grid;
