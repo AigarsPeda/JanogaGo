@@ -13,6 +13,18 @@
 }
 .janogago-blocks h3 { letter-spacing: -.025em; }
 .janogago-blocks .hero-copy { padding-top: 80px; padding-bottom: 80px; }
+.janogago-blocks .hero-visual.hero-machine {
+ background: linear-gradient(90deg, var(--ink), #101010 45%, #080808);
+}
+.janogago-blocks .hero-visual.hero-machine:after { content: none; }
+.janogago-blocks .hero-visual.hero-machine img {
+ filter: none;
+ height: 72%;
+ inset: 14%;
+ object-fit: contain;
+ object-position: center;
+ width: 72%;
+}
 @media (min-width: 851px) {
  .janogago-blocks .hero { grid-template-columns: 1fr 1fr; }
  .janogago-blocks .hero-copy { align-self: center; }
@@ -144,6 +156,10 @@
  .janogago-blocks h2 { font-size: clamp(36px, 8.5vw, 58px); }
  .janogago-blocks .jg-experience-number { font-size: 56px; }
  .janogago-blocks .hero-visual { min-height: 400px; }
+ .janogago-blocks .hero-visual.hero-machine {
+  background: linear-gradient(180deg, var(--ink), #101010 30%, #080808);
+  height: clamp(500px, 135vw, 650px);
+ }
  .janogago-blocks .jg-responsibility-grid { margin-top: 36px; }
  .janogago-blocks .section,
  .janogago-blocks .contact { padding: 72px 24px; }

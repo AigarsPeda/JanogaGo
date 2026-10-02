@@ -176,8 +176,8 @@ function jg_business_home_blocks( $language, $page_id ) {
 	$is_en = $language === 'en';
 	$copy = jg_defaults( $language );
 	$hero_copy = jg_block_heading( $copy['hero_title'], 1 ) . jg_block_paragraph( $copy['hero_text'], 'lede' ) . jg_block_button( $copy['hero_cta'], '#pieteikties', 'button button-light' );
-	$hero_visual = jg_block_image( jg_seed_attachment( 'leyli-sadeqian-wSmhn8taZpc-unsplash.jpg' ), $is_en ? 'Hot dog and fries in takeaway trays' : 'Hotdogs un frī kartupeļi līdzņemšanas iepakojumos' );
-	$hero = jg_block_group( jg_block_columns( jg_block_column( $hero_copy, 'hero-copy', 'center' ) . jg_block_column( $hero_visual, 'hero-visual', 'center' ), 'jg-block-hero-layout', 'center' ), 'hero jg-block-section jg-block-hero' );
+	$hero_visual = jg_block_image( jg_seed_attachment( 'janoga-go-automats-clean-logo-up.png' ), $is_en ? 'JāņogaGO food vending machine' : 'JāņogaGO ēdienu automāts' );
+	$hero = jg_block_group( jg_block_columns( jg_block_column( $hero_copy, 'hero-copy', 'center' ) . jg_block_column( $hero_visual, 'hero-visual hero-machine', 'center' ), 'jg-block-hero-layout', 'center' ), 'hero jg-block-section jg-block-hero' );
 	$clients = strtr( jg_clients_section_blocks( $language ), $is_en ? array( 'Trusted by teams who keep moving.' => 'Clients who have trusted us.', 'From production and retail to logistics.' => 'Companies we have served through our catering services.' ) : array( 'Mūs jau novērtē.' => 'Klienti, kuri mums uzticējušies.', 'No ražotnēm līdz mazumtirdzniecībai un loģistikai.' => 'Uzņēmumi, kuriem esam nodrošinājuši ēdināšanu.' ) );
 	$footer = jg_block_group( jg_block_paragraph( $copy['contact_address'], 'jg-footer-address' ) . jg_block_paragraph( '© ' . gmdate( 'Y' ) . ' ' . get_bloginfo( 'name' ), 'jg-footer-copyright' ), 'jg-block-footer-content', 'div' );
 	return $hero . jg_business_food_blocks( $language ) . jg_business_experience_blocks( $language ) . $clients . jg_business_service_blocks( $language ) . jg_business_suitability_blocks( $language ) . jg_business_process_blocks( $language ) . jg_business_faq_blocks( $language ) . jg_business_contact_blocks( $language, $page_id ) . $footer;

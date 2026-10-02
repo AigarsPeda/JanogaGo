@@ -177,12 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
       event.preventDefault();
       updateCatalog(link.href);
     }));
-    results.addEventListener('click', event => {
-      const pageLink = event.target.closest('.jg-product-pages a');
-      if (!pageLink) return;
-      event.preventDefault();
-      updateCatalog(pageLink.href, true, true);
-    });
     window.addEventListener('popstate', () => updateCatalog(window.location.href, false));
   }
   const observer = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('in-view'); }), { threshold: .12 });

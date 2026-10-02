@@ -159,8 +159,7 @@
 .janogago-blocks .jg-catalog-results.is-resizing { transition: height .45s cubic-bezier(.22, 1, .36, 1); }
 .janogago-blocks .jg-catalog-results.is-revealing .jg-product-group h2,
 .janogago-blocks .jg-catalog-results.is-revealing .jg-product-card,
-.janogago-blocks .jg-catalog-results.is-revealing .jg-products-empty,
-.janogago-blocks .jg-catalog-results.is-revealing .jg-product-pages { animation: jg-catalog-enter .42s both; }
+.janogago-blocks .jg-catalog-results.is-revealing .jg-products-empty { animation: jg-catalog-enter .42s both; }
 .janogago-blocks .jg-catalog-results.is-revealing .jg-product-card:nth-child(2) { animation-delay: .06s; }
 .janogago-blocks .jg-catalog-results.is-revealing .jg-product-card:nth-child(3) { animation-delay: .12s; }
 @keyframes jg-catalog-enter {
@@ -177,11 +176,6 @@
  margin: 0 0 25px;
 }
 .janogago-blocks .jg-products-empty { border-top: 1px solid var(--line); font-size: 17px; padding: 50px 0; }
-.janogago-blocks .jg-product-pages { margin-top: 44px; }
-.janogago-blocks .jg-product-pages ul { display: flex; gap: 9px; list-style: none; margin: 0; padding: 0; }
-.janogago-blocks .jg-product-pages a,
-.janogago-blocks .jg-product-pages span { align-items: center; border: 1px solid var(--line); display: flex; height: 37px; justify-content: center; min-width: 37px; padding: 0 8px; }
-.janogago-blocks .jg-product-pages .current { background: var(--ink); color: var(--cream); }
 .janogago-blocks .jg-catalog-contact { background: var(--green); padding: 70px clamp(24px, 7vw, 115px); }
 .janogago-blocks .jg-catalog-contact h2 { max-width: 800px; }
 @media (min-width: 701px) {
@@ -277,6 +271,5 @@
  .janogago-blocks .jg-catalog-results { transition: none; }
  .janogago-blocks .jg-catalog-results.is-revealing .jg-product-group h2,
  .janogago-blocks .jg-catalog-results.is-revealing .jg-product-card,
- .janogago-blocks .jg-catalog-results.is-revealing .jg-products-empty,
- .janogago-blocks .jg-catalog-results.is-revealing .jg-product-pages { animation: none; }
+ .janogago-blocks .jg-catalog-results.is-revealing .jg-products-empty { animation: none; }
 }

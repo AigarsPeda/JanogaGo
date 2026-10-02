@@ -14,7 +14,7 @@ The local WordPress site has one `Ēdieni / Products` entry per dish. Add, edit,
 
 Local pages: `/edieni/` and `/en/food/`. The `Drinks` and `Snacks` filters are present but disabled until a published product uses those categories. Dietary tags should be set only after checking the recipe; photos do not establish ingredients.
 
-Catalog filters and pagination update results in place with a short animation. The URL and browser Back button reflect the selected filters; standard page navigation remains available when JavaScript is disabled.
+The catalog shows all dishes on one page, grouped by category. Filters update results in place with a short animation. The URL and browser Back button reflect the selected filters; standard page navigation remains available when JavaScript is disabled.
 
 `scripts/setup-local-food-catalog.php` is the one-time, idempotent Local page setup. It creates the bilingual food pages and replaces the old illustrative homepage cards. Add products and categories in WordPress, or restore them from a database backup. The script refuses non-local sites and saves the old homepage content in `/tmp` before replacement.
 

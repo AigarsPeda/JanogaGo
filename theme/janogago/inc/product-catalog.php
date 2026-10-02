@@ -173,7 +173,6 @@ function jg_products_shortcode( $attributes ) {
 	$vegan = ! empty( $_GET['vegan'] ) && $_GET['vegan'] === '1';
 	$vegetarian = ! empty( $_GET['vegetarian'] ) && $_GET['vegetarian'] === '1';
 	$gluten_free = ! empty( $_GET['gluten_free'] ) && $_GET['gluten_free'] === '1';
-	$page = $featured ? 1 : max( 1, absint( $_GET['food_page'] ?? 1 ) );
 	$query = array( 'post_type' => 'jg_product', 'post_status' => 'publish', 'suppress_filters' => true, 'orderby' => array( 'menu_order' => 'ASC', 'title' => 'ASC' ), 'posts_per_page' => -1 );
 	if ( $featured ) {
 		$query['meta_query'] = array( array( 'key' => '_jg_on_home', 'value' => '1' ) );
@@ -204,24 +203,12 @@ function jg_products_shortcode( $attributes ) {
 		}
 		$groups[ $slug ]['posts'][] = $product;
 	}
-	$ordered = array();
-	foreach ( $groups as $slug => $group ) {
-		foreach ( $group['posts'] as $product ) { $ordered[] = array( 'slug' => $slug, 'name' => $group['name'], 'post' => $product ); }
+	foreach ( $groups as $group ) {
+		if ( ! $group['posts'] ) { continue; }
+		$cards .= '<section class="jg-product-group"><h2>' . esc_html( $group['name'] ) . '</h2><div class="jg-products-grid">';
+		foreach ( $group['posts'] as $product ) { $cards .= jg_product_card( $product->ID, $lang, true ); }
+		$cards .= '</div></section>';
 	}
-	$total = count( $ordered );
-	$total_pages = max( 1, (int) ceil( $total / 12 ) );
-	$page = min( $page, $total_pages );
-	$visible = array_slice( $ordered, ( $page - 1 ) * 12, 12 );
-	$previous_group = '';
-	foreach ( $visible as $item ) {
-		if ( $previous_group !== $item['slug'] ) {
-			if ( $previous_group ) { $cards .= '</div></section>'; }
-			$cards .= '<section class="jg-product-group"><h2>' . esc_html( $item['name'] ) . '</h2><div class="jg-products-grid">';
-			$previous_group = $item['slug'];
-		}
-		$cards .= jg_product_card( $item['post']->ID, $lang, true );
-	}
-	if ( $previous_group ) { $cards .= '</div></section>'; }
 	$all_current = ! $selected && ! $vegan && ! $vegetarian && ! $gluten_free;
 	$filters = '<form class="jg-product-filters" method="get"><fieldset><legend class="jg-visually-hidden">' . esc_html( $copy['category'] ) . '</legend>';
 	$filters .= '<a class="jg-filter-option jg-filter-all' . ( $all_current ? ' is-current' : '' ) . '" href="' . esc_url( get_permalink( get_queried_object_id() ) ) . '"' . ( $all_current ? ' aria-current="true"' : '' ) . '><span class="jg-filter-check" aria-hidden="true"></span><span>' . esc_html( $copy['all'] ) . '</span></a>';
@@ -239,14 +226,6 @@ function jg_products_shortcode( $attributes ) {
 	$out .= '<button class="jg-filter-toggle" type="button" aria-expanded="true" aria-controls="jg-filter-panel" hidden><span class="jg-filter-toggle-label">' . esc_html( $copy['filter'] ) . '</span><span class="jg-filter-count" aria-hidden="true" hidden></span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 9 7 7 7-7"/></svg></button>';
 	$out .= '<div class="jg-filter-panel" id="jg-filter-panel">' . $filters . '</div></aside><div class="jg-catalog-results">';
 	$out .= $cards ?: '<p class="jg-products-empty">' . esc_html( $copy['empty'] ) . '</p>';
-	if ( $total_pages > 1 ) {
-		$out .= '<nav class="jg-product-pages" aria-label="' . esc_attr( $lang === 'en' ? 'Product pages' : 'Ēdienu lapas' ) . '"><ul>';
-		for ( $number = 1; $number <= $total_pages; $number++ ) {
-			$url = add_query_arg( array( 'food_page' => $number === 1 ? null : $number, 'food_category' => $selected ?: null, 'vegan' => $vegan ? '1' : null, 'vegetarian' => $vegetarian ? '1' : null, 'gluten_free' => $gluten_free ? '1' : null ), get_permalink( get_queried_object_id() ) );
-			$out .= '<li><a href="' . esc_url( $url ) . '"' . ( $number === $page ? ' class="current" aria-current="page"' : '' ) . '>' . (int) $number . '</a></li>';
-		}
-		$out .= '</ul></nav>';
-	}
 	return $out . '</div></div>';
 }
 add_shortcode( 'jg_products', 'jg_products_shortcode' );
