@@ -1,3 +1,9 @@
 .DS_Store
 Thumbs.db
 scripts/janogago-droplet.env
+
+# Local presentation work and generated previews
+/.*presentation-build/
+/design-previews/
+/output/
+/AGENTS.md
