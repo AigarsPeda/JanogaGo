@@ -56,16 +56,16 @@ foreach ( $content as $lang => $page ) {
 				foreach ( (array) $text as $paragraph_text ) {
 					$paragraph = jg_block_paragraph( $paragraph_text );
 					$paragraph = str_replace( 'info@janoga.lv', '<a href="mailto:info@janoga.lv">info@janoga.lv</a>', $paragraph );
-					$paragraph = str_replace( 'https://www.dvi.gov.lv/', '<a href="https://www.dvi.gov.lv/">https://www.dvi.gov.lv/</a>', $paragraph );
+					$paragraph = str_replace( 'https://www.dvi.gov.lv/', '<a href="https://www.dvi.gov.lv/" target="_blank" rel="noopener noreferrer">https://www.dvi.gov.lv/</a>', $paragraph );
 					$blocks .= $paragraph;
 				}
 				if ( is_array( $text ) ) {
 					$label = $lang === 'en' ? 'Google data processing terms' : 'Google datu apstrādes noteikumi';
-					$blocks .= jg_block( 'paragraph', array(), '<p><a href="https://business.safety.google/adsprocessorterms/">' . esc_html( $label ) . '</a></p>' );
+					$blocks .= jg_block( 'paragraph', array(), '<p><a href="https://business.safety.google/adsprocessorterms/" target="_blank" rel="noopener noreferrer">' . esc_html( $label ) . '</a></p>' );
 				}
 				if ( str_starts_with( $heading, 'Google Analytics' ) ) {
 					$label = $lang === 'en' ? 'How Google uses information from websites that use its services' : 'Kā Google izmanto informāciju no vietnēm, kurās tiek lietoti tā pakalpojumi';
-					$blocks .= jg_block( 'paragraph', array(), '<p><a href="https://policies.google.com/technologies/partner-sites">' . esc_html( $label ) . '</a></p>' );
+					$blocks .= jg_block( 'paragraph', array(), '<p><a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">' . esc_html( $label ) . '</a></p>' );
 				}
 			}
 			$id = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => $page['title'], 'post_name' => $page['slug'], 'post_content' => $blocks ), true );
