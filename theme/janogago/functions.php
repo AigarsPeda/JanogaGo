@@ -17,7 +17,7 @@ add_action( 'after_setup_theme', 'jg_setup' );
 
 function jg_enqueue_assets() {
 	$version = wp_get_theme()->get( 'Version' );
-	wp_enqueue_style( 'janogago-fonts', 'https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap', array(), null );
+	wp_enqueue_style( 'janogago-fonts', get_template_directory_uri() . '/assets/css/fonts.css', array(), $version );
 	wp_enqueue_style( 'janogago', get_stylesheet_uri(), array( 'janogago-fonts' ), $version );
 	wp_enqueue_style( 'janogago-business', get_template_directory_uri() . '/assets/css/business.css', array( 'janogago' ), $version );
 	wp_enqueue_style( 'janogago-food', get_template_directory_uri() . '/assets/css/food.css', array( 'janogago-business' ), $version );
@@ -251,7 +251,7 @@ function jg_is_valid_phone_number( $phone ) {
 	return strlen( $digits ) >= 7 && strlen( $digits ) <= 15;
 }
 
-function jg_enquiry_redirect( $status, $errors = array() ) {
+function jg_enquiry_redirect( $status, $errors = array(), $lead_created = false ) {
 	if ( ( $_POST['jg_ajax'] ?? '' ) === '1' ) {
 		$copy = jg_enquiry_page_copy( absint( $_POST['page_id'] ?? 0 ) );
 		$key = $status === 'sent' ? 'success' : $status;
@@ -260,7 +260,7 @@ function jg_enquiry_redirect( $status, $errors = array() ) {
 			$field = array_key_first( $errors );
 			$message = ( isset( $copy[ $field ] ) ? $copy[ $field ] . ': ' : '' ) . reset( $errors );
 		}
-		wp_send_json( array( 'success' => $status === 'sent', 'status' => $status, 'message' => $message, 'errors' => $errors, 'nonce' => wp_create_nonce( 'jg_submit_enquiry' ) ), $status === 'sent' ? 200 : ( $status === 'rate_limited' ? 429 : 422 ) );
+		wp_send_json( array( 'success' => $status === 'sent', 'status' => $status, 'lead_created' => $lead_created, 'message' => $message, 'errors' => $errors, 'nonce' => wp_create_nonce( 'jg_submit_enquiry' ) ), $status === 'sent' ? 200 : ( $status === 'rate_limited' ? 429 : 422 ) );
 	}
 	$url = get_permalink( absint( $_POST['page_id'] ?? 0 ) ) ?: wp_get_referer() ?: home_url( '/' );
 	$url = explode( '#', $url, 2 )[0];
@@ -319,7 +319,7 @@ function jg_submit_enquiry() {
 	$mail_sent = is_email( $recipient ) && wp_mail( $recipient, 'JāņogaGO website enquiry: ' . $company, $body, array( 'Reply-To: ' . $name . ' <' . $email . '>' ) );
 	update_post_meta( $post_id, '_jg_notification_sent', (int) $mail_sent );
 	set_transient( jg_enquiry_fingerprint( $details ), 'sent', 10 * MINUTE_IN_SECONDS );
-	jg_enquiry_redirect( 'sent' );
+	jg_enquiry_redirect( 'sent', array(), true );
 }
 add_action( 'admin_post_nopriv_jg_submit_enquiry', 'jg_submit_enquiry' );
 add_action( 'admin_post_jg_submit_enquiry', 'jg_submit_enquiry' );
@@ -1072,3 +1072,4 @@ require_once get_template_directory() . '/inc/enquiry.php';
 require_once get_template_directory() . '/inc/business-content.php';
 require_once get_template_directory() . '/inc/product-catalog.php';
 require_once get_template_directory() . '/inc/hero-model.php';
+require_once get_template_directory() . '/inc/privacy.php';

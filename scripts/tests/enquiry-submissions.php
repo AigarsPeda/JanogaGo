@@ -43,10 +43,13 @@ try {
  $expect( $request( array( 'phone' => '0' ) ), 'invalid', 'phone' );
  $expect( $request( array( 'email' => array( 'malformed' ) ) ), 'invalid' );
  $expect( $request( array( 'jg_enquiry_nonce' => 'expired' ) ), 'expired' );
- $expect( $request( array( 'jg_website' => 'bot.example' ) ), 'sent' );
+ $honeypot = $request( array( 'jg_website' => 'bot.example' ) );
+ $expect( $honeypot, 'sent' );
+ if ( $honeypot['lead_created'] ) { throw new RuntimeException( 'Honeypot must not count as an analytics conversion.' ); }
  if ( $mail_count || $leads ) { throw new RuntimeException( 'Invalid requests or honeypot saved/sent an enquiry.' ); }
- $expect( $request(), 'sent' );
- $expect( $request(), 'sent' );
+ $first = $request(); $duplicate = $request();
+ $expect( $first, 'sent' ); $expect( $duplicate, 'sent' );
+ if ( ! $first['lead_created'] || $duplicate['lead_created'] ) { throw new RuntimeException( 'Only a newly saved lead may count as an analytics conversion.' ); }
  if ( $mail_count !== 1 || count( $leads ) !== 1 ) { throw new RuntimeException( 'An identical retry created a duplicate.' ); }
  $expect( $request( array( 'company' => $fixture . ' second', 'page_id' => $pages['en'] ) ), 'sent' );
  if ( $mail_count !== 2 ) { throw new RuntimeException( 'A second distinct enquiry should be accepted.' ); }

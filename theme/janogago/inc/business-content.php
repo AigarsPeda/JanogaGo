@@ -280,6 +280,7 @@ function jg_render_editable_form( $content, $block ) {
 	}
 	if ( isset( $copy['privacy'] ) ) {
 		$html .= '<label class="full jg-privacy-consent"><input required name="privacy_consent" type="checkbox" value="1"><span>' . esc_html( $copy['privacy'] ) . '</span></label>';
+		if ( jg_privacy_url() ) { $html .= '<p class="full jg-form-privacy-link"><a href="' . esc_url( jg_privacy_url() ) . '">' . esc_html( jg_privacy_copy()['privacy'] ) . '</a></p>'; }
 	}
 	if ( isset( $copy['submit'] ) ) {
 		$html .= '<button class="button button-dark" type="submit">' . esc_html( $copy['submit'] ) . jg_arrow_icon() . '</button>';

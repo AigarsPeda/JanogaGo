@@ -10,6 +10,7 @@
 		<?php } ?>
 	</div>
 	<?php jg_page_footer_content( get_queried_object_id() ); ?>
+	<?php jg_privacy_footer_links(); ?>
 </footer>
 <?php wp_footer(); ?>
 </body>

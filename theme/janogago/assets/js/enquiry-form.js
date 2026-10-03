@@ -102,7 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(form.getAttribute('action'), {method: 'POST', body: data, credentials: 'same-origin', signal: controller.signal});
         const feedback = await response.json();
         if (feedback.nonce) form.elements.namedItem('jg_enquiry_nonce').value = feedback.nonce;
-        if (feedback.success) form.reset();
+        if (feedback.success) {
+          form.reset();
+          if (feedback.lead_created === true) document.dispatchEvent(new CustomEvent('jg:enquiry-sent'));
+        }
         else showErrors(feedback.errors || {});
         showResult(feedback.message || copy.failed, feedback.success === true);
       } catch {
