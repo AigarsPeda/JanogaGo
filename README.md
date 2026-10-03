@@ -86,14 +86,18 @@ See `HANDOFF.md` for the verified live state and private rollback backup locatio
 
 ## Enquiry notifications
 
+Both language forms send enquiries to **Settings → General → Enquiry recipient / Pieteikumu saņēmējs**, initially `info@janoga.lv`. Change that address in WordPress when the receiving inbox changes; no code deployment or homepage edits are needed. The public contact links are separate. The visitor's email is the enquiry's Reply-To address. WP Mail SMTP controls the sender and delivery connection, while its Email Test sends to the address entered in the test form. WordPress password resets still go to the email in the requested user's profile.
+
 A saved enquiry shows a floating success notification in the site's existing green. Notification messages and the close-button label are native Paragraph blocks in each language's enquiry form group. The notification overlays the page without affecting layout, uses a short entrance/exit animation, supports Escape and close-button dismissal, and respects reduced motion. Saving failures and validation errors still display actionable errors. The internal `wp_mail` result is stored as `_jg_notification_sent` on the lead; an internal email failure does not turn a saved enquiry into a visitor-facing failure.
 
 `scripts/update-enquiry-notifications.php` updates existing homepage notification blocks while preserving other content and custom confirmation wording. Run it with Local's WP-CLI `eval-file` after installing the current theme. It removes the retired mail-failure warning, shortens the original confirmation, and adds missing editable close labels. Do not reset homepage seed markers. It is a release helper, not an automatic theme migration.
 
-`scripts/tests/enquiry-notifications.php` is a Local-only integration test. Run it with WP-CLI `eval-file` with the theme loaded. It intercepts all email, checks successful and failed mail, saving failure and invalid submissions, verifies accessible results and redirect behavior, and deletes its own test leads. Actual inbox delivery is not tested.
+`scripts/tests/enquiry-notifications.php` is a Local-only integration test. Run it with WP-CLI `eval-file` with the theme loaded. It intercepts all email, checks successful and failed mail, saving failure and invalid submissions, verifies accessible results and redirect behavior, configurable recipients, visitor Reply-To and account password-reset routing, and deletes its own test leads and user. Actual inbox delivery is not tested.
 
 Theme 1.0.42 clears submission status URLs after showing the notification and removes automatic notification focus. Successful submissions redirect without a form anchor, preventing later opens from jumping to the form. Normal offer links still navigate to the form.
 
 The mobile client carousel preloads fixed repeated logo batches, keeps native horizontal scrolling in both directions, and waits for swipe momentum to settle before resuming autoplay. Run `node scripts/tests/client-carousel.cjs` for the scrolling logic regression checks. Verify physical iPhone Safari swipes separately.
 
 Theme 1.0.74, the updated food catalog, bilingual heading punctuation and the 3D hero with photo fallback are on Local and the droplet. See `HANDOFF.md` for release verification and rollback locations.
+
+Enquiry forms submit in place without a page reload. Validation names the field that needs correction and preserves entries on failure. Successful submissions clear the form so it can be used again. The server allows five new enquiries in ten minutes per IP address and per email address, quietly discards the hidden honeypot and suppresses identical retries for ten minutes. A saved private lead remains the success condition even if its notification fails. `scripts/tests/enquiry-submissions.php` checks these controls locally with all email intercepted.

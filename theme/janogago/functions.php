@@ -22,6 +22,7 @@ function jg_enqueue_assets() {
 	wp_enqueue_style( 'janogago-business', get_template_directory_uri() . '/assets/css/business.css', array( 'janogago' ), $version );
 	wp_enqueue_style( 'janogago-food', get_template_directory_uri() . '/assets/css/food.css', array( 'janogago-business' ), $version );
 	wp_enqueue_script( 'janogago', get_template_directory_uri() . '/assets/js/site.js', array(), $version, true );
+	wp_enqueue_script( 'janogago-enquiry', get_template_directory_uri() . '/assets/js/enquiry-form.js', array( 'janogago' ), $version, true );
 	wp_enqueue_script( 'janogago-counters', get_template_directory_uri() . '/assets/js/counters.js', array( 'janogago' ), $version, true );
 }
 add_action( 'wp_enqueue_scripts', 'jg_enqueue_assets' );
@@ -217,6 +218,30 @@ function jg_register_leads() {
 }
 add_action( 'init', 'jg_register_leads' );
 
+function jg_enquiry_recipient() {
+	return (string) get_option( 'jg_enquiry_recipient', 'info@janoga.lv' );
+}
+
+function jg_sanitize_enquiry_recipient( $value ) {
+	$value = trim( (string) $value );
+	if ( ! is_email( $value ) ) {
+		add_settings_error( 'jg_enquiry_recipient', 'jg_invalid_enquiry_recipient', __( 'Enter a valid enquiry recipient email address.', 'janogago' ) );
+		return jg_enquiry_recipient();
+	}
+	return sanitize_email( $value );
+}
+
+function jg_register_enquiry_settings() {
+	register_setting( 'general', 'jg_enquiry_recipient', array( 'type' => 'string', 'sanitize_callback' => 'jg_sanitize_enquiry_recipient', 'default' => 'info@janoga.lv' ) );
+	add_settings_field( 'jg_enquiry_recipient', __( 'Enquiry recipient / Pieteikumu saņēmējs', 'janogago' ), 'jg_render_enquiry_recipient', 'general', 'default', array( 'label_for' => 'jg_enquiry_recipient' ) );
+}
+add_action( 'admin_init', 'jg_register_enquiry_settings' );
+
+function jg_render_enquiry_recipient() {
+	echo '<input type="email" class="regular-text" id="jg_enquiry_recipient" name="jg_enquiry_recipient" value="' . esc_attr( jg_enquiry_recipient() ) . '" required aria-describedby="jg-enquiry-recipient-description">';
+	echo '<p class="description" id="jg-enquiry-recipient-description">' . esc_html__( 'Receives enquiries from both language forms. Password-reset emails go to the account email under Users.', 'janogago' ) . '</p>';
+}
+
 function jg_is_valid_phone_number( $phone ) {
 	$phone = trim( (string) $phone );
 	if ( ! preg_match( '/^\+?[0-9().\s-]+$/', $phone ) ) {
@@ -226,7 +251,17 @@ function jg_is_valid_phone_number( $phone ) {
 	return strlen( $digits ) >= 7 && strlen( $digits ) <= 15;
 }
 
-function jg_enquiry_redirect( $status ) {
+function jg_enquiry_redirect( $status, $errors = array() ) {
+	if ( ( $_POST['jg_ajax'] ?? '' ) === '1' ) {
+		$copy = jg_enquiry_page_copy( absint( $_POST['page_id'] ?? 0 ) );
+		$key = $status === 'sent' ? 'success' : $status;
+		$message = $copy[ $key ] ?? $copy['failed'];
+		if ( $errors ) {
+			$field = array_key_first( $errors );
+			$message = ( isset( $copy[ $field ] ) ? $copy[ $field ] . ': ' : '' ) . reset( $errors );
+		}
+		wp_send_json( array( 'success' => $status === 'sent', 'status' => $status, 'message' => $message, 'errors' => $errors, 'nonce' => wp_create_nonce( 'jg_submit_enquiry' ) ), $status === 'sent' ? 200 : ( $status === 'rate_limited' ? 429 : 422 ) );
+	}
 	$url = get_permalink( absint( $_POST['page_id'] ?? 0 ) ) ?: wp_get_referer() ?: home_url( '/' );
 	$url = explode( '#', $url, 2 )[0];
 	$fragment = $status === 'sent' ? '' : '#pieteikties';
@@ -236,33 +271,54 @@ function jg_enquiry_redirect( $status ) {
 
 function jg_submit_enquiry() {
 	if ( ! isset( $_POST['jg_enquiry_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['jg_enquiry_nonce'] ) ), 'jg_submit_enquiry' ) ) {
-		wp_die( 'Invalid form submission.' );
+		jg_enquiry_redirect( 'expired' );
+	}
+	if ( ! empty( $_POST['jg_website'] ) ) { jg_enquiry_redirect( 'sent' ); }
+	foreach ( array( 'company', 'name', 'email', 'phone', 'location', 'people', 'message', 'service_interest' ) as $field ) {
+		if ( isset( $_POST[ $field ] ) && ! is_string( $_POST[ $field ] ) ) { jg_enquiry_redirect( 'invalid' ); }
 	}
 	$company = sanitize_text_field( wp_unslash( $_POST['company'] ?? '' ) );
 	$name = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
-	$email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
+	$raw_email = is_string( $_POST['email'] ?? null ) ? trim( wp_unslash( $_POST['email'] ) ) : '';
+	$email = sanitize_email( $raw_email );
 	$phone = sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) );
 	$location = sanitize_text_field( wp_unslash( $_POST['location'] ?? '' ) );
 	$people = sanitize_text_field( wp_unslash( $_POST['people'] ?? '' ) );
 	$message = sanitize_textarea_field( wp_unslash( $_POST['message'] ?? '' ) );
 	$page_content = (string) get_post_field( 'post_content', absint( $_POST['page_id'] ?? 0 ) );
-	if ( ! $company || ! $name || ! is_email( $email ) || ! $phone || ! $people || empty( $_POST['privacy_consent'] ) || ( str_contains( $page_content, 'jg-field-location' ) && ! $location ) ) {
-		jg_enquiry_redirect( 'invalid' );
+	$page_id = absint( $_POST['page_id'] ?? 0 );
+	if ( get_post_status( $page_id ) !== 'publish' || get_post_type( $page_id ) !== 'page' || ! str_contains( $page_content, 'jg-enquiry-form' ) && ! has_shortcode( $page_content, 'janogago_enquiry_form' ) ) { jg_enquiry_redirect( 'expired' ); }
+	$copy = jg_enquiry_page_copy( $page_id );
+	$values = compact( 'company', 'name', 'email', 'phone', 'location', 'people', 'message' );
+	$errors = array();
+	foreach ( array( 'company', 'name', 'email', 'phone', 'people' ) as $field ) {
+		if ( $values[ $field ] === '' ) { $errors[ $field ] = $copy['field_required']; }
 	}
-	if ( ! jg_is_valid_phone_number( $phone ) || ! ctype_digit( $people ) || 0 >= (int) $people ) {
-		jg_enquiry_redirect( 'invalid' );
+	if ( str_contains( $page_content, 'jg-field-location' ) && ! $location ) { $errors['location'] = $copy['field_required']; }
+	if ( $raw_email !== '' && ! is_email( $raw_email ) ) { $errors['email'] = $copy['email_invalid']; }
+	if ( $phone !== '' && ! jg_is_valid_phone_number( $phone ) ) { $errors['phone'] = $copy['phone_invalid']; }
+	if ( $people !== '' && ( ! ctype_digit( $people ) || 0 >= (int) $people ) ) { $errors['people'] = $copy['people_invalid']; }
+	if ( ( $_POST['privacy_consent'] ?? '' ) !== '1' ) { $errors['privacy_consent'] = $copy['consent_required']; }
+	foreach ( array( 'company' => 120, 'name' => 120, 'email' => 254, 'phone' => 25, 'location' => 200, 'message' => 2000, 'people' => 10 ) as $field => $limit ) {
+		if ( mb_strlen( $values[ $field ] ) > $limit ) { $errors[ $field ] = $copy['too_long']; }
 	}
+	if ( $errors ) { jg_enquiry_redirect( 'invalid', $errors ); }
 	$interest = sanitize_key( wp_unslash( $_POST['service_interest'] ?? '' ) );
+	$details = array_merge( $values, array( 'interest' => $interest ) );
+	$guard_status = jg_enquiry_guard( $details );
+	if ( $guard_status ) { jg_enquiry_redirect( $guard_status ); }
 	$interest_labels = array( 'full-service' => 'Pilna servisa risinājums', 'equipment-lease' => 'Aprīkojuma noma' );
 	$interest_label = $interest_labels[ $interest ] ?? 'Nav norādīts';
 	$body = "Company: {$company}\nContact: {$name}\nEmail: {$email}\nPhone: {$phone}\nLocation: {$location}\nPeople: {$people}\nInterested service: {$interest_label}\n\n{$message}";
 	$post_id = wp_insert_post( array( 'post_type' => 'janogago_lead', 'post_status' => 'private', 'post_title' => $company . ' — ' . $name, 'post_content' => $body ) );
 	if ( ! $post_id ) {
+		delete_transient( jg_enquiry_fingerprint( $details ) );
 		jg_enquiry_redirect( 'failed' );
 	}
-	$recipient = preg_match( '/href="mailto:([^"?]+)"/', $page_content, $email_match ) ? sanitize_email( html_entity_decode( $email_match[1] ) ) : '';
-	$mail_sent = $recipient && wp_mail( $recipient, 'JāņogaGO website enquiry: ' . $company, $body, array( 'Reply-To: ' . $name . ' <' . $email . '>' ) );
+	$recipient = jg_enquiry_recipient();
+	$mail_sent = is_email( $recipient ) && wp_mail( $recipient, 'JāņogaGO website enquiry: ' . $company, $body, array( 'Reply-To: ' . $name . ' <' . $email . '>' ) );
 	update_post_meta( $post_id, '_jg_notification_sent', (int) $mail_sent );
+	set_transient( jg_enquiry_fingerprint( $details ), 'sent', 10 * MINUTE_IN_SECONDS );
 	jg_enquiry_redirect( 'sent' );
 }
 add_action( 'admin_post_nopriv_jg_submit_enquiry', 'jg_submit_enquiry' );
@@ -985,12 +1041,12 @@ function jg_enquiry_form_shortcode() {
 	}
 	ob_start();
 	?>
-	<form class="jg-enquiry-form" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" data-required-message="<?php echo esc_attr( $form_copy['form_invalid_message'] ); ?>" data-phone-invalid-message="<?php echo esc_attr( $form_copy['form_phone_invalid_message'] ); ?>">
+	<form class="jg-enquiry-form" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" <?php echo jg_enquiry_form_attributes( jg_enquiry_page_copy( $page_id ) ); ?>>
 		<input type="hidden" name="action" value="jg_submit_enquiry"><input type="hidden" name="page_id" value="<?php echo esc_attr( $page_id ); ?>"><input type="hidden" name="service_interest" value=""><?php wp_nonce_field( 'jg_submit_enquiry', 'jg_enquiry_nonce' ); ?>
 		<label><?php echo esc_html( $form_copy['form_company_label'] ); ?><input required name="company" type="text" autocomplete="organization" maxlength="120"></label><label><?php echo esc_html( $form_copy['form_name_label'] ); ?><input required name="name" type="text" autocomplete="name" maxlength="120"></label><label><?php echo esc_html( $form_copy['form_email_label'] ); ?><input required name="email" type="email" autocomplete="email" maxlength="254"></label><label><?php echo esc_html( $form_copy['form_phone_label'] ); ?><input required name="phone" type="tel" autocomplete="tel" inputmode="tel" pattern="[0-9+(). -]{7,25}" maxlength="25"></label><label><?php echo esc_html( $form_copy['form_people_label'] ); ?><input required name="people" type="number" inputmode="numeric" min="1" step="1"></label><label class="full"><?php echo esc_html( $form_copy['form_message_label'] ); ?><textarea required name="message" rows="3" maxlength="2000"></textarea></label>
 		<label class="full jg-privacy-consent"><input required name="privacy_consent" type="checkbox" value="1"><span><?php echo esc_html( $form_copy['form_privacy_label'] ); ?></span></label>
 		<button class="button button-dark" type="submit"><?php echo esc_html( $form_copy['form_submit_label'] ); ?> <?php echo jg_arrow_icon(); ?></button>
-		<?php if ( isset( $_GET['enquiry'] ) && $_GET['enquiry'] === 'sent' ) : ?><p class="form-message"><?php echo esc_html( $form_copy['form_success_message'] ); ?></p><?php elseif ( isset( $_GET['enquiry'] ) && $_GET['enquiry'] === 'invalid' ) : ?><p class="form-message"><?php echo esc_html( $form_copy['form_invalid_message'] ); ?></p><?php endif; ?>
+		<?php echo jg_enquiry_result_markup( jg_enquiry_page_copy( $page_id ) ); echo jg_enquiry_trap_markup(); ?>
 	</form>
 	<?php
 	return ob_get_clean();
@@ -1012,6 +1068,7 @@ function jg_fallback_menu() {
 	echo '</ul>';
 }
 
+require_once get_template_directory() . '/inc/enquiry.php';
 require_once get_template_directory() . '/inc/business-content.php';
 require_once get_template_directory() . '/inc/product-catalog.php';
 require_once get_template_directory() . '/inc/hero-model.php';

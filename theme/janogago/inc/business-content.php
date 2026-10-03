@@ -149,6 +149,7 @@ function jg_business_form_blocks( $language ) {
 	foreach ( array( 'success', 'invalid', 'phone_invalid', 'failed' ) as $message ) {
 		$content .= jg_block_paragraph( $copy[ 'form_' . $message . '_message' ], 'jg-form-status jg-status-' . $message );
 	}
+	foreach ( jg_enquiry_feedback_defaults( $language ) as $key => $message ) { $content .= jg_block_paragraph( $message, 'jg-form-status jg-status-' . $key ); }
 	$content .= jg_block_paragraph( $copy['form_dismiss_label'], 'jg-form-status jg-status-dismiss' );
 	return jg_block_group( $content, 'jg-enquiry-form', 'div' );
 }
@@ -243,13 +244,11 @@ function jg_form_block_copy( $block ) {
 function jg_enquiry_result_markup( $copy ) {
 	$status = sanitize_key( wp_unslash( $_GET['enquiry'] ?? '' ) );
 	$key = array( 'sent' => 'success', 'invalid' => 'invalid', 'failed' => 'failed', 'mail_failed' => 'success' )[ $status ] ?? '';
-	if ( ! $key || empty( $copy[ $key ] ) ) {
-		return '';
-	}
+	if ( in_array( $status, array( 'rate_limited', 'busy', 'expired', 'network' ), true ) ) { $key = $status; }
 	$success = $key === 'success';
 	$icon = $success ? '<path d="m5 12 4 4L19 6"/>' : '<path d="M12 5v8m0 4v1"/>';
 	$close = empty( $copy['dismiss'] ) ? '' : '<button type="button" class="jg-notice-close" aria-label="' . esc_attr( $copy['dismiss'] ) . '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="m6 6 12 12M6 18 18 6"/></svg></button>';
-	return '<div id="jg-enquiry-result" class="form-message form-message-' . ( $success ? 'success' : 'error' ) . '" role="' . ( $success ? 'status' : 'alert' ) . '" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">' . $icon . '</svg><p>' . esc_html( $copy[ $key ] ) . '</p>' . $close . '</div>';
+	return '<div id="jg-enquiry-result" class="form-message form-message-' . ( $success ? 'success' : 'error' ) . '" role="' . ( $success ? 'status' : 'alert' ) . '" tabindex="-1"' . ( $key ? '' : ' hidden' ) . '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">' . $icon . '</svg><p>' . esc_html( $copy[ $key ] ?? '' ) . '</p>' . $close . '</div>';
 }
 
 function jg_render_editable_form( $content, $block ) {
@@ -258,9 +257,11 @@ function jg_render_editable_form( $content, $block ) {
 	}
 	$copy = jg_form_block_copy( $block );
 	$page_id = get_queried_object_id() ?: get_the_ID();
-	$html = '<form class="jg-enquiry-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" method="post" data-required-message="' . esc_attr( $copy['invalid'] ?? '' ) . '" data-phone-invalid-message="' . esc_attr( $copy['phone_invalid'] ?? '' ) . '">';
+	$copy = array_merge( jg_enquiry_feedback_defaults( function_exists( 'pll_get_post_language' ) ? pll_get_post_language( $page_id ) : jg_lang() ), $copy );
+	$html = '<form class="jg-enquiry-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" method="post"' . jg_enquiry_form_attributes( $copy ) . '>';
 	$html .= '<input type="hidden" name="action" value="jg_submit_enquiry"><input type="hidden" name="page_id" value="' . absint( $page_id ) . '"><input type="hidden" name="service_interest" value="full-service">' . wp_nonce_field( 'jg_submit_enquiry', 'jg_enquiry_nonce', true, false );
 	$html .= jg_enquiry_result_markup( $copy );
+	$html .= jg_enquiry_trap_markup();
 	$inputs = array(
 		'company' => 'type="text" autocomplete="organization" maxlength="120"',
 		'name' => 'type="text" autocomplete="name" maxlength="120"',

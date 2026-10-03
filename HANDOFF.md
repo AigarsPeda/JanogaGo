@@ -6,8 +6,11 @@ Maintain the bilingual WordPress site, with authored content editable in WordPre
 
 ## Current state
 
-As of 2026-10-02:
+As of 2026-10-03:
 
+- The live site uses **https://janogago.lv/**. NIC.lv DNS has an apex A record to `165.232.119.106` and a `www` CNAME to `janogago.lv`. HTTP, the old HTTP IP address and HTTPS `www` redirect to the canonical HTTPS domain, preserving paths.
+- Nginx serves a Let's Encrypt ECDSA certificate for both names, initially expiring 2027-01-01. `certbot.timer` renews it automatically; `/etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh` validates and reloads Nginx after renewal. Both WordPress URL settings, stored content/media URLs and the ignored deployment configuration now use the HTTPS domain. GUIDs were preserved.
+- HTTPS and certificate verification passed in Zen for both language homepages, with the 3D hero rendering. Both catalogs and the login page returned HTTP 200. HTTP and HTTPS `www` redirects preserve paths, and `certbot renew --dry-run --run-deploy-hooks --no-random-sleep-on-renew` passed, including the Nginx reload hook.
 - Local and the droplet run theme **1.0.74**, verified on 2026-10-02.
 - Local and live have 19 food products, six categories and four featured homepage dishes. The catalog shows all matching dishes without pagination.
 - Both homepages have a dark machine-photo section after the catering experience and before client logos.
@@ -23,7 +26,7 @@ As of 2026-10-02:
 | Local website | `http://janogago.local/` |
 | Local WordPress | `/Users/aigarspeda/Local Sites/janogago/app/public` |
 | Installed local theme | Local WordPress `wp-content/themes/janogago` |
-| Live website / WordPress | `http://165.232.119.106/` / `/var/www/janogago` |
+| Live website / WordPress | `https://janogago.lv/` / `/var/www/janogago` |
 | Deployment configuration | `scripts/janogago-droplet.env`, ignored by Git |
 | Blender model | `/Users/aigarspeda/Desktop/JanogaGo-doc/automati/janoga-smart-fridge.blend` |
 
@@ -53,7 +56,7 @@ Paths below are relative to `theme/janogago` unless prefixed with `scripts/`.
 | `inc/hero-model.php`, `assets/js/hero-model-editor.js` | Optional GLB on native Image blocks, upload validation and Gutenberg controls |
 | `assets/js/hero-model.js`, `assets/js/vendor/` | Hero rotation and bundled model-viewer 4.2.0 with Apache license |
 | `style.css`, `assets/css/business.css`, `assets/css/food.css` | Theme version, layout, responsive styles and catalog styling |
-| `assets/js/site.js`, `assets/js/counters.js` | Navigation, FAQs, enquiries, catalog interactions, mobile logo carousel and experience counters |
+| `assets/js/site.js`, `assets/js/enquiry-form.js`, `assets/js/counters.js` | Navigation, FAQs, AJAX enquiries, catalog interactions, mobile logo carousel and experience counters |
 | `header.php`, `footer.php`, `assets/css/editor.css` | Site chrome and Gutenberg editing cues |
 | `scripts/build-smart-fridge.py` | Reproducible Blender model build |
 
@@ -72,7 +75,7 @@ Rebuild through Blender's Python runner, passing `--output`, `--photo` and `--wr
 - Mobile logos use native horizontal scrolling, a fixed repeated track and recentering. Touch/wheel input pauses autoplay until momentum settles. Do not replace this with a transform marquee or insert lazy-loaded slides during swipes. Reduced motion disables autoplay.
 - Catalog filters update results and browser history without a full reload, with normal GET forms as fallback. Mobile filters collapse after applying; desktop filters and category headings are sticky. Long dish names must remain readable.
 - Experience counters read the authored Paragraph text and run once; reduced motion and no JavaScript show final values.
-- An enquiry counts as successful when its private lead is saved, even if internal notification mail fails. Mail outcome stays in lead metadata. The dismissible green success notice overlays the layout; successful redirects and URL cleanup must not jump back to the form or replay the notice on reload.
+- An enquiry counts as successful when its private lead is saved, even if internal notification mail fails. Mail outcome stays in lead metadata. The dismissible green success notice overlays the layout; AJAX sends must retain scroll position and allow a second submission. Clear custom validity on input/change and before validation; preserve entries on errors. No-JS uses the existing POST redirect fallback.
 
 ## Local work and deployment
 
@@ -94,11 +97,23 @@ For user-requested releases, review the corresponding dry run first:
 
 Selective sync preserves users, enquiries and unrelated content, but overwrites selected live content with Local content. Check for newer live edits first. Full database replacement via `push-db-to-droplet.sh --yes` requires explicit user authorization. Deployment details are in [README.md](README.md).
 
-The latest theme-only rollback archive is `/var/backups/janogago/theme-20261002-220737.SFrJMRyN/theme.tar.gz`. The latest homepage/media database backup is `/var/backups/janogago/content-20261002-215933.RzwWUXmN/`. The latest full live rollback backup is `/var/backups/janogago/food-release-20261002-212535.P6S7buuI/`, containing database and theme. Future release scripts create new private backups. After deployment, verify LV/EN pages, media, asset versions and affected interactions.
+The latest theme-only rollback archive is `/var/backups/janogago/theme-20261003-133639.axLeoekx/theme.tar.gz`. The archive before the enquiry UX changes is `/var/backups/janogago/theme-20261003-133419.8WZAhKNv/theme.tar.gz`. The latest homepage/media database backup is `/var/backups/janogago/content-20261002-215933.RzwWUXmN/`. The latest full live rollback backup is `/var/backups/janogago/food-release-20261002-212535.P6S7buuI/`, containing database and theme. Future release scripts create new private backups. After deployment, verify LV/EN pages, media, asset versions and affected interactions.
 
 ## Outstanding checks
+
+The domain migration backup is `/var/backups/janogago/domain-20261003.vv0h0psi/`, containing the pre-migration `database.sql.gz` and `nginx.conf`. DNS was initially unpublished; NIC's nameservers and public resolvers subsequently returned the correct records, allowing certificate issuance. Keep DNS pointed to this droplet for HTTP certificate validation and renewal.
 
 - The new Gutenberg 3D controls still need an authenticated visual edit/save check. Server-side registration and frontend loading/rotation were verified.
 - Real iPhone Safari momentum and actual enquiry inbox delivery remain unverified. Existing local enquiry tests intercept email; avoid sending live test enquiries without authorization.
 
-Relevant regression checks are `scripts/tests/hero-model.cjs`, `scripts/tests/client-carousel.cjs`, `scripts/tests/content-sync.php` and `scripts/tests/enquiry-notifications.php`. Run checks appropriate to the change; the WordPress integration tests are Local-only.
+Relevant regression checks are `scripts/tests/hero-model.cjs`, `scripts/tests/client-carousel.cjs`, `scripts/tests/content-sync.php`, `scripts/tests/enquiry-notifications.php` and `scripts/tests/enquiry-submissions.php`. Run checks appropriate to the change; the WordPress integration tests are Local-only.
+
+## Enquiry fixes, 2026-10-03
+
+Theme 1.0.75 submits enquiry forms through the existing admin-post handler with JSON feedback. Native editable labels and success messages remain in the page blocks. Validation gives field-specific errors; requests refresh the nonce, retain entries on errors and reset after success. `inc/enquiry.php` provides LV/EN feedback, honeypot and short database-lock-protected counters. Five distinct enquiries per ten minutes per IP/email are accepted; identical completed retries return success without another lead/email and pending retries return busy. The rate guard holds no lock during mail sending.
+
+Both local integration suites passed with intercepted mail, including recipient changes and account password-reset routing. CUA browser checks passed for a corrected invalid email, two consecutive desktop LV sends and an English mobile send. Scroll stayed at the form within one pixel on desktop and exactly on mobile. No external test mail was sent. Temporary local browser fixtures and mail interceptor are removed after verification. Enquiry recipient is `info@janoga.lv`, editable under Settings → General. Gmail API mailer is authorized according to the user, who confirmed delivery.
+
+Deployed theme 1.0.75 after local verification. All changed JS/CSS/helper hashes match live; deployed PHP syntax passed. Live browser confirmed the new email-specific error, unchanged URL and versioned script. Live HTTP validation returned 422 JSON with email/phone/people errors and a fresh nonce, creating no lead/email. Only theme files were deployed, preserving live content and Gmail authorization. Rollback archive: `/var/backups/janogago/theme-20261003-133419.8WZAhKNv/theme.tar.gz`.
+
+Final server review also verified that string `0` is rejected as an email or phone number. Local submission tests passed again before the final PHP-only sync. Latest pre-adjustment archive: `/var/backups/janogago/theme-20261003-133639.axLeoekx/theme.tar.gz`.
