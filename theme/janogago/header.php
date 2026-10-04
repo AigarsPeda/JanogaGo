@@ -17,9 +17,10 @@
 			the_custom_logo();
 		} else {
 			$brand_name = get_bloginfo( 'name' );
-			$brand_prefix = str_ends_with( $brand_name, 'GO' ) ? substr( $brand_name, 0, -2 ) : $brand_name;
+			// Embed the small wordmark so first paint never waits for a separate image request.
+			$brand_image = 'data:image/png;base64,' . base64_encode( file_get_contents( get_stylesheet_directory() . '/assets/images/JanogaGoLogoNew.png' ) );
 			?>
-			<a class="brand" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( $brand_name ); ?>"><?php echo esc_html( $brand_prefix ); ?><?php if ( $brand_prefix !== $brand_name ) { ?><span>GO</span><?php } ?></a>
+			<a class="brand" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php echo esc_attr( $brand_name ); ?>"><img src="<?php echo esc_attr( $brand_image ); ?>" alt="" width="1305" height="309" decoding="sync"></a>
 		<?php } ?>
 	</div>
 	<button class="menu-toggle" aria-label="Open navigation" aria-expanded="false"><i></i><i></i></button>
