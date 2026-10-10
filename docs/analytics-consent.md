@@ -2,6 +2,8 @@
 
 GA4 and consent controls are installed on Local and live. On 2026-10-10, Site Kit setup was completed on live and Analytics was enabled with measurement ID `G-0FNW1GE9X7`, behind the existing consent controls. The live bilingual policies contain the company/controller details and now describe consent-based collection. Local remains a development installation without a production Google account connection. `.local`, `.test`, localhost, non-production WordPress environments and logged-in visits are excluded.
 
+The later 2026-10-10 content reconciliation copied both current policies and the public `jg_privacy` settings into Local, mapping privacy page IDs to 263/264. Local now stores the same measurement ID and production-enable flag as live, but its frontend runtime measurement ID is empty because `.local` is excluded. All six Local routes were checked for that exclusion. Site Kit account credentials and mail settings were preserved on both sites. Reconciliation backups and verification records are listed in `HANDOFF.md`.
+
 ## Google account connection
 
 Google's official Site Kit plugin, slug `google-site-kit`, provides the WordPress connection to the business's Google account and dashboards. Both installations use the same official WordPress.org 1.188.0 package and passed plugin checksum verification. Live setup is complete at `https://janogago.lv/wp-admin/admin.php?page=googlesitekit-dashboard`. Google does not support setup on a local-only `.local` website. The Local installation is available for development, without connecting production account credentials.

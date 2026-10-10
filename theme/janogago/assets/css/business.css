@@ -13,6 +13,75 @@
 }
 .janogago-blocks h3 { letter-spacing: -.025em; }
 .janogago-blocks .hero-copy { padding-top: 80px; padding-bottom: 80px; }
+/* Pricing copy stays in native, editable homepage blocks. */
+.janogago-blocks .hero .jg-hero-pricing {
+ border-top: 1px solid rgba(255, 250, 242, .25);
+ font-size: 15px;
+ line-height: 1.65;
+ margin: 24px 0 0;
+ max-width: 515px;
+ padding-top: 18px;
+}
+.janogago-blocks .jg-hero-pricing strong { color: var(--green); display: block; }
+.janogago-blocks .jg-hero-pricing a {
+ display: block;
+ width: fit-content;
+ text-decoration: underline;
+ text-underline-offset: 4px;
+}
+.janogago-blocks .jg-hero-pricing a:hover { color: var(--green); }
+.janogago-blocks .jg-hero-pricing a:focus-visible {
+ outline: 2px solid var(--green);
+ outline-offset: 5px;
+}
+.janogago-blocks .pricing {
+ background: var(--cream);
+ padding-block: clamp(56px, 6vw, 88px);
+ scroll-margin-top: 32px;
+}
+.janogago-blocks .pricing h2 { font-size: clamp(38px, 4vw, 56px); margin-bottom: 18px; }
+.janogago-blocks .pricing .jg-section-lede { max-width: 65ch; }
+.janogago-blocks .jg-pricing-options {
+ display: grid;
+ gap: clamp(28px, 5vw, 72px);
+ grid-template-columns: repeat(2, minmax(0, 1fr));
+ margin: 36px 0 28px;
+}
+.janogago-blocks .jg-pricing-options > .wp-block-column {
+ border-top: 1px solid var(--line);
+ margin: 0;
+ min-width: 0;
+ padding-top: 24px;
+}
+.janogago-blocks .jg-pricing-options h3 {
+ font-family: var(--sans);
+ font-size: 18px;
+ font-weight: 700;
+ line-height: 1.4;
+ margin: 0 0 18px;
+}
+.janogago-blocks .jg-pricing-options .jg-pricing-amount {
+ color: var(--red);
+ font-family: var(--sans);
+ font-size: clamp(32px, 3.5vw, 48px);
+ font-variant-numeric: tabular-nums;
+ font-weight: 800;
+ letter-spacing: -.035em;
+ line-height: 1.15;
+ margin: 0 0 6px;
+}
+.janogago-blocks .jg-pricing-unit { font-size: 15px; margin: 0 0 20px; }
+.janogago-blocks .jg-pricing-description { font-size: 16px; line-height: 1.7; margin: 0; max-width: 48ch; }
+.janogago-blocks .jg-pricing-note {
+ border-top: 1px solid var(--line);
+ font-size: 15px;
+ line-height: 1.7;
+ margin: 0;
+ padding-top: 22px;
+}
+@media (max-width: 700px) {
+ .janogago-blocks .jg-pricing-options { grid-template-columns: 1fr; gap: 28px; }
+}
 .janogago-blocks .hero-visual.hero-machine {
  background: linear-gradient(90deg, var(--ink), #101010 45%, #080808);
 }

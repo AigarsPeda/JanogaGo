@@ -4,7 +4,7 @@
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<?php if ( ! has_site_icon() ) { ?>
-		<link rel="icon" href="<?php echo esc_url( get_stylesheet_directory_uri() . '/assets/images/favicon-go.svg' ); ?>" type="image/svg+xml" sizes="any">
+		<link rel="icon" href="<?php echo esc_url( get_stylesheet_directory_uri() . '/assets/images/favicon-go.png' ); ?>" type="image/png" sizes="512x512">
 		<link rel="apple-touch-icon" href="<?php echo esc_url( get_stylesheet_directory_uri() . '/assets/images/favicon-go.png' ); ?>">
 	<?php } ?>
 	<?php wp_head(); ?>
