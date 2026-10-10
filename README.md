@@ -83,6 +83,16 @@ The local-only integration test is `scripts/tests/content-sync.php`. Run it with
 
 See `HANDOFF.md` for the verified live state and private rollback backup location.
 
+## Rank Math page scores
+
+`mu-plugins/janogago-sitemap.php` keeps translated homepage sitemap entries aligned with `get_permalink()`. Install it in WordPress `wp-content/mu-plugins` alongside the Site Kit consent guard. It corrects the English sitemap entry to `/en/home/`, which is the page's canonical URL; `/en/` remains a redirect. After installing or updating it, clear Rank Math's sitemap cache and check `/page-sitemap.xml`. The ordinary theme deployment script does not deploy MU plugins.
+
+Google Search Console ownership for the HTTPS URL-prefix property is verified through `googlee1855318fb319cbb.html` in the live WordPress root. Keep that verification file on the server. It is independent of the theme and Google Site Kit setup.
+
+On the droplet, **Pages → All Pages → SEO Details** shows Rank Math's saved score out of 100. If the column is hidden, enable **SEO Details** under **Screen Options**. In Gutenberg, open the Rank Math button at the top right to inspect its recommendations and edit the focus keyword. New pages need a relevant focus keyword and a saved analysis before a score appears. Rank Math deliberately shows N/A for pages set to noindex.
+
+`scripts/setup-rank-math-scores.php` enables the installed plugin using its account-registration Skip Step flag, shows the score column for administrators, and adds missing keywords for existing named pages. It preserves existing keywords and does not assign scores. Back up the database before running it with WP-CLI `eval-file`, then use **Rank Math SEO → Status & Tools → Database Tools → Recalculate Scores** in the browser. Scores on all seven live pages were calculated through that tool and verified on 2026-10-04. The helper is not an automatic theme migration and does not belong in the theme.
+
 
 ## Enquiry notifications
 

@@ -12,6 +12,7 @@ As of 2026-10-03:
 - Nginx serves a Let's Encrypt ECDSA certificate for both names, initially expiring 2027-01-01. `certbot.timer` renews it automatically; `/etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh` validates and reloads Nginx after renewal. Both WordPress URL settings, stored content/media URLs and the ignored deployment configuration now use the HTTPS domain. GUIDs were preserved.
 - HTTPS and certificate verification passed in Zen for both language homepages, with the 3D hero rendering. Both catalogs and the login page returned HTTP 200. HTTP and HTTPS `www` redirects preserve paths, and `certbot renew --dry-run --run-deploy-hooks --no-random-sleep-on-renew` passed, including the Nginx reload hook.
 - Local and the droplet run theme **1.0.79**, verified on 2026-10-04.
+- Rank Math 1.0.279 on the droplet now loads its dashboard, page editor panel and SEO Details column. Its initial account-registration screen had prevented those tools from loading. The account connection was skipped; existing settings were preserved. Missing page focus keywords were added, and the official browser Recalculate Scores tool calculated all seven published pages on 2026-10-04. Verified saved scores: LV homepage 25, EN homepage 33, LV catalog 61, EN catalog 67, LV privacy 23, EN privacy 26, Sample Page 21. No live page displays N/A. Database rollback: `/var/backups/janogago/rank-math-20261004/database.sql`. Local also has the registration skip and missing keywords, but its scores have not yet been recalculated. Local backup: `/tmp/janogago-rank-math/local-before.sql`. Helper: `scripts/setup-rank-math-scores.php`; no theme release was needed.
 - Local and live have 19 food products, six categories and four featured homepage dishes. The catalog shows all matching dishes without pagination.
 - Both homepages have a dark machine-photo section after the catering experience and before client logos.
 - Both languages use the rotating 3D hero, with a matching rendered preview during loading and without JavaScript. Model/preview load errors restore the original machine photo. The sealed GLB is attachment **204** locally and **142** live; live fallback photo is **134**.
@@ -129,3 +130,44 @@ Theme 1.0.77 replaces the fallback text wordmarks with the supplied transparent 
 Logo correction: theme 1.0.78 uses `JanogaGoLogoNew.png` in the header and `JanogaGoLogoDarkNew.png` in the footer, replacing the first supplied files. Original dimensions are 1305×309 and 1305×310; displayed width stays 174px. Both corrected images load locally and live; LV/EN markup and all five deployed file checksums are verified. The superseded theme assets are removed from the repository and droplet. Latest rollback archive: `/var/backups/janogago/theme-20261004-100143.CkOSZYHm/theme.tar.gz`.
 
 Header loading fix: theme 1.0.79 embeds the exact corrected PNG as a data URI in the header, avoiding a separate image request. The link supplies its accessible name; the decorative image has empty alt text and synchronous decoding, preventing the old styled fallback text from appearing while the PNG loads. The user reported the first-load flash in the top-left header. No logo-switching script or page cache was found; the text fallback was the likely cause. Local browser rendering and live LV/EN embedded bytes were verified. Rollback archive: `/var/backups/janogago/theme-20261004-100750.zIyTyHfg/theme.tar.gz`.
+
+## Local page refresh, 2026-10-07
+
+Pulled the droplet's authored LV/EN homepage, catalog-page and privacy-page content into Local. Local page IDs, slugs, Polylang links, templates and metadata remain intact. Droplet media IDs and URLs were mapped to the existing local attachments; all 11 referenced images/GLB files matched by checksum, so no new media imports were needed. Content verification passed for all six pages, with no live-site URLs left in their blocks. All six local routes load successfully; `/en/` redirects to `/en/home/`. Browser checks confirmed the newer LV/EN homepage copy and rendered 3D hero.
+
+Local users, user metadata, products, enquiries, categories and page metadata match their pre-import hashes. Site configuration matches the backup; only routine cron, Rank Math IndexNow log and WP Mail SMTP notification-state options changed during WordPress page saves. The live pages and configuration were not changed. Full local database rollback backup: `/tmp/janogago-page-pull/local-before.sql.gz`; page/media snapshots and verification records: `/tmp/janogago-page-pull/backup/`. This was a page-content refresh, so live SEO metadata and scores were not imported. Temporary droplet export files were removed.
+
+Privacy punctuation correction, 2026-10-07: removed only the square brackets around the company/controller details on both Local privacy pages (263/264) and both live privacy pages (154/155). Other wording and blocks were preserved. Saved-content checks and HTTP verification passed on all four routes. Local rollback snapshot: `/tmp/janogago-privacy-brackets-local-before-20261007.json`; live database and page snapshots: `/var/backups/janogago/privacy-brackets-20261007.EjCYrx6Q/`. Temporary remote helper was removed.
+
+## Dish-name corrections, 2026-10-07
+
+Matched four catalog photos to the supplied dish labels and updated their LV titles and `_jg_name_en` fields in Local and live WordPress:
+
+| Local / live product | Latvian | English |
+| --- | --- | --- |
+| 179 / 125 | Siera salāti | Cheese salad |
+| 172 / 119 | Cūkgaļas kotlete ar ceptiem kartupeļiem | Pork cutlet with roast potatoes |
+| 177 / 123 | Vistas filejas karbonāde ar kartupeļu biezeni | Chicken fillet schnitzel with mashed potatoes |
+| 175 / 121 | Cūkgaļas karbonāde ar kartupeļu biezeni | Pork schnitzel with mashed potatoes |
+
+The four Local/live original-photo checksums matched before updating. Post-update comparisons verified all 19 products: only the four LV titles, EN names and normal modification timestamps changed. Photos, categories, slugs, descriptions, ordering and dietary/homepage flags were preserved. Both live catalog pages show the corrected headings and image alt text in the browser. No theme release or full catalog sync was needed.
+
+Live database and product rollback snapshots: `/var/backups/janogago/dish-renames-20261007.cmaYxKVV/`. Local database backup and verification records: `/tmp/janogago-dish-renames/`.
+
+## Search Console and sitemap cleanup, 2026-10-10
+
+Created and verified the Google Search Console HTTPS URL-prefix property `https://janogago.lv/` through the signed-in Google account. Verification uses `googlee1855318fb319cbb.html` in the live WordPress root; keep that file on the server. Search Console setup is independent of Site Kit, which was not connected or changed.
+
+Installed `mu-plugins/janogago-sitemap.php` on live and Local. It uses Rank Math's `rank_math/sitemap/entry` filter at priority 99 to use `get_permalink()` for Polylang's translated front pages. The live page sitemap now has `/en/home/` rather than the redirect `/en/`. Source, live and installed Local MU-plugin hashes match; live PHP syntax and sitemap URL assertions pass. Ordinary theme deployment does not copy MU plugins.
+
+Moved live Sample Page, ID 2, to WordPress Trash as requested. `/sample-page/` returns HTTP 404, and the page sitemap has only the six authored LV/EN homepage, food and privacy pages. Local Sample Page content was not changed. Pre-change live database backup: `/var/backups/janogago/search-console-20261010.Ig7P21/database.sql`.
+
+Submitted `sitemap_index.xml` and, after the initial fetch status, `page-sitemap.xml` through Search Console. Both submission dialogs confirmed success, but the Sitemaps report initially showed `Couldn't fetch`, type Unknown and zero discovered pages. Google's live URL test of `sitemap_index.xml` confirmed Crawl allowed = Yes and Page fetch = Successful on 2026-10-10. Its `noindex` header applies to the XML document, not to the pages listed inside it. No server, DNS or robots blocker was found. Googlebot also received HTTP 200 for the sitemap in the live Nginx log. Sitemap processing status needs a later check; do not claim it is already Success.
+
+Confirmed Search Console's `Indexing requested` dialog for all four main URLs: `/`, `/en/home/`, `/edieni/` and `/en/food/`. Each passed Google's automatic live eligibility check and was added to the priority crawl queue. This is a request, not confirmation that the URLs are already indexed. Manual actions report shows `No issues detected`. The Latvian homepage was newly crawled during setup and initially showed `Crawled - currently not indexed`; the other three were initially unknown to Google.
+
+## Analytics setup completed, 2026-10-10
+
+Created a dedicated Google Analytics account **JāņogaGO** (`411473984`) through live Site Kit, with property **janogago.lv** (`558230683`), web stream `16100796142`, measurement ID `G-0FNW1GE9X7`, and Latvia timezone. The user approved accepting the required Analytics and GDPR agreements. Enhanced Measurement was off during creation; optional Google account-sharing settings were all off. Site Kit confirmed initial setup complete and shows Search Console and Analytics gathering data, with up to 72 hours for dashboard statistics.
+
+Live `jg_privacy` now enables `G-0FNW1GE9X7` while preserving its other options and page IDs. Disabled Site Kit's automatic snippet and plugin conversion tracking; the existing consent MU plugin still blocks duplicate/unconditional tags. Changed only the two future/disabled Analytics statements in each live privacy page to describe current consent-based collection. Controller details were already present. Local configuration/content and theme code were not changed. Live browser verification found no Google tag before acceptance, exactly one correct tag after acceptance, and no tag after withdrawal/reload. The verification browser was left rejecting Analytics. Event receipt in GA reports, property retention and `generate_lead` key-event classification have not been checked. Website rollback: `/var/backups/janogago/analytics-20261010.Z32a6G/database.sql`; Google account creation is separate from this backup. See `docs/analytics-consent.md` for the current configuration; earlier disabled/pending entries are historical.
