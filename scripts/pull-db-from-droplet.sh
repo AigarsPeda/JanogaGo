@@ -32,6 +32,7 @@ BACKUP_KEEP="${BACKUP_KEEP:-3}"
 
 ASSUME_YES=0
 TEMP_DIR=""
+REMOTE_STAGE=""
 
 usage() {
 	cat <<'EOF'
@@ -45,7 +46,8 @@ Replace the local WordPress database with the droplet database. The script:
   5. synchronizes uploads from the droplet into Local;
   6. flushes caches and rewrite rules.
 
-This replaces local pages, menus, settings, users, and plugin data.
+This replaces local pages, menus, settings, users, and plugin data, except
+email configuration, mail logs/queues and scheduled jobs, which stay local.
 Uploads are copied from the droplet without deleting Local-only files.
 Without --yes, type PULL when prompted.
 
@@ -67,8 +69,11 @@ die() {
 
 cleanup() {
 	if [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ]; then
-		rm -f -- "$TEMP_DIR/droplet.sql"
+		rm -f -- "$TEMP_DIR/droplet.sql" "$TEMP_DIR/options.sql"
 		rmdir "$TEMP_DIR" 2>/dev/null || true
+	fi
+	if [ -n "$REMOTE_STAGE" ]; then
+		ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "rm -rf -- '$REMOTE_STAGE'" >/dev/null 2>&1 || true
 	fi
 }
 trap cleanup EXIT
@@ -104,6 +109,7 @@ for arg in "$@"; do
 done
 
 command -v ssh >/dev/null 2>&1 || die "ssh is not installed."
+command -v scp >/dev/null 2>&1 || die "scp is not installed."
 command -v rsync >/dev/null 2>&1 || die "rsync is not installed."
 command -v gzip >/dev/null 2>&1 || die "gzip is not installed."
 command -v grep >/dev/null 2>&1 || die "grep is not installed."
@@ -155,19 +161,32 @@ local_wp --skip-plugins --skip-themes db export "$LOCAL_BACKUP" --add-drop-table
 gzip -f "$LOCAL_BACKUP"
 printf 'Local rollback backup: %s.gz\n' "$LOCAL_BACKUP"
 
+# Options are merged separately so source mail credentials never enter the dump.
+LOCAL_PREFIX="$(local_wp --skip-plugins --skip-themes db prefix)"
+REMOTE_PREFIX="$(ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "wp --allow-root --path='$REMOTE_WP_PATH' --skip-plugins --skip-themes db prefix")"
+[ "$LOCAL_PREFIX" = "$REMOTE_PREFIX" ] || die "Database table prefixes differ. Local was not changed."
+REMOTE_STAGE="$(ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "umask 077; mktemp -d /tmp/janogago-db-policy.XXXXXX")"
+scp -q "${SSH_ARGS[@]}" "$SCRIPT_DIR/wordpress-db-sync.php" "$REMOTE_HOST:$REMOTE_STAGE/policy.php"
+LOCAL_EXCLUDED="$(local_wp --skip-plugins --skip-themes eval-file "$SCRIPT_DIR/wordpress-db-sync.php" excluded-tables)"
+REMOTE_EXCLUDED="$(ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "wp --allow-root --path='$REMOTE_WP_PATH' --skip-plugins --skip-themes eval-file '$REMOTE_STAGE/policy.php' excluded-tables")"
+ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" \
+	"wp --allow-root --path='$REMOTE_WP_PATH' --skip-plugins --skip-themes eval-file '$REMOTE_STAGE/policy.php' options-sql '$REMOTE_URL' '$LOCAL_URL'" > "$TEMP_DIR/options.sql"
+
 printf 'Exporting the droplet database...\n'
 ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" \
-	"wp --allow-root --path='$REMOTE_WP_PATH' --skip-plugins --skip-themes db export - --add-drop-table --quiet" \
+	"wp --allow-root --path='$REMOTE_WP_PATH' --skip-plugins --skip-themes db export - --add-drop-table --exclude_tables='$REMOTE_EXCLUDED' --quiet" \
 	> "$REMOTE_DUMP"
 
 [ -s "$REMOTE_DUMP" ] || die "The droplet export is empty. Local was not changed."
 grep -q 'CREATE TABLE' "$REMOTE_DUMP" || die "The droplet export does not look like a SQL dump. Local was not changed."
 
+cat "$TEMP_DIR/options.sql" >> "$REMOTE_DUMP"
+
 printf 'Importing the droplet database into Local...\n'
 local_wp --skip-plugins --skip-themes db import "$REMOTE_DUMP"
-local_wp search-replace \
+local_wp --skip-plugins --skip-themes search-replace \
 	"$REMOTE_URL" "$LOCAL_URL" \
-	--all-tables-with-prefix --precise --skip-columns=guid --report-changed-only
+	--all-tables-with-prefix --skip-tables="$LOCAL_EXCLUDED,$REMOTE_EXCLUDED" --precise --skip-columns=guid --report-changed-only
 local_wp --skip-plugins --skip-themes option update home "$LOCAL_URL"
 local_wp --skip-plugins --skip-themes option update siteurl "$LOCAL_URL"
 
@@ -185,5 +204,5 @@ ACTUAL_HOME="$(local_wp --skip-plugins --skip-themes option get home)"
 
 prune_local_backups
 
-printf 'Local database now matches the droplet.\n'
+printf 'Local database refreshed; local email settings and mail queues were preserved.\n'
 printf 'Rollback backup: %s.gz\n' "$LOCAL_BACKUP"

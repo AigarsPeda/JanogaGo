@@ -75,9 +75,15 @@ Before applying, it creates a private database backup plus page, marker and medi
 
 For combined food releases, use the release script above. For other combined content and code changes, back up the existing theme and dry-run both relevant scripts first. Check LV/EN in the browser after deployment. Routine edits made directly in live WordPress need no deployment; content sync intentionally replaces the selected live homepage blocks with Local's versions.
 
-To bring the live database and uploads back into Local, `scripts/pull-db-from-droplet.sh` already backs up the local database and then imports the droplet state. It replaces all local WordPress data, so use it only when a complete local refresh is intended.
+To bring the live database and uploads back into Local, `scripts/pull-db-from-droplet.sh` backs up the local database and then imports the droplet state. It replaces local WordPress data except the environment-specific email settings and runtime queues described below. Use it only when a complete local refresh is intended.
 
 Do not use `push-db-to-droplet.sh --yes` for a routine code/content release: it replaces the whole live database and requires explicit authorization for that replacement.
+
+Both full database scripts preserve the destination's WP Mail SMTP options, connections and authentication tokens, legacy SMTP settings, administrator email and pending email-change state, and `jg_enquiry_recipient`. They exclude source mail settings from the transfer, leave mail log/queue/task tables in place, and preserve WP-Cron and Action Scheduler jobs. Ordinary options transfer separately in an atomic merge with serialized URLs converted. URL replacement skips protected mail tables and options. The sites must have matching table prefixes and InnoDB options tables; the scripts stop before import otherwise. Rollback backups remain complete and stay in the environment where they were created.
+
+Configure **WP Mail SMTP → Settings** and **Settings → General → Enquiry recipient** separately on Local and the droplet. No shared mail configuration file is deployed. Theme, uploads, homepage and catalog sync already leave these settings unchanged. If another mail plugin is introduced, update `scripts/wordpress-db-sync.php` to protect its options and tables too.
+
+`scripts/tests/db-sync-mail.php` checks both directions with temporary SQL tables on Local, using WP-CLI `--skip-plugins --skip-themes eval-file`. It checks credential exclusion, unchanged destination options, an unconfigured destination, queue-table exclusions and serialized URL conversion. It does not send mail or replace either site's database.
 
 The local-only integration test is `scripts/tests/content-sync.php`. Run it with Local's WP-CLI using `--skip-themes eval-file`. It creates and removes temporary pages, image and GLB fixtures, tests import/export, reference mapping, dimensions and repeated runs, and refuses sites whose hostname does not end in `.local`.
 
