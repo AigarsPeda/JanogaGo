@@ -46,7 +46,7 @@ Replace the droplet WordPress database with the local database. The script:
   5. flushes caches and rewrite rules.
 
 This overwrites production pages, menus, settings, users, and plugin data, except
-email configuration, mail logs/queues and scheduled jobs, which stay on the droplet.
+email connection settings, mail logs/queues and scheduled jobs, which stay on the droplet.
 It does not copy files from wp-content/uploads.
 Without --yes, type PUSH TO PRODUCTION when prompted.
 
@@ -158,7 +158,7 @@ scp -q "${SSH_ARGS[@]}" "$SCRIPT_DIR/wordpress-db-sync.php" "$REMOTE_HOST:$REMOT
 LOCAL_EXCLUDED="$(local_wp --skip-plugins --skip-themes eval-file "$SCRIPT_DIR/wordpress-db-sync.php" excluded-tables)"
 REMOTE_EXCLUDED="$(ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "wp --allow-root --path='$REMOTE_WP_PATH' --skip-plugins --skip-themes eval-file '$REMOTE_STAGE/policy.php' excluded-tables")"
 
-printf 'Preparing the local database without email settings...\n'
+printf 'Preparing the local database without email connection settings...\n'
 LOCAL_TABLES="$(local_wp --skip-plugins --skip-themes eval-file "$SCRIPT_DIR/wordpress-db-sync.php" included-tables)"
 [ -n "$LOCAL_TABLES" ] || die "No transferable Local tables were found. Production was not changed."
 local_wp --skip-plugins --skip-themes db export "$LOCAL_EXPORT" --tables="$LOCAL_TABLES" --add-drop-table --quiet
@@ -187,5 +187,5 @@ ACTUAL_REMOTE_HOME="$(ssh "${SSH_ARGS[@]}" "$REMOTE_HOST" "wp --allow-root --pat
 
 curl --fail --silent --show-error --location "$REMOTE_URL/" >/dev/null
 
-printf 'Droplet database replaced with droplet email settings and mail queues preserved; verified at %s\n' "$REMOTE_URL"
+printf 'Droplet database replaced with droplet email connection settings and mail queues preserved; verified at %s\n' "$REMOTE_URL"
 printf 'Remote rollback backup: %s\n' "$REMOTE_BACKUP"

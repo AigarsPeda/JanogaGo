@@ -3,7 +3,7 @@
 
 function jgds_mail_option_rules() {
 	return array(
-		'exact' => array( 'admin_email', 'new_admin_email', 'adminhash', 'jg_enquiry_recipient', 'mailer', 'cron' ),
+		'exact' => array( 'new_admin_email', 'adminhash', 'mailer', 'cron' ),
 		'prefix' => array( 'wp_mail_smtp', 'wpmailsmtp', 'smtp_', 'pepipost_', 'mail_from', 'mail_set_return_path', 'mailserver_', '_transient_wp_mail_smtp', '_transient_timeout_wp_mail_smtp', '_transient_wpmailsmtp', '_transient_timeout_wpmailsmtp', 'action_scheduler_', 'schema-ActionScheduler_' ),
 	);
 }

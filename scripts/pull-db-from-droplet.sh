@@ -47,7 +47,7 @@ Replace the local WordPress database with the droplet database. The script:
   6. flushes caches and rewrite rules.
 
 This replaces local pages, menus, settings, users, and plugin data, except
-email configuration, mail logs/queues and scheduled jobs, which stay local.
+email connection settings, mail logs/queues and scheduled jobs, which stay local.
 Uploads are copied from the droplet without deleting Local-only files.
 Without --yes, type PULL when prompted.
 
@@ -204,5 +204,5 @@ ACTUAL_HOME="$(local_wp --skip-plugins --skip-themes option get home)"
 
 prune_local_backups
 
-printf 'Local database refreshed; local email settings and mail queues were preserved.\n'
+printf 'Local database refreshed; local email connection settings and mail queues were preserved.\n'
 printf 'Rollback backup: %s.gz\n' "$LOCAL_BACKUP"

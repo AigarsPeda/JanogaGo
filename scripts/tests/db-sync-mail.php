@@ -15,6 +15,7 @@ mkdir( $directory, 0700 );
 $before = hash( 'sha256', serialize( $wpdb->get_results( "SELECT * FROM `$wpdb->options` ORDER BY option_name", ARRAY_A ) ) );
 $rules = jgds_mail_option_rules();
 $protected = $rules['exact'];
+$protected[] = 'wp_mail_smtp';
 foreach ( $rules['prefix'] as $prefix ) { $protected[] = $prefix . '_fixture'; }
 try {
 	jgds_assert( $wpdb->query( "CREATE TEMPORARY TABLE `$table` LIKE `$wpdb->options`" ) !== false, 'Cannot create temporary options table.' );
@@ -24,9 +25,20 @@ try {
 		$destination = array();
 		foreach ( $protected as $name ) {
 			$row = array( 'option_name' => $name, 'option_value' => 'destination-secret-' . $direction[0], 'autoload' => 'off' );
+			$source_value = 'source-secret-' . $direction[0];
+			if ( $name === 'wp_mail_smtp' ) {
+				$credentials = array( 'client_id', 'client_secret', 'access_token', 'refresh_token' );
+				$row['option_value'] = serialize( array( 'gmail' => array_fill_keys( $credentials, $row['option_value'] ) ) );
+				$source_value = serialize( array( 'gmail' => array_fill_keys( $credentials, $source_value ) ) );
+			}
 			$destination[$name] = $row;
 			$wpdb->insert( $table, $row );
-			$source[] = array( 'option_name' => $name, 'option_value' => 'source-secret-' . $direction[0], 'autoload' => 'on' );
+			$source[] = array( 'option_name' => $name, 'option_value' => $source_value, 'autoload' => 'on' );
+		}
+		$recipients = array( 'admin_email', 'jg_enquiry_recipient' );
+		foreach ( $recipients as $name ) {
+			$wpdb->insert( $table, array( 'option_name' => $name, 'option_value' => 'destination@example.test', 'autoload' => 'off' ) );
+			$source[] = array( 'option_name' => $name, 'option_value' => 'source@example.test', 'autoload' => 'on' );
 		}
 		$wpdb->insert( $table, array( 'option_name' => 'destination_only', 'option_value' => 'remove', 'autoload' => 'yes' ) );
 		$payload = array( 'url' => $direction[0] . '/ēdieni/', 'text' => "Quotes ' and \\ and \n" );
@@ -40,6 +52,7 @@ try {
 		$actual = array();
 		foreach ( $wpdb->get_results( "SELECT option_name, option_value, autoload FROM `$table`", ARRAY_A ) as $row ) { $actual[$row['option_name']] = $row; }
 		foreach ( $destination as $name => $row ) { jgds_assert( $actual[$name] === $row, 'Destination mail option or autoload changed.' ); }
+		foreach ( $recipients as $name ) { jgds_assert( $actual[$name]['option_value'] === 'source@example.test' && $actual[$name]['autoload'] === 'on', 'Recipient setting did not synchronize.' ); }
 		jgds_assert( ! isset( $actual['destination_only'] ), 'Stale content setting survived the replacement.' );
 		$payload['url'] = $direction[1] . '/ēdieni/';
 		jgds_assert( $actual['content_setting']['option_value'] === serialize( $payload ), 'Serialized URL or text was damaged.' );
@@ -48,6 +61,7 @@ try {
 		$wpdb->query( "DELETE FROM `$table`" );
 		foreach ( explode( ";\n", trim( $sql ) ) as $statement ) { if ( trim( $statement ) !== '' ) { $wpdb->query( $statement ); } }
 		jgds_assert( (int) $wpdb->get_var( "SELECT COUNT(*) FROM `$table` WHERE " . jgds_protected_options_sql() ) === 0, 'Source mail settings appeared on an unconfigured destination.' );
+		foreach ( $recipients as $name ) { jgds_assert( $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM `$table` WHERE option_name = %s", $name ) ) === 'source@example.test', 'Recipient setting was not copied to an unconfigured destination.' ); }
 	}
 	$tables = array( 'jg_options', 'jg_posts', 'jg_wpmailsmtp_emails_queue', 'jg_wp_mail_smtp_logs', 'jg_actionscheduler_actions', 'other_options' );
 	jgds_assert( jgds_excluded_tables( 'jg_', $tables ) === array( 'jg_options', 'jg_wpmailsmtp_emails_queue', 'jg_wp_mail_smtp_logs', 'jg_actionscheduler_actions' ), 'Table exclusions did not respect the site prefix.' );
@@ -66,7 +80,7 @@ try {
 		unlink( $file );
 	}
 	jgds_assert( $before === hash( 'sha256', serialize( $wpdb->get_results( "SELECT * FROM `$wpdb->options` ORDER BY option_name", ARRAY_A ) ) ), 'Real WordPress options changed during tests.' );
-	WP_CLI::success( 'Both directions preserve mail settings, exclude source secrets and queues, and correctly replace serialized content settings. Real site options are unchanged.' );
+	WP_CLI::success( 'Both directions synchronize recipients, preserve SMTP/OAuth credentials, exclude source secrets and queues, and correctly replace serialized content settings. Real site options are unchanged.' );
 } finally {
 	$wpdb->query( "DROP TEMPORARY TABLE IF EXISTS `$table`" );
 	foreach ( glob( "$directory/*.sql" ) as $file ) { unlink( $file ); }
